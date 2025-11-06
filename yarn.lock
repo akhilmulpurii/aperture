@@ -1076,20 +1076,20 @@
   dependencies:
     langium "3.3.1"
 
-"@mux/mux-video-react@^0.26.1":
-  version "0.26.1"
-  resolved "https://registry.yarnpkg.com/@mux/mux-video-react/-/mux-video-react-0.26.1.tgz#c7119868034210e4ee4897c2058b1057addc343b"
-  integrity sha512-uXRqRazYTFsf+mEpO+kQjsfFARODriqJQi8oKGITRGwGifDohxiecJydzQG8rSa7EJgZyS/3sHDRaQ/EiyUmiw==
+"@mux/mux-video-react@^0.27.2":
+  version "0.27.2"
+  resolved "https://registry.yarnpkg.com/@mux/mux-video-react/-/mux-video-react-0.27.2.tgz#6d5e4b4a6885bc0630ed12c9a3086e2d62827c5f"
+  integrity sha512-ex50NC/JTs5LLJ2WkPqvVDFVrde1o9dIQlYk+16ESyweDhBh8fqH+AYEcs/kIqqRiV20iq9sTG7XfaHxkDeF2g==
   dependencies:
-    "@mux/playback-core" "0.30.1"
+    "@mux/playback-core" "0.31.2"
     prop-types "^15.8.1"
 
-"@mux/playback-core@0.30.1":
-  version "0.30.1"
-  resolved "https://registry.yarnpkg.com/@mux/playback-core/-/playback-core-0.30.1.tgz#53cd2c65bdb30053be41dedce85b3bb07f58ff6b"
-  integrity sha512-rnO1NE9xHDyzbAkmE6ygJYcD7cyyMt7xXqWTykxlceaoSXLjUqgp42HDio7Lcidto4x/O4FIa7ztjV2aCBCXgQ==
+"@mux/playback-core@0.31.2":
+  version "0.31.2"
+  resolved "https://registry.yarnpkg.com/@mux/playback-core/-/playback-core-0.31.2.tgz#b2111bec28096ff0edf5d9533428c96fcbec5638"
+  integrity sha512-bhOVTGAuKCQuDzNOc3XvDq7vsgqy2DAacLP0WdJciUKjfZhs3oA11NbKG7qAN6akPnZVfgn0Jn/sJN8TRjE30A==
   dependencies:
-    hls.js "~1.6.6"
+    hls.js "~1.6.13"
     mux-embed "^5.8.3"
 
 "@napi-rs/wasm-runtime@^1.0.5":
@@ -4564,19 +4564,10 @@ hastscript@^9.0.0:
     property-information "^7.0.0"
     space-separated-tokens "^2.0.0"
 
-hls-video-element@^1.5.6:
-  version "1.5.8"
-  resolved "https://registry.yarnpkg.com/hls-video-element/-/hls-video-element-1.5.8.tgz#9b3ad1371d603a04b6d129a8aac5e3add7a41ede"
-  integrity sha512-DdeX5NzhM2Bj+ls5aaRrzSSnriK+r6lCrDa0YyfviNO4zb10JyAnJHZM214lXBWQghCm+fKmlWW1qpzdNoSAvQ==
-  dependencies:
-    custom-media-element "^1.4.5"
-    hls.js "^1.6.5"
-    media-tracks "^0.3.3"
-
-hls.js@^1.6.5, hls.js@~1.6.6:
-  version "1.6.13"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.6.13.tgz#fcf2823f17aaf9127b9011ef135cae5d2520ab75"
-  integrity sha512-hNEzjZNHf5bFrUNvdS4/1RjIanuJ6szpWNfTaX5I6WfGynWXGT7K/YQLYtemSvFExzeMdgdE4SsyVLJbd5PcZA==
+hls.js@~1.6.13:
+  version "1.6.14"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.6.14.tgz#acee6b3b7ea878d01adbd5af554199e2d3a12a0e"
+  integrity sha512-CSpT2aXsv71HST8C5ETeVo+6YybqCpHBiYrCRQSn3U5QUZuLTSsvtq/bj+zuvjLVADeKxoebzo16OkH8m1+65Q==
 
 hoist-non-react-statics@^3.3.1:
   version "3.3.2"
@@ -5355,11 +5346,6 @@ media-chrome@^4.14.0:
   integrity sha512-IEdFb4blyF15vLvQzLIn6USJBv7Kf2ne+TfLQKBYI5Z0f9VEBVZz5MKy4Uhi0iA9lStl2S9ENIujJRuJIa5OiA==
   dependencies:
     ce-la-react "^0.3.0"
-
-media-tracks@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/media-tracks/-/media-tracks-0.3.3.tgz#cca72bd791dcb76cd6427dfa6b2baa25601ea192"
-  integrity sha512-9P2FuUHnZZ3iji+2RQk7Zkh5AmZTnOG5fODACnjhCVveX1McY3jmCRHofIEI+yTBqplz7LXy48c7fQ3Uigp88w==
 
 merge-value@^1.0.0:
   version "1.0.0"

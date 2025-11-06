@@ -11,6 +11,57 @@ import { JellyfinUserWithToken } from "../types/jellyfin";
 import { v4 as uuidv4 } from "uuid";
 import { StoreAuthData } from "./store/store-auth-data";
 
+const HEVC_MEDIA_TYPES = [
+  'video/mp4; codecs="hvc1.1.6.L93.B0"',
+  'video/mp4; codecs="hvc1.1.6.L120.B0"',
+  'video/mp4; codecs="hev1.1.6.L93.B0"',
+  'video/mp4; codecs="hev1.1.6.L120.B0"',
+];
+
+let cachedHevcSupport: boolean | null = null;
+
+function canBrowserDirectPlayHevc(): boolean {
+  if (cachedHevcSupport !== null) return cachedHevcSupport;
+
+  if (typeof navigator === "undefined") {
+    cachedHevcSupport = false;
+    return cachedHevcSupport;
+  }
+
+  const ua = navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(ua);
+  const isSafari =
+    /safari/.test(ua) && !/chrome|crios|android|fxios|edg/.test(ua);
+  const isAppleDevice = isIOS || (isSafari && /macintosh|mac os/.test(ua));
+
+  if (!isAppleDevice) {
+    cachedHevcSupport = false;
+    return cachedHevcSupport;
+  }
+
+  const mediaSourceSupported =
+    typeof MediaSource !== "undefined" &&
+    typeof MediaSource.isTypeSupported === "function" &&
+    HEVC_MEDIA_TYPES.some((type) => MediaSource.isTypeSupported(type));
+
+  if (mediaSourceSupported) {
+    cachedHevcSupport = true;
+    return cachedHevcSupport;
+  }
+
+  if (typeof document !== "undefined") {
+    const video = document.createElement("video");
+    const canPlay = HEVC_MEDIA_TYPES.some(
+      (type) => video.canPlayType(type) === "probably"
+    );
+    cachedHevcSupport = canPlay;
+    return cachedHevcSupport;
+  }
+
+  cachedHevcSupport = false;
+  return cachedHevcSupport;
+}
+
 export async function getAuthData(): Promise<{
   serverUrl: string;
   user: JellyfinUserWithToken;
@@ -118,11 +169,15 @@ export async function getStreamUrl(
   audioStreamIndex: number = 1
 ): Promise<string> {
   const { serverUrl, user } = await getAuthData();
+  const supportsHevc = canBrowserDirectPlayHevc();
+  const preferredVideoCodecs = supportsHevc ? "h264,hevc" : "h264";
+  const requireAvc = (!supportsHevc).toString();
+  const allowVideoStreamCopy = supportsHevc.toString();
 
   // Generate a unique PlaySessionId for each stream request
   const playSessionId = uuidv4();
 
-  let url = `${serverUrl}/Videos/${itemId}/master.m3u8?api_key=${user.AccessToken}&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&VideoCodec=h264,hevc&AudioCodec=aac,mp3&TranscodingProfile=Default&AudioStreamIndex=${audioStreamIndex}`;
+  let url = `${serverUrl}/Videos/${itemId}/master.m3u8?api_key=${user.AccessToken}&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&VideoCodec=${preferredVideoCodecs}&AudioCodec=aac,mp3&TranscodingProtocol=hls&RequireAvc=${requireAvc}&AllowVideoStreamCopy=${allowVideoStreamCopy}&AudioStreamIndex=${audioStreamIndex}`;
 
   // Apply custom bitrate if specified (takes precedence over quality presets)
   if (videoBitrate && videoBitrate > 0) {

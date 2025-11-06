@@ -19,7 +19,6 @@ import {
   MediaPlayerSettings,
   MediaPlayerTooltip,
 } from "../components/ui/media-player";
-import MuxVideo from "@mux/mux-video-react";
 import {
   ArrowLeft,
   RotateCcw,
@@ -40,7 +39,7 @@ import {
   getAudioTracks,
 } from "../actions";
 import { getSubtitleContent } from "../actions/subtitles";
-import HlsVideoElement from "hls-video-element/react";
+import MuxVideo from "@mux/mux-video-react";
 import { formatRuntime } from "../lib/utils";
 import {
   Popover,
@@ -50,11 +49,6 @@ import {
 import { ProgressiveBlur } from "../components/motion-primitives/progressive-blur";
 import { useAuth } from "../hooks/useAuth";
 import { useSettings, BITRATE_OPTIONS } from "../contexts/settings-context";
-import {
-  detectDevice,
-  getDeviceName,
-  isHLSSupported,
-} from "../lib/device-detection";
 import { fetchIntroOutro } from "../actions/media";
 import { decode } from "blurhash";
 import DisplayEndTime from "./display-end-time";
@@ -666,9 +660,6 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
               // @ts-ignore
               ref={videoRef}
               src={streamUrl}
-              // src={
-              //   "https://stream.mux.com/A3VXy02VoUinw01pwyomEO3bHnG4P32xzV7u1j1FSzjNg.m3u8"
-              // }
               crossOrigin=""
               playsInline
               preload="auto"
