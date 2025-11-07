@@ -49,6 +49,7 @@ export {
   getDownloadUrl,
   getStreamUrl,
   getDirectStreamUrl,
+  getThemeSongStreamUrl,
   getSubtitleTracks,
   getAudioTracks,
   getUserLibraries,

@@ -1,4 +1,5 @@
 import { UserLibraryApi } from "@jellyfin/sdk/lib/generated-client/api/user-library-api";
+import { LibraryApi } from "@jellyfin/sdk/lib/generated-client/api/library-api";
 import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
 import {
@@ -229,6 +230,42 @@ export async function getDirectStreamUrl(
   }
 
   return `${serverUrl}/Videos/${itemId}/stream.${container}?${params.toString()}`;
+}
+
+export async function getThemeSongStreamUrl(
+  itemId: string
+): Promise<string | null> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
+
+    const libraryApi = new LibraryApi(api.configuration);
+    const { data } = await libraryApi.getThemeSongs({
+      itemId,
+      userId: user.Id,
+      inheritFromParent: true,
+    });
+
+    const themeSong = data.Items?.[0];
+    if (!themeSong?.Id) {
+      return null;
+    }
+
+    const params = new URLSearchParams({
+      api_key: user.AccessToken!,
+      Static: "true",
+      UserId: user.Id!,
+    });
+
+    return `${serverUrl}/Audio/${themeSong.Id}/stream?${params.toString()}`;
+  } catch (error) {
+    console.warn("Failed to fetch theme song:", error);
+    return null;
+  }
 }
 
 export async function getSubtitleTracks(
