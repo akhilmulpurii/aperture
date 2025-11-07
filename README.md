@@ -110,4 +110,13 @@ Tauri desktop bundles can be generated with:
 yarn tauri build
 ```
 
-> **Note:** Native builds(tauri) are **not actively supported** right now. The priority is delivering the best possible web experience first. Feel free to experiment and report issues, but expect slower turnaround on desktop-specific bugs until native support resumes.
+> **Note:** Native builds (tauri) are **not actively supported** right now. The priority is delivering the best possible web experience first. Feel free to experiment and report issues, but expect slower turnaround on desktop-specific bugs until native support resumes.
+
+### Public HTTP Jellyfin Servers
+
+The hosted app at `https://samaura.vercel.app` runs over HTTPS. Modern browsers block requests from an HTTPS site to **public** HTTP endpoints for security reasons, which means remote servers such as `http://23.x.x.x:8096` cannot be reached. To use Samaura with a public server:
+
+1. Add HTTPS to your Jellyfin instance (Let's Encrypt, Caddy/NGINX reverse proxy, Cloudflare tunnel, etc.), or
+2. Run Samaura locally (Vite dev server, Docker, or the Tauri build) over HTTP.
+
+LAN/private IPs (192.168.x.x, 10.x.x.x, etc.) generally still work over HTTP because browsers treat them as “private network” resources, but for anything exposed to the internet you’ll need HTTPS.
