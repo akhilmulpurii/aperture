@@ -8,9 +8,13 @@ import { Skeleton } from "./ui/skeleton";
 
 interface SeriesPlayButtonProps {
   series: JellyfinItem;
+  onBeforePlay?: () => void;
 }
 
-export function SeriesPlayButton({ series }: SeriesPlayButtonProps) {
+export function SeriesPlayButton({
+  series,
+  onBeforePlay,
+}: SeriesPlayButtonProps) {
   const [nextEpisode, setNextEpisode] = useState<JellyfinItem | null>(null);
   const [loading, setLoading] = useState(true);
   const { playMedia, setIsPlayerVisible } = useMediaPlayer();
@@ -37,6 +41,7 @@ export function SeriesPlayButton({ series }: SeriesPlayButtonProps) {
     if (!nextEpisode) return;
 
     try {
+      onBeforePlay?.();
       await playMedia({
         id: nextEpisode.Id!,
         name: nextEpisode.Name!,

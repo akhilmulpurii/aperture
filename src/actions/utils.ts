@@ -268,6 +268,42 @@ export async function getThemeSongStreamUrl(
   }
 }
 
+export async function getThemeVideoStreamUrl(
+  itemId: string
+): Promise<string | null> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
+
+    const libraryApi = new LibraryApi(api.configuration);
+    const { data } = await libraryApi.getThemeVideos({
+      itemId,
+      userId: user.Id,
+      inheritFromParent: true,
+    });
+
+    const themeVideo = data.Items?.[0];
+    if (!themeVideo?.Id) {
+      return null;
+    }
+
+    const params = new URLSearchParams({
+      api_key: user.AccessToken!,
+      Static: "true",
+      UserId: user.Id!,
+    });
+
+    return `${serverUrl}/Videos/${themeVideo.Id}/stream?${params.toString()}`;
+  } catch (error) {
+    console.warn("Failed to fetch theme video:", error);
+    return null;
+  }
+}
+
 export async function getSubtitleTracks(
   itemId: string,
   mediaSourceId: string

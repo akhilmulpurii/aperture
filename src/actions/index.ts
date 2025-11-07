@@ -50,6 +50,7 @@ export {
   getStreamUrl,
   getDirectStreamUrl,
   getThemeSongStreamUrl,
+  getThemeVideoStreamUrl,
   getSubtitleTracks,
   getAudioTracks,
   getUserLibraries,

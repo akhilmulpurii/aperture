@@ -34,20 +34,22 @@ import {
 } from "../lib/utils";
 import { useMediaPlayer } from "../contexts/MediaPlayerContext";
 import { DolbyDigital, DolbyTrueHd, DolbyVision, DtsHd } from "./icons/codecs";
-import { useThemeSongPlayer } from "../hooks/useThemeSongPlayer";
 
 interface MediaActionsProps {
   movie?: JellyfinItem;
   show?: JellyfinItem;
   episode?: JellyfinItem;
+  onBeforePlay?: () => void;
 }
 
-export function MediaActions({ movie, show, episode }: MediaActionsProps) {
+export function MediaActions({
+  movie,
+  show,
+  episode,
+  onBeforePlay,
+}: MediaActionsProps) {
   const media = movie || show || episode;
   const { isPlayerVisible, setIsPlayerVisible, playMedia } = useMediaPlayer();
-  const { pauseForPlayback: pauseThemeSong } = useThemeSongPlayer(
-    media?.Id ?? null
-  );
   const [selectedVersion, setSelectedVersion] =
     useState<MediaSourceInfo | null>(null);
   const [userPolicy, setUserPolicy] = useState<UserPolicy | null>(null);
@@ -107,6 +109,7 @@ export function MediaActions({ movie, show, episode }: MediaActionsProps) {
             className="gap-0"
             onClick={() => {
               // Could redirect to a streaming service or handle differently
+              onBeforePlay?.();
             }}
           >
             <Play className="h-4 w-4 mr-2" />
@@ -234,7 +237,7 @@ export function MediaActions({ movie, show, episode }: MediaActionsProps) {
           onClick={async () => {
             // Set the current media in context, GlobalMediaPlayer will handle the rest
             if (media) {
-              pauseThemeSong();
+              onBeforePlay?.();
               await playMedia({
                 id: media.Id!,
                 name: media.Name!,

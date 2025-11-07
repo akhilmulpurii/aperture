@@ -19,8 +19,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../../components/loading-spinner";
+import { useThemeMedia } from "../../hooks/useThemeMedia";
 
-export default async function Episode() {
+export default function Episode() {
   const { id } = useParams<{ id: string }>();
   const [episode, setEpisode] = useState<BaseItemDto | null>();
   const [primaryImage, setPrimaryImage] = useState<string>("");
@@ -30,6 +31,16 @@ export default async function Episode() {
   const [serverUrl, setServerUrl] = useState<string | null>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
+  const {
+    themeVideoUrl,
+    videoRef,
+    showThemeVideo,
+    shouldShowBackdropImage,
+    handleVideoCanPlay,
+    handleVideoEnded,
+    handleVideoError,
+    pauseThemeMedia,
+  } = useThemeMedia(episode?.Id ?? null);
 
   useEffect(() => {
     async function fetchData() {
@@ -85,26 +96,48 @@ export default async function Episode() {
 
       {/* Backdrop section */}
       <div className="relative">
-        {/* Backdrop image with gradient overlay */}
+        {/* Backdrop video/image with gradient overlay */}
         <div className="relative h-[50vh] md:h-[70vh] overflow-hidden md:rounded-xl md:mt-2.5">
-          <BackdropImage
-            movie={episode}
-            backdropImage={backdropImage}
-            className="w-full h-full object-cover"
-            width={1920}
-            height={1080}
-          />
+          <div className="absolute inset-0 z-0">
+            {themeVideoUrl && (
+              <video
+                key={themeVideoUrl}
+                ref={videoRef}
+                src={themeVideoUrl}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                  showThemeVideo ? "opacity-100" : "opacity-0"
+                }`}
+                playsInline
+                autoPlay
+                onCanPlay={handleVideoCanPlay}
+                onEnded={handleVideoEnded}
+                onError={handleVideoError}
+              />
+            )}
+            <div
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                shouldShowBackdropImage ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <BackdropImage
+                movie={episode}
+                backdropImage={backdropImage}
+                className="w-full h-full object-cover"
+                width={1920}
+                height={1080}
+              />
+            </div>
+          </div>
+          <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-black/30 to-black/90 md:rounded-xl" />
+          <div className="absolute bottom-0 left-0 right-0 z-10 h-32 bg-gradient-to-t from-black to-transparent md:rounded-xl" />
           <VibrantLogo
             src={logoImage}
             alt={`${episode.SeriesName} logo`}
             movieName={episode.SeriesName || ""}
             width={300}
             height={96}
-            className="absolute md:top-5/12 top-4/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 max-h-20 md:max-h-24 w-auto object-contain max-w-2/3 invisible md:visible"
+            className="absolute md:top-5/12 top-4/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 max-h-20 md:max-h-24 w-auto object-contain max-w-2/3 invisible md:visible"
           />
-          {/* Enhanced gradient overlay for smooth transition to overview */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/90 md:rounded-xl" />
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent md:rounded-xl" />
         </div>
 
         {/* Search bar positioned over backdrop */}
@@ -233,7 +266,10 @@ export default async function Episode() {
             </div>
 
             <div className="px-8 md:pl-8 pt-4 md:pr-16 flex flex-col justify-center md:items-start items-center">
-              <MediaActions episode={episode} />
+              <MediaActions
+                episode={episode}
+                onBeforePlay={pauseThemeMedia}
+              />
 
               {episode.Taglines && (
                 <TextScramble
