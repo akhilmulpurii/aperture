@@ -9,8 +9,18 @@
 
 https://github.com/user-attachments/assets/5f536de2-de3f-4b2e-83bc-331ab88880ad
 
+https://github.com/user-attachments/assets/ebd8c289-658d-471d-98d3-c7fb3ae51d8e
+
 <div align="center">
   <table>
+    <tr>
+      <td align="center">
+        <img src="screenshots/series/theming.png" alt="Dark Theme" width="500">
+      </td>
+      <td align="center">
+        <img src="screenshots/series/quick_connect.png" alt="Dark Theme" width="500">
+      </td>
+    </tr>
     <tr>
       <td align="center">
         <img src="screenshots/series/light.png" alt="Light Theme" width="500">
@@ -18,8 +28,13 @@ https://github.com/user-attachments/assets/5f536de2-de3f-4b2e-83bc-331ab88880ad
       <td align="center">
         <img src="screenshots/series/dark.png" alt="Dark Theme" width="500">
       </td>
+    </tr>
+    <tr>
       <td align="center">
         <img src="screenshots/series/collections.png" alt="Dark Theme" width="500">
+      </td>
+      <td align="center">
+        <img src="screenshots/series/player.png" alt="Dark Theme" width="500">
       </td>
     </tr>
   </table>
