@@ -274,22 +274,7 @@ export function AppSidebar({
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="gap-2">
-                    <Monitor className="h-4 w-4" />
-                    <span>Theme</span>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    {THEME_OPTIONS.map(({ id, label, icon: Icon }) => (
-                      <DropdownMenuItem key={id} onClick={() => setTheme(id)}>
-                        <Icon className="h-4 w-4" />
-                        <span>{label}</span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
-                <DropdownMenuSeparator />
+                {/* <DropdownMenuSeparator /> */}
                 <DropdownMenuItem onClick={handleLogout} className="gap-2">
                   <LogOut className="h-4 w-4 text-red-600 dark:text-red-500" />
                   <span>Log out</span>
