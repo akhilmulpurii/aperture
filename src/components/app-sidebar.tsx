@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom"; // for React Router
 // @ts-ignore
 import Logo from "../assets/logo/samaura.png";
 
-import { useTheme } from "next-themes";
 import {
   Sidebar,
   SidebarContent,
@@ -68,7 +67,6 @@ export function AppSidebar({
   isTauriMac: boolean;
   isTauriFullscreen: boolean;
 }) {
-  const { setTheme } = useTheme();
   const { state } = useSidebar();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);

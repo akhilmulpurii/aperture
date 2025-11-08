@@ -15,7 +15,6 @@ import LoadingSpinner from "../../../components/loading-spinner";
 export default function LiveChannel() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [tvChannel, setTvChannel] = useState<any | null>(null);
   const [primaryImage, setPrimaryImage] = useState<string>("");
   const [backdropImage, setBackdropImage] = useState<string>("");

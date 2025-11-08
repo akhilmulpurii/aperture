@@ -27,7 +27,17 @@ function App() {
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
-      themes={["light", "dark", "aqua", "liquid-glass"]}
+      themes={[
+        "light",
+        "dark",
+        "neon-grid",
+        "emerald-ember",
+        "sunset-blocks",
+        "crimson-obelisk",
+        "peach-sorbet",
+        "lilac-dream",
+        "deep-velvet",
+      ]}
     >
       <AuthProvider>
         <SettingsProvider>

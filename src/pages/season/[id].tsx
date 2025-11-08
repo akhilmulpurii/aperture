@@ -25,7 +25,6 @@ import LoadingSpinner from "../../components/loading-spinner";
 export default function SeasonPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [season, setSeason] = useState<BaseItemDto | null>(null);
   const [episodes, setEpisodes] = useState<BaseItemDto[]>([]);
   const [primaryImage, setPrimaryImage] = useState<string>("");

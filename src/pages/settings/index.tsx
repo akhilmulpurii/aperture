@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useAtom } from "jotai";
 import { useTheme } from "next-themes";
 import {
@@ -17,25 +17,45 @@ import { cn } from "../../lib/utils";
 import { themeSelectionAtom } from "../../lib/atoms";
 
 export default function SettingsPage() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [selectedTheme, setSelectedTheme] = useAtom(themeSelectionAtom);
 
   useEffect(() => {
-    if (selectedTheme.family !== "Default") return;
+    if (!theme) return;
 
-    switch (selectedTheme.variant) {
-      case "Light":
-        setTheme("light");
-        break;
-      case "Dark":
-        setTheme("dark");
-        break;
-      case "Auto":
-      default:
-        setTheme("system");
-        break;
+    const variantFromTheme = THEME_VARIANTS.variants.find(
+      (variant) => variant.themeId === theme
+    );
+
+    if (
+      variantFromTheme &&
+      (selectedTheme.variant !== variantFromTheme.name ||
+        selectedTheme.family !== THEME_VARIANTS.name)
+    ) {
+      setSelectedTheme({
+        family: THEME_VARIANTS.name,
+        variant: variantFromTheme.name,
+      });
     }
-  }, [selectedTheme, setTheme]);
+  }, [theme, selectedTheme.family, selectedTheme.variant, setSelectedTheme]);
+
+  const handleVariantSelect = useCallback(
+    (variantName: string, themeId: string) => {
+      if (
+        selectedTheme.family === THEME_VARIANTS.name &&
+        selectedTheme.variant === variantName
+      ) {
+        return;
+      }
+
+      setSelectedTheme({
+        family: THEME_VARIANTS.name,
+        variant: variantName,
+      });
+      setTheme(themeId);
+    },
+    [selectedTheme.family, selectedTheme.variant, setSelectedTheme, setTheme]
+  );
 
   return (
     <div className="relative px-4 py-6 max-w-full overflow-hidden">
@@ -63,77 +83,78 @@ export default function SettingsPage() {
                 Dashboard Themes
               </CardTitle>
               <CardDescription>
-                Explore the theme families that will power the upcoming
-                dashboard theming system. Variant switching is under
-                development, but you can preview the lineup here.
+                Explore the palette families that power the dashboard theming
+                system and apply any variant instantly.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div
-                  key={THEME_VARIANTS.name}
-                  className="rounded-2xl border border-border/60 bg-card/70 p-4 shadow-sm transition hover:border-primary/60 hover:shadow-lg"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-lg text-foreground">
-                        {THEME_VARIANTS.name}
-                      </h3>
-                    </div>
-                    <Badge variant="secondary" className="text-[11px]">
-                      {THEME_VARIANTS.variants.length} variant
-                      {THEME_VARIANTS.variants.length !== 1 ? "s" : ""}
-                    </Badge>
-                  </div>
-                  <div className="mt-4 flex flex-col gap-2">
-                    {THEME_VARIANTS.variants.map((variant) => {
-                      const isSelected =
-                        selectedTheme?.family === THEME_VARIANTS.name &&
-                        selectedTheme.variant === variant.name;
-                      const gradient = `linear-gradient(135deg, ${variant.gradient.join(
-                        ", "
-                      )})`;
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-semibold text-lg text-foreground">
+                    {THEME_VARIANTS.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Quickly preview each palette and lock in your favorite look.
+                  </p>
+                </div>
+                <Badge variant="secondary" className="text-[11px]">
+                  {THEME_VARIANTS.variants.length} variant
+                  {THEME_VARIANTS.variants.length !== 1 ? "s" : ""}
+                </Badge>
+              </div>
 
-                      return (
-                        <button
-                          key={`${THEME_VARIANTS.name}-${variant.name}`}
-                          onClick={() =>
-                            setSelectedTheme({
-                              family: THEME_VARIANTS.name,
-                              variant: variant.name,
-                            })
-                          }
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {THEME_VARIANTS.variants.map((variant) => {
+                  const isSelected = selectedTheme?.variant === variant.name;
+                  const gradient = `linear-gradient(135deg, ${variant.gradient.join(
+                    ", "
+                  )})`;
+
+                  return (
+                    <button
+                      key={`${THEME_VARIANTS.name}-${variant.name}`}
+                      type="button"
+                      onClick={() =>
+                        handleVariantSelect(variant.name, variant.themeId)
+                      }
+                      className={cn(
+                        "group flex flex-col gap-2 rounded-2xl border bg-background/60 p-3 text-left transition focus-visible:outline focus-visible:outline-primary/40",
+                        isSelected
+                          ? "border-primary/60 bg-primary/5 shadow-[0_0_0_1px_rgba(59,130,246,0.2)]"
+                          : "border-border/60 hover:-translate-y-0.5 hover:border-primary/40"
+                      )}
+                    >
+                      <div className="relative h-20 overflow-hidden rounded-xl border border-white/15 bg-muted/40">
+                        <span
+                          className="absolute inset-0"
+                          style={{ background: gradient }}
+                        />
+                        <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/25 opacity-0 transition duration-300 group-hover:opacity-100" />
+                        {isSelected ? (
+                          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-background/80 text-primary shadow">
+                            <Check className="h-3.5 w-3.5" />
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="flex items-center justify-between text-sm font-medium text-foreground">
+                        {variant.name}
+                        <span
                           className={cn(
-                            "flex items-center justify-between rounded-xl border px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-primary/40",
-                            isSelected
-                              ? "border-primary bg-primary/10 text-primary-foreground"
-                              : "border-border bg-background/60 hover:border-primary/50"
+                            "text-[11px]",
+                            isSelected ? "text-primary" : "text-muted-foreground"
                           )}
                         >
-                          <div className="flex items-center gap-3">
-                            <span
-                              className="h-8 w-8 rounded-full border border-white/40 shadow-inner"
-                              style={{ background: gradient }}
-                            />
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
-                                {variant.name}
-                              </span>
-                              {variant.description && (
-                                <span className="text-xs text-muted-foreground">
-                                  {variant.description}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {isSelected ? (
-                            <Check className="h-4 w-4 text-primary" />
-                          ) : null}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                          {isSelected ? "Active" : "Preview"}
+                        </span>
+                      </div>
+                      {variant.description ? (
+                        <p className="text-xs text-muted-foreground leading-snug">
+                          {variant.description}
+                        </p>
+                      ) : null}
+                    </button>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

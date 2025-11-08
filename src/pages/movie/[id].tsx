@@ -27,7 +27,6 @@ import { useThemeMedia } from "../../hooks/useThemeMedia";
 export default function Movie() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [movie, setMovie] = useState<BaseItemDto | null>(null);
   const [primaryImage, setPrimaryImage] = useState<string>("");
   const [backdropImage, setBackdropImage] = useState<string>("");

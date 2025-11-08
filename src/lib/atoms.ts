@@ -79,7 +79,7 @@ export interface ThemePresetSelection {
 }
 
 const defaultThemeSelection: ThemePresetSelection = {
-  family: "Default",
+  family: "Choose theme",
   variant: "Auto",
 };
 

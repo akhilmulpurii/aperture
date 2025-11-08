@@ -30,7 +30,6 @@ import { useThemeMedia } from "../../hooks/useThemeMedia";
 export default function Show() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [show, setShow] = useState<BaseItemDto | null>(null);
   const [seasons, setSeasons] = useState<BaseItemDto[]>([]);
   const [primaryImage, setPrimaryImage] = useState<string>("");
