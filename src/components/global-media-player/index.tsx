@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { JellyfinItem, MediaSourceInfo } from "../types/jellyfin";
-import { TrickplayInfo } from "@jellyfin/sdk/lib/generated-client/models/trickplay-info";
-import { Button } from "../components/ui/button";
+import { JellyfinItem, MediaSourceInfo } from "../../types/jellyfin";
+import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MediaPlayer,
@@ -19,7 +18,7 @@ import {
   MediaPlayerVolume,
   MediaPlayerSettings,
   MediaPlayerTooltip,
-} from "../components/ui/media-player";
+} from "../ui/media-player";
 import {
   ArrowLeft,
   RotateCcw,
@@ -27,7 +26,7 @@ import {
   Users,
   FastForward,
 } from "lucide-react";
-import { useMediaPlayer } from "../contexts/MediaPlayerContext";
+import { useMediaPlayer } from "../../contexts/MediaPlayerContext";
 import {
   getStreamUrl,
   getDirectStreamUrl,
@@ -38,140 +37,21 @@ import {
   reportPlaybackProgress,
   reportPlaybackStopped,
   getAudioTracks,
-} from "../actions";
-import { getSubtitleContent } from "../actions/subtitles";
+} from "../../actions";
+import { getSubtitleContent } from "../../actions/subtitles";
 import MuxVideo from "@mux/mux-video-react";
-import { formatRuntime } from "../lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../components/ui/popover";
-import { ProgressiveBlur } from "../components/motion-primitives/progressive-blur";
-import { useAuth } from "../hooks/useAuth";
-import { useSettings, BITRATE_OPTIONS } from "../contexts/settings-context";
-import {
-  fetchIntroOutro,
-  fetchTrickplayTileImageUrl,
-} from "../actions/media";
+import { formatRuntime } from "../../lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useAuth } from "../../hooks/useAuth";
+import { useSettings, BITRATE_OPTIONS } from "../../contexts/settings-context";
+import { fetchIntroOutro } from "../../actions/media";
 import { decode } from "blurhash";
-import DisplayEndTime from "./display-end-time";
+import DisplayEndTime from "../display-end-time";
 import { v4 as uuidv4 } from "uuid";
+import { PlayerLoadingOverlay } from "./player-loading-overlay";
+import { useTrickplay } from "../../hooks/useTrickplay";
 
 interface GlobalMediaPlayerProps {}
-
-interface TrickplayConfig {
-  itemId: string;
-  mediaSourceId?: string;
-  width: number;
-  height: number;
-  tileWidth: number;
-  tileHeight: number;
-  intervalMs: number;
-  thumbnailCount?: number;
-}
-
-type TrickplayManifest =
-  | Record<string, Record<string, TrickplayInfo>>
-  | null
-  | undefined;
-
-function buildTrickplayConfig(
-  item: JellyfinItem,
-  options: { source?: MediaSourceInfo | null; fallbackItemId?: string }
-): TrickplayConfig | null {
-  const manifest = (item as JellyfinItem & {
-    Trickplay?: TrickplayManifest;
-  }).Trickplay as TrickplayManifest;
-
-  const resolvedItemId = item?.Id ?? options.fallbackItemId;
-  if (!resolvedItemId || !manifest) {
-    return null;
-  }
-
-  const availableSources = Object.entries(manifest).filter(
-    ([, widthMap]) => widthMap && Object.keys(widthMap).length > 0
-  );
-
-  if (availableSources.length === 0) {
-    return null;
-  }
-
-  const preferredSourceId =
-    (options.source?.Id && manifest[options.source.Id]
-      ? options.source.Id
-      : undefined) ?? availableSources[0][0];
-
-  const widthManifest = manifest[preferredSourceId];
-  if (!widthManifest) {
-    return null;
-  }
-
-  const widthEntries = Object.entries(widthManifest)
-    .map(([widthKey, info]) => ({
-      info,
-      numericWidth: info?.Width && info.Width > 0 ? info.Width : Number(widthKey),
-    }))
-    .filter(
-      (entry): entry is { info: TrickplayInfo; numericWidth: number } =>
-        !!entry.info && !!entry.numericWidth && entry.numericWidth > 0
-    );
-
-  if (widthEntries.length === 0) {
-    return null;
-  }
-
-  const maxWidth =
-    typeof window !== "undefined"
-      ? window.screen.width * (window.devicePixelRatio || 1) * 0.2
-      : Infinity;
-
-  let selected = widthEntries[0];
-  for (const entry of widthEntries) {
-    if (
-      !selected ||
-      (entry.numericWidth < selected.numericWidth &&
-        selected.numericWidth > maxWidth) ||
-      (entry.numericWidth > selected.numericWidth &&
-        entry.numericWidth <= maxWidth)
-    ) {
-      selected = entry;
-    }
-  }
-
-  const info = selected.info;
-  const width =
-    (info.Width && info.Width > 0 ? info.Width : selected.numericWidth) || 0;
-  const height =
-    (info.Height && info.Height > 0
-      ? info.Height
-      : Math.round(width * 0.5625)) || 0;
-  const tileWidth =
-    info.TileWidth && info.TileWidth > 0 ? info.TileWidth : 10;
-  const tileHeight =
-    info.TileHeight && info.TileHeight > 0 ? info.TileHeight : 10;
-  const intervalMs =
-    info.Interval && info.Interval > 0 ? info.Interval : 1000;
-  const thumbnailCount =
-    info.ThumbnailCount && info.ThumbnailCount > 0
-      ? info.ThumbnailCount
-      : undefined;
-
-  if (!width || !height || !tileWidth || !tileHeight || !intervalMs) {
-    return null;
-  }
-
-  return {
-    itemId: resolvedItemId,
-    mediaSourceId: preferredSourceId,
-    width,
-    height,
-    tileWidth,
-    tileHeight,
-    intervalMs,
-    thumbnailCount,
-  };
-}
 
 export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
   const {
@@ -229,6 +109,12 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     }>
   >([]);
 
+  const {
+    initializeTrickplay,
+    resetTrickplay,
+    renderThumbnail: renderTrickplayThumbnail,
+  } = useTrickplay();
+
   // Chapter state
   const [chapters, setChapters] = useState<
     Array<{
@@ -251,13 +137,6 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const blobUrlsRef = useRef<string[]>([]);
-  const [trickplayConfig, setTrickplayConfig] = useState<TrickplayConfig | null>(
-    null
-  );
-  const [trickplayCacheBuster, setTrickplayCacheBuster] = useState(0);
-  const trickplaySpriteCacheRef = useRef<Map<number, string>>(new Map());
-  const trickplayPendingFetchRef = useRef<Set<number>>(new Set());
 
   // Helper function to convert seconds to Jellyfin ticks (1 tick = 100 nanoseconds)
   const secondsToTicks = (seconds: number) => Math.floor(seconds * 10000000);
@@ -420,134 +299,10 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     }
   }, [currentMedia]);
 
-  // Helper function to clean up blob URLs
-  const cleanupBlobUrls = useCallback(() => {
-    blobUrlsRef.current.forEach((url) => {
-      try {
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.warn("Failed to revoke blob URL:", error);
-      }
-    });
-    blobUrlsRef.current = [];
-  }, []);
-
-  const clearTrickplaySprites = useCallback(() => {
-    trickplayPendingFetchRef.current.clear();
-
-    trickplaySpriteCacheRef.current.forEach((url) => {
-      if (
-        url &&
-        typeof URL !== "undefined" &&
-        typeof URL.revokeObjectURL === "function"
-      ) {
-        try {
-          URL.revokeObjectURL(url);
-        } catch (error) {
-          console.warn("Failed to revoke trickplay sprite URL:", error);
-        }
-      }
-    });
-
-    trickplaySpriteCacheRef.current.clear();
-    setTrickplayCacheBuster((prev) => prev + 1);
-  }, []);
-
-  const queueTrickplayTileFetch = useCallback(
-    (tileIndex: number) => {
-      if (!trickplayConfig) return;
-      if (
-        trickplaySpriteCacheRef.current.has(tileIndex) ||
-        trickplayPendingFetchRef.current.has(tileIndex)
-      ) {
-        return;
-      }
-
-      trickplayPendingFetchRef.current.add(tileIndex);
-
-      fetchTrickplayTileImageUrl(
-        trickplayConfig.itemId,
-        trickplayConfig.width,
-        tileIndex,
-        trickplayConfig.mediaSourceId
-      )
-        .then((url) => {
-          if (!url) {
-            return;
-          }
-
-          trickplaySpriteCacheRef.current.set(tileIndex, url);
-          setTrickplayCacheBuster((prev) => prev + 1);
-        })
-        .catch((error) => {
-          console.warn(
-            `Unable to load trickplay tile ${tileIndex} for ${trickplayConfig.itemId}`,
-            error
-          );
-        })
-        .finally(() => {
-          trickplayPendingFetchRef.current.delete(tileIndex);
-        });
-    },
-    [trickplayConfig]
-  );
-  const renderTrickplayThumbnail = useCallback(
-    (time: number) => {
-      if (!trickplayConfig || trickplayConfig.intervalMs <= 0) {
-        return null;
-      }
-
-      const safeTime = Math.max(0, time);
-      const calculatedFrameIndex = Math.floor(
-        (safeTime * 1000) / trickplayConfig.intervalMs
-      );
-      const frameIndex = calculatedFrameIndex;
-
-      const tilesPerImage = Math.max(
-        1,
-        trickplayConfig.tileWidth * trickplayConfig.tileHeight
-      );
-      const tileIndex = Math.floor(frameIndex / tilesPerImage);
-
-      const spriteUrl = trickplaySpriteCacheRef.current.get(tileIndex);
-
-      if (!spriteUrl) {
-        queueTrickplayTileFetch(tileIndex);
-        return null;
-      }
-
-      const frameWithinTile = frameIndex - tileIndex * tilesPerImage;
-      const column =
-        trickplayConfig.tileWidth > 0
-          ? frameWithinTile % trickplayConfig.tileWidth
-          : 0;
-      const row =
-        trickplayConfig.tileWidth > 0
-          ? Math.floor(frameWithinTile / trickplayConfig.tileWidth)
-          : 0;
-
-      return {
-        src: spriteUrl,
-        coords: [
-          column * trickplayConfig.width,
-          row * trickplayConfig.height,
-          trickplayConfig.width,
-          trickplayConfig.height,
-        ] as [number, number, number, number],
-      };
-    },
-    [queueTrickplayTileFetch, trickplayConfig, trickplayCacheBuster]
-  );
-
   // Define handleClose first to avoid circular dependency
   const handleClose = useCallback(async () => {
-    // Stop progress tracking before closing
     await stopProgressTracking();
-
-    // Clean up blob URLs
-    cleanupBlobUrls();
-    clearTrickplaySprites();
-    setTrickplayConfig(null);
+    resetTrickplay();
 
     setIsPlayerVisible(false);
     setStreamUrl(null);
@@ -559,10 +314,10 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     setFetchingSubtitles(false);
     setCurrentMediaWithSource(null);
     setMediaSegments({});
-    setVideoStarted(false); // Reset video started state
-    setBackdropImageLoaded(false); // Reset backdrop image state
-    setBlurDataUrl(null); // Reset blur data URL
-  }, [stopProgressTracking, cleanupBlobUrls, clearTrickplaySprites]);
+    setVideoStarted(false);
+    setBackdropImageLoaded(false);
+    setBlurDataUrl(null);
+  }, [resetTrickplay, setIsPlayerVisible, stopProgressTracking]);
 
   const handleVideoEnded = useCallback(async () => {
     await stopProgressTracking();
@@ -657,18 +412,6 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     }
   }, [mediaDetails, blurDataUrl]);
 
-  useEffect(() => {
-    return () => {
-      clearTrickplaySprites();
-    };
-  }, [clearTrickplaySprites]);
-
-  useEffect(() => {
-    if (trickplayConfig) {
-      queueTrickplayTileFetch(0);
-    }
-  }, [trickplayConfig, queueTrickplayTileFetch]);
-
   const loadMedia = async () => {
     if (!currentMedia) return;
 
@@ -711,12 +454,7 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
         });
 
         // Prepare trickplay metadata for this item/version
-        clearTrickplaySprites();
-        const computedTrickplay = buildTrickplayConfig(details, {
-          source: sourceToUse,
-          fallbackItemId: currentMedia.id,
-        });
-        setTrickplayConfig(computedTrickplay);
+        initializeTrickplay(details, sourceToUse, currentMedia.id);
 
         // Generate stream URL based on playback mode
         const bitrateOption = BITRATE_OPTIONS.find(
@@ -820,8 +558,7 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
           setMediaSegments({});
         }
       } else {
-        clearTrickplaySprites();
-        setTrickplayConfig(null);
+        resetTrickplay();
       }
     } catch (error) {
       console.error("Failed to load media:", error);
@@ -871,10 +608,9 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
       }
-      // Clean up blob URLs on unmount
-      cleanupBlobUrls();
+      resetTrickplay();
     };
-  }, [cleanupBlobUrls]);
+  }, [resetTrickplay]);
 
   if (!isPlayerVisible || !currentMedia) {
     return null;
@@ -960,176 +696,18 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
           </MediaPlayerVideo>
         )}
 
-        {/* Loading overlay - shown while loading or before video starts */}
-        {(loading || !streamUrl || !mediaDetails || !videoStarted) && (
-          <div className="fixed inset-0 bg-black z-[1000000]">
-            {/* Go Back Button - visible during loading */}
-            <Button
-              variant="ghost"
-              className="fixed left-4 top-4 z-10 hover:backdrop-blur-md"
-              onClick={handleClose}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Go Back
-            </Button>
-
-            {/* Backdrop Image */}
-            {mediaDetails ? (
-              <div className="relative w-full h-full">
-                {/* Blur hash placeholder or loading placeholder */}
-                {!backdropImageLoaded && (
-                  <div
-                    className={`w-full h-full object-cover brightness-50 absolute inset-0 transition-opacity duration-300 ${
-                      blurDataUrl ? "" : "bg-gray-800"
-                    }`}
-                    style={
-                      blurDataUrl
-                        ? {
-                            backgroundImage: `url(${blurDataUrl})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            filter: "brightness(0.5)",
-                          }
-                        : undefined
-                    }
-                  />
-                )}
-
-                {/* Actual backdrop image */}
-                <img
-                  src={`${serverUrl}/Items/${
-                    mediaDetails?.Type === "Episode" && mediaDetails?.SeriesId
-                      ? mediaDetails.SeriesId
-                      : currentMedia.id
-                  }/Images/Backdrop?maxHeight=1080&maxWidth=1920&quality=95`}
-                  alt={currentMedia?.name}
-                  className={`w-full h-full object-cover brightness-50 transition-opacity duration-300 ${
-                    backdropImageLoaded ? "opacity-100" : "opacity-0"
-                  }`}
-                  onLoad={() => {
-                    setBackdropImageLoaded(true);
-                  }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = "none";
-                  }}
-                  ref={(img) => {
-                    // Check if image is already loaded (cached)
-                    if (img && img.complete && img.naturalHeight !== 0) {
-                      setBackdropImageLoaded(true);
-                    }
-                  }}
-                />
-                {/* Progressive Blur Overlay */}
-                <ProgressiveBlur
-                  direction="bottom"
-                  blurLayers={6}
-                  blurIntensity={0.3}
-                  className="absolute inset-0"
-                />
-                {/* Dark overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              </div>
-            ) : (
-              // Fallback solid background
-              <div className="w-full h-full bg-black" />
-            )}
-
-            {/* Title and Loading Spinner at Bottom */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="absolute bottom-8 left-8 right-8"
-            >
-              {/* Content formatted like the player */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="flex flex-col w-full gap-1.5 pb-2"
-              >
-                {/* Show name for episodes */}
-                {mediaDetails?.SeriesName && (
-                  <motion.div
-                    className="text-sm text-white/70 truncate font-medium"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {mediaDetails.SeriesName}
-                  </motion.div>
-                )}
-
-                {/* Episode/Movie title with episode number */}
-                <div className="flex items-center justify-between w-full">
-                  <motion.h2
-                    className="text-3xl font-semibold text-white truncate font-poppins"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    {mediaDetails?.Type === "Episode" &&
-                    mediaDetails?.IndexNumber
-                      ? `${mediaDetails.IndexNumber}. ${
-                          mediaDetails.Name || currentMedia.name
-                        }`
-                      : mediaDetails?.Name || currentMedia.name}
-                  </motion.h2>
-
-                  {/* End time display */}
-                  {mediaDetails?.RunTimeTicks && (
-                    <DisplayEndTime
-                      time={formatEndTime(
-                        0,
-                        ticksToSeconds(mediaDetails.RunTimeTicks)
-                      )}
-                    />
-                  )}
-                </div>
-
-                {/* Season and episode info + runtime */}
-                <motion.div
-                  className="flex items-center gap-3 text-sm text-white/60"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  {mediaDetails?.Type === "Episode" && (
-                    <div className="space-x-1">
-                      {mediaDetails?.ParentIndexNumber && (
-                        <span>S{mediaDetails.ParentIndexNumber}</span>
-                      )}
-                      <span>•</span>
-                      {mediaDetails?.IndexNumber && (
-                        <span>E{mediaDetails.IndexNumber}</span>
-                      )}
-                    </div>
-                  )}
-
-                  {mediaDetails?.RunTimeTicks && (
-                    <span>{formatRuntime(mediaDetails.RunTimeTicks)}</span>
-                  )}
-
-                  {mediaDetails?.ProductionYear && (
-                    <span>{mediaDetails.ProductionYear}</span>
-                  )}
-                </motion.div>
-
-                {/* Loading indicator */}
-                <motion.div
-                  className="flex items-center gap-2 mt-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                >
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  <span className="text-sm text-white/70">Loading...</span>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          </div>
-        )}
+        <PlayerLoadingOverlay
+          isVisible={loading || !streamUrl || !mediaDetails || !videoStarted}
+          mediaDetails={mediaDetails}
+          currentMedia={currentMedia}
+          serverUrl={serverUrl ?? ""}
+          blurDataUrl={blurDataUrl}
+          backdropImageLoaded={backdropImageLoaded}
+          onBackdropLoaded={() => setBackdropImageLoaded(true)}
+          onClose={handleClose}
+          formatEndTime={formatEndTime}
+          ticksToSeconds={ticksToSeconds}
+        />
         {/* Current Subtitle */}
         {currentSubtitle && (
           <div

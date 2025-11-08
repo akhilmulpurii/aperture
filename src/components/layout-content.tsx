@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { SidebarInset, SidebarProvider } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/app-sidebar";
-import { GlobalMediaPlayer } from "../components/global-media-player";
+import { GlobalMediaPlayer } from "../components/global-media-player/index";
 import {
   isTauriMacAtom,
   isTauriFullscreenAtom,
