@@ -7,9 +7,9 @@
 </h1>
 <h4 align="center">A Modern, Streamlined Jellyfin Client built with Vite+React+Tauri</h4>
 
-https://github.com/user-attachments/assets/5f536de2-de3f-4b2e-83bc-331ab88880ad
-
 https://github.com/user-attachments/assets/ebd8c289-658d-471d-98d3-c7fb3ae51d8e
+
+https://github.com/user-attachments/assets/5f536de2-de3f-4b2e-83bc-331ab88880ad
 
 <div align="center">
   <table>
