@@ -1538,6 +1538,10 @@ interface MediaPlayerSeekProps
   withTime?: boolean;
   withoutChapter?: boolean;
   withoutTooltip?: boolean;
+  tooltipThumbnailRenderer?: (time: number) => {
+    src: string;
+    coords?: [number, number, number, number];
+  } | null;
   tooltipThumbnailSrc?: string | ((time: number) => string);
   tooltipTimeVariant?: "current" | "progress";
   tooltipSideOffset?: number;
@@ -1553,6 +1557,7 @@ function MediaPlayerSeek(props: MediaPlayerSeekProps) {
     withoutChapter = false,
     withoutTooltip = false,
     tooltipTimeVariant = "current",
+    tooltipThumbnailRenderer,
     tooltipThumbnailSrc,
     tooltipSideOffset,
     tooltipCollisionPadding = SEEK_COLLISION_PADDING,
@@ -1687,6 +1692,10 @@ function MediaPlayerSeek(props: MediaPlayerSeekProps) {
     (time: number) => {
       if (tooltipDisabled) return null;
 
+      if (tooltipThumbnailRenderer) {
+        return tooltipThumbnailRenderer(time);
+      }
+
       if (tooltipThumbnailSrc) {
         const src =
           typeof tooltipThumbnailSrc === "function"
@@ -1710,6 +1719,7 @@ function MediaPlayerSeek(props: MediaPlayerSeekProps) {
     },
     [
       tooltipThumbnailSrc,
+      tooltipThumbnailRenderer,
       mediaPreviewTime,
       mediaPreviewImage,
       mediaPreviewCoords,
@@ -2143,8 +2153,8 @@ function MediaPlayerSeek(props: MediaPlayerSeekProps) {
     const coordX = thumbnail.coords[0];
     const coordY = thumbnail.coords[1];
 
-    const spriteWidth = Number.parseFloat(thumbnail.coords[2] ?? "0");
-    const spriteHeight = Number.parseFloat(thumbnail.coords[3] ?? "0");
+    const spriteWidth = Number(thumbnail.coords[2] ?? 0);
+    const spriteHeight = Number(thumbnail.coords[3] ?? 0);
 
     const scaleX = spriteWidth > 0 ? SPRITE_CONTAINER_WIDTH / spriteWidth : 1;
     const scaleY =

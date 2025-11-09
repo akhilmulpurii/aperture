@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { JellyfinItem, MediaSourceInfo } from "../types/jellyfin";
-import { Button } from "../components/ui/button";
+import { JellyfinItem, MediaSourceInfo } from "../../types/jellyfin";
+import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MediaPlayer,
@@ -18,16 +18,15 @@ import {
   MediaPlayerVolume,
   MediaPlayerSettings,
   MediaPlayerTooltip,
-} from "../components/ui/media-player";
+} from "../ui/media-player";
 import {
   ArrowLeft,
   RotateCcw,
   RotateCw,
   Users,
-  Ship,
   FastForward,
 } from "lucide-react";
-import { useMediaPlayer } from "../contexts/MediaPlayerContext";
+import { useMediaPlayer } from "../../contexts/MediaPlayerContext";
 import {
   getStreamUrl,
   getDirectStreamUrl,
@@ -38,22 +37,19 @@ import {
   reportPlaybackProgress,
   reportPlaybackStopped,
   getAudioTracks,
-} from "../actions";
-import { getSubtitleContent } from "../actions/subtitles";
+} from "../../actions";
+import { getSubtitleContent } from "../../actions/subtitles";
 import MuxVideo from "@mux/mux-video-react";
-import { formatRuntime } from "../lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../components/ui/popover";
-import { ProgressiveBlur } from "../components/motion-primitives/progressive-blur";
-import { useAuth } from "../hooks/useAuth";
-import { useSettings, BITRATE_OPTIONS } from "../contexts/settings-context";
-import { fetchIntroOutro } from "../actions/media";
+import { formatRuntime } from "../../lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useAuth } from "../../hooks/useAuth";
+import { useSettings, BITRATE_OPTIONS } from "../../contexts/settings-context";
+import { fetchIntroOutro } from "../../actions/media";
 import { decode } from "blurhash";
-import DisplayEndTime from "./display-end-time";
+import DisplayEndTime from "../display-end-time";
 import { v4 as uuidv4 } from "uuid";
+import { PlayerLoadingOverlay } from "./player-loading-overlay";
+import { useTrickplay } from "../../hooks/useTrickplay";
 
 interface GlobalMediaPlayerProps {}
 
@@ -113,6 +109,12 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     }>
   >([]);
 
+  const {
+    initializeTrickplay,
+    resetTrickplay,
+    renderThumbnail: renderTrickplayThumbnail,
+  } = useTrickplay();
+
   // Chapter state
   const [chapters, setChapters] = useState<
     Array<{
@@ -135,7 +137,6 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const blobUrlsRef = useRef<string[]>([]);
 
   // Helper function to convert seconds to Jellyfin ticks (1 tick = 100 nanoseconds)
   const secondsToTicks = (seconds: number) => Math.floor(seconds * 10000000);
@@ -298,25 +299,10 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     }
   }, [currentMedia]);
 
-  // Helper function to clean up blob URLs
-  const cleanupBlobUrls = useCallback(() => {
-    blobUrlsRef.current.forEach((url) => {
-      try {
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.warn("Failed to revoke blob URL:", error);
-      }
-    });
-    blobUrlsRef.current = [];
-  }, []);
-
   // Define handleClose first to avoid circular dependency
   const handleClose = useCallback(async () => {
-    // Stop progress tracking before closing
     await stopProgressTracking();
-
-    // Clean up blob URLs
-    cleanupBlobUrls();
+    resetTrickplay();
 
     setIsPlayerVisible(false);
     setStreamUrl(null);
@@ -328,10 +314,10 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
     setFetchingSubtitles(false);
     setCurrentMediaWithSource(null);
     setMediaSegments({});
-    setVideoStarted(false); // Reset video started state
-    setBackdropImageLoaded(false); // Reset backdrop image state
-    setBlurDataUrl(null); // Reset blur data URL
-  }, [stopProgressTracking, cleanupBlobUrls]);
+    setVideoStarted(false);
+    setBackdropImageLoaded(false);
+    setBlurDataUrl(null);
+  }, [resetTrickplay, setIsPlayerVisible, stopProgressTracking]);
 
   const handleVideoEnded = useCallback(async () => {
     await stopProgressTracking();
@@ -467,6 +453,9 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
           mediaSourceId: sourceToUse.Id || null,
         });
 
+        // Prepare trickplay metadata for this item/version
+        initializeTrickplay(details, sourceToUse, currentMedia.id);
+
         // Generate stream URL based on playback mode
         const bitrateOption = BITRATE_OPTIONS.find(
           (option) => option.value === videoBitrate
@@ -568,6 +557,8 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
           console.error("Failed to fetch intro/outro segments:", error);
           setMediaSegments({});
         }
+      } else {
+        resetTrickplay();
       }
     } catch (error) {
       console.error("Failed to load media:", error);
@@ -617,10 +608,9 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
       }
-      // Clean up blob URLs on unmount
-      cleanupBlobUrls();
+      resetTrickplay();
     };
-  }, [cleanupBlobUrls]);
+  }, [resetTrickplay]);
 
   if (!isPlayerVisible || !currentMedia) {
     return null;
@@ -706,176 +696,18 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
           </MediaPlayerVideo>
         )}
 
-        {/* Loading overlay - shown while loading or before video starts */}
-        {(loading || !streamUrl || !mediaDetails || !videoStarted) && (
-          <div className="fixed inset-0 bg-black z-[1000000]">
-            {/* Go Back Button - visible during loading */}
-            <Button
-              variant="ghost"
-              className="fixed left-4 top-4 z-10 hover:backdrop-blur-md"
-              onClick={handleClose}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Go Back
-            </Button>
-
-            {/* Backdrop Image */}
-            {mediaDetails ? (
-              <div className="relative w-full h-full">
-                {/* Blur hash placeholder or loading placeholder */}
-                {!backdropImageLoaded && (
-                  <div
-                    className={`w-full h-full object-cover brightness-50 absolute inset-0 transition-opacity duration-300 ${
-                      blurDataUrl ? "" : "bg-gray-800"
-                    }`}
-                    style={
-                      blurDataUrl
-                        ? {
-                            backgroundImage: `url(${blurDataUrl})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            filter: "brightness(0.5)",
-                          }
-                        : undefined
-                    }
-                  />
-                )}
-
-                {/* Actual backdrop image */}
-                <img
-                  src={`${serverUrl}/Items/${
-                    mediaDetails?.Type === "Episode" && mediaDetails?.SeriesId
-                      ? mediaDetails.SeriesId
-                      : currentMedia.id
-                  }/Images/Backdrop?maxHeight=1080&maxWidth=1920&quality=95`}
-                  alt={currentMedia?.name}
-                  className={`w-full h-full object-cover brightness-50 transition-opacity duration-300 ${
-                    backdropImageLoaded ? "opacity-100" : "opacity-0"
-                  }`}
-                  onLoad={() => {
-                    setBackdropImageLoaded(true);
-                  }}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = "none";
-                  }}
-                  ref={(img) => {
-                    // Check if image is already loaded (cached)
-                    if (img && img.complete && img.naturalHeight !== 0) {
-                      setBackdropImageLoaded(true);
-                    }
-                  }}
-                />
-                {/* Progressive Blur Overlay */}
-                <ProgressiveBlur
-                  direction="bottom"
-                  blurLayers={6}
-                  blurIntensity={0.3}
-                  className="absolute inset-0"
-                />
-                {/* Dark overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              </div>
-            ) : (
-              // Fallback solid background
-              <div className="w-full h-full bg-black" />
-            )}
-
-            {/* Title and Loading Spinner at Bottom */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="absolute bottom-8 left-8 right-8"
-            >
-              {/* Content formatted like the player */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="flex flex-col w-full gap-1.5 pb-2"
-              >
-                {/* Show name for episodes */}
-                {mediaDetails?.SeriesName && (
-                  <motion.div
-                    className="text-sm text-white/70 truncate font-medium"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {mediaDetails.SeriesName}
-                  </motion.div>
-                )}
-
-                {/* Episode/Movie title with episode number */}
-                <div className="flex items-center justify-between w-full">
-                  <motion.h2
-                    className="text-3xl font-semibold text-white truncate font-poppins"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    {mediaDetails?.Type === "Episode" &&
-                    mediaDetails?.IndexNumber
-                      ? `${mediaDetails.IndexNumber}. ${
-                          mediaDetails.Name || currentMedia.name
-                        }`
-                      : mediaDetails?.Name || currentMedia.name}
-                  </motion.h2>
-
-                  {/* End time display */}
-                  {mediaDetails?.RunTimeTicks && (
-                    <DisplayEndTime
-                      time={formatEndTime(
-                        0,
-                        ticksToSeconds(mediaDetails.RunTimeTicks)
-                      )}
-                    />
-                  )}
-                </div>
-
-                {/* Season and episode info + runtime */}
-                <motion.div
-                  className="flex items-center gap-3 text-sm text-white/60"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  {mediaDetails?.Type === "Episode" && (
-                    <div className="space-x-1">
-                      {mediaDetails?.ParentIndexNumber && (
-                        <span>S{mediaDetails.ParentIndexNumber}</span>
-                      )}
-                      <span>•</span>
-                      {mediaDetails?.IndexNumber && (
-                        <span>E{mediaDetails.IndexNumber}</span>
-                      )}
-                    </div>
-                  )}
-
-                  {mediaDetails?.RunTimeTicks && (
-                    <span>{formatRuntime(mediaDetails.RunTimeTicks)}</span>
-                  )}
-
-                  {mediaDetails?.ProductionYear && (
-                    <span>{mediaDetails.ProductionYear}</span>
-                  )}
-                </motion.div>
-
-                {/* Loading indicator */}
-                <motion.div
-                  className="flex items-center gap-2 mt-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                >
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  <span className="text-sm text-white/70">Loading...</span>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          </div>
-        )}
+        <PlayerLoadingOverlay
+          isVisible={loading || !streamUrl || !mediaDetails || !videoStarted}
+          mediaDetails={mediaDetails}
+          currentMedia={currentMedia}
+          serverUrl={serverUrl ?? ""}
+          blurDataUrl={blurDataUrl}
+          backdropImageLoaded={backdropImageLoaded}
+          onBackdropLoaded={() => setBackdropImageLoaded(true)}
+          onClose={handleClose}
+          formatEndTime={formatEndTime}
+          ticksToSeconds={ticksToSeconds}
+        />
         {/* Current Subtitle */}
         {currentSubtitle && (
           <div
@@ -976,7 +808,9 @@ export function GlobalMediaPlayer({}: GlobalMediaPlayerProps) {
               )}
             </div>
           </div>
-          <MediaPlayerSeek />
+          <MediaPlayerSeek
+            tooltipThumbnailRenderer={renderTrickplayThumbnail}
+          />
           <div className="flex w-full items-center gap-2">
             <div className="flex flex-1 items-center gap-2">
               <MediaPlayerPlay />

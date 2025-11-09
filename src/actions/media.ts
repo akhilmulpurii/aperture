@@ -616,6 +616,58 @@ export async function fetchIntroOutro(
   }
 }
 
+export async function fetchTrickplayTileImageUrl(
+  itemId: string,
+  width: number,
+  index: number,
+  mediaSourceId?: string
+): Promise<string | null> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const url = new URL(
+      `${serverUrl}/Videos/${itemId}/Trickplay/${width}/${index}.jpg`
+    );
+
+    if (mediaSourceId) {
+      url.searchParams.set("mediaSourceId", mediaSourceId);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        Authorization: `MediaBrowser Token="${user.AccessToken}"`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    if (
+      typeof URL === "undefined" ||
+      typeof URL.createObjectURL !== "function"
+    ) {
+      return null;
+    }
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error("Failed to fetch trickplay tile:", error);
+
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again."
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+
+    return null;
+  }
+}
+
 export async function scanLibrary(libraryId?: string): Promise<void> {
   try {
     const { serverUrl, user } = await getAuthData();
