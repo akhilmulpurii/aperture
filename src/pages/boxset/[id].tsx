@@ -29,6 +29,7 @@ import { Link } from "react-router-dom";
 import LoadingSpinner from "../../components/loading-spinner";
 import { useThemeMedia } from "../../hooks/useThemeMedia";
 import { motion } from "framer-motion";
+import { DynamicLogo } from "../../components/dynamic-logo";
 
 export default function BoxSet() {
   const { id } = useParams<{ id: string }>();
@@ -152,7 +153,21 @@ export default function BoxSet() {
               height={96}
               className="absolute md:top-5/12 top-4/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 max-h-20 md:max-h-24 w-auto object-contain max-w-2/3 invisible md:visible"
             />
-          ) : null}
+          ) : (
+            <DynamicLogo
+              variant={
+                boxset.Name && boxset.Name.trim().split(" ").length === 1
+                  ? "single-word"
+                  : "stacked"
+              }
+              text={boxset.Name!}
+              colors={{
+                gradientFrom: "transparent",
+                gradientTo: "transparent",
+              }}
+              className="absolute md:top-5/12 top-4/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 max-h-20 md:max-h-24 w-auto object-contain max-w-2/3 invisible md:visible"
+            />
+          )}
         </div>
 
         {/* Search bar positioned over backdrop */}
