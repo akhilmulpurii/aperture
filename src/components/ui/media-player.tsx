@@ -105,6 +105,7 @@ interface StoreState {
   dragging: boolean;
   menuOpen: boolean;
   volumeIndicatorVisible: boolean;
+  cursorHidden: boolean;
 }
 
 interface Store {
@@ -267,6 +268,7 @@ function MediaPlayerRoot(props: MediaPlayerRootProps) {
     dragging: false,
     menuOpen: false,
     volumeIndicatorVisible: false,
+    cursorHidden: false,
   }));
 
   const store = React.useMemo(
@@ -334,12 +336,14 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
   const controlsVisible = useStoreSelector((state) => state.controlsVisible);
   const dragging = useStoreSelector((state) => state.dragging);
   const menuOpen = useStoreSelector((state) => state.menuOpen);
+  const cursorHidden = useStoreSelector((state) => state.cursorHidden);
 
   const hideControlsTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const lastMouseMoveRef = React.useRef<number>(Date.now());
   const volumeIndicatorTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const keyboardActionThrottleRef = React.useRef<NodeJS.Timeout | null>(null);
   const lastKeyPressTimeRef = React.useRef<number>(0);
+  const cursorHideTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const mediaPaused = useMediaSelector((state) => state.mediaPaused ?? true);
   const isFullscreen = useMediaSelector(
@@ -360,6 +364,41 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
       mediaRef.current instanceof HTMLVideoElement) ||
     mediaRef.current?.tagName?.toLowerCase() === "mux-player";
 
+  const clearCursorHideTimeout = React.useCallback(() => {
+    if (cursorHideTimeoutRef.current) {
+      clearTimeout(cursorHideTimeoutRef.current);
+      cursorHideTimeoutRef.current = null;
+    }
+  }, []);
+
+  const showCursor = React.useCallback(() => {
+    store.setState("cursorHidden", false);
+  }, [store.setState]);
+
+  const scheduleCursorHide = React.useCallback(() => {
+    clearCursorHideTimeout();
+
+    if (!autoHide || mediaPaused || menuOpen || dragging)
+      return;
+
+    cursorHideTimeoutRef.current = setTimeout(() => {
+      store.setState("cursorHidden", true);
+      store.setState("controlsVisible", false);
+    }, 5000);
+  }, [
+    autoHide,
+    clearCursorHideTimeout,
+    dragging,
+    mediaPaused,
+    menuOpen,
+    store.setState,
+  ]);
+
+  const resetCursorVisibility = React.useCallback(() => {
+    clearCursorHideTimeout();
+    showCursor();
+  }, [clearCursorHideTimeout, showCursor]);
+
   const onControlsShow = React.useCallback(() => {
     store.setState("controlsVisible", true);
     lastMouseMoveRef.current = Date.now();
@@ -374,6 +413,12 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
       }, 3000);
     }
   }, [store.setState, autoHide, mediaPaused, menuOpen, dragging]);
+
+  const handleCursorActivity = React.useCallback(() => {
+    showCursor();
+    onControlsShow();
+    scheduleCursorHide();
+  }, [onControlsShow, scheduleCursorHide, showCursor]);
 
   const onVolumeIndicatorTrigger = React.useCallback(() => {
     if (menuOpen) return;
@@ -396,6 +441,7 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
   const onMouseLeave = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       rootImplProps.onMouseLeave?.(event);
+      resetCursorVisibility();
 
       if (event.defaultPrevented) return;
 
@@ -410,20 +456,18 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
       mediaPaused,
       menuOpen,
       dragging,
+      resetCursorVisibility,
     ]
   );
 
   const onMouseMove = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
+      handleCursorActivity();
       rootImplProps.onMouseMove?.(event);
 
       if (event.defaultPrevented) return;
-
-      if (autoHide) {
-        onControlsShow();
-      }
     },
-    [autoHide, rootImplProps.onMouseMove, onControlsShow]
+    [rootImplProps.onMouseMove, handleCursorActivity]
   );
 
   React.useEffect(() => {
@@ -733,8 +777,18 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
       if (keyboardActionThrottleRef.current) {
         clearTimeout(keyboardActionThrottleRef.current);
       }
+      clearCursorHideTimeout();
     };
-  }, []);
+  }, [clearCursorHideTimeout]);
+
+  React.useEffect(() => {
+    if (!autoHide) {
+      resetCursorVisibility();
+      return;
+    }
+
+    handleCursorActivity();
+  }, [autoHide, handleCursorActivity, resetCursorVisibility]);
 
   const onKeyUp = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -869,6 +923,7 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
         data-controls-visible={controlsVisible ? "" : undefined}
         data-slot="media-player"
         data-state={isFullscreen ? "fullscreen" : "windowed"}
+        data-cursor-hidden={cursorHidden ? "" : undefined}
         dir={dir}
         tabIndex={disabled ? undefined : 0}
         {...rootImplProps}
@@ -882,6 +937,7 @@ function MediaPlayerRootImpl(props: MediaPlayerRootProps) {
           "data-[state=fullscreen]:[&_video]:size-full [:fullscreen_&]:flex [:fullscreen_&]:h-full [:fullscreen_&]:max-h-screen [:fullscreen_&]:flex-col [:fullscreen_&]:justify-between",
           "[&_[data-slider]::before]:-top-4 [&_[data-slider]::before]:-bottom-2 [&_[data-slider]::before]:absolute [&_[data-slider]::before]:inset-x-0 [&_[data-slider]::before]:z-10 [&_[data-slider]::before]:h-8 [&_[data-slider]::before]:cursor-pointer [&_[data-slider]::before]:content-[''] [&_[data-slider]]:relative [&_[data-slot='media-player-seek']:not([data-hovering])::before]:cursor-default",
           "[&_video::-webkit-media-text-track-display]:top-auto! [&_video::-webkit-media-text-track-display]:bottom-[4%]! [&_video::-webkit-media-text-track-display]:mb-0! data-[state=fullscreen]:data-[controls-visible]:[&_video::-webkit-media-text-track-display]:bottom-[9%]! data-[controls-visible]:[&_video::-webkit-media-text-track-display]:bottom-[13%]! data-[state=fullscreen]:[&_video::-webkit-media-text-track-display]:bottom-[7%]!",
+          "data-[cursor-hidden]:cursor-none data-[cursor-hidden]:[&_video]:cursor-none data-[cursor-hidden]:[&_mux-video]:cursor-none",
           className
         )}
       >
