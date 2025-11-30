@@ -96,7 +96,14 @@ export function ImageEditorDialog({
         image.Url,
         image.ProviderName
       );
-      toast.success(`${image.Type} image downloaded successfully`);
+      toast.success(`${image.Type} image downloaded successfully`, {
+        onAutoClose() {
+          setIsOpen(false);
+          window.location.reload();
+        },
+
+        duration: 2000, // Give user a moment to see the success message
+      });
       console.log(`Downloaded ${image.Type} image:`, image);
     } catch (error) {
       console.error("Failed to download image:", error);

@@ -19,6 +19,7 @@ import MainLayout from "./components/main-layout";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SettingsProvider } from "./contexts/settings-context";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         "deep-velvet",
       ]}
     >
+      <Toaster />
       <AuthProvider>
         <SettingsProvider>
           <Router>
