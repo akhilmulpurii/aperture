@@ -1,7 +1,7 @@
 {
   "name": "aperture",
   "private": true,
-  "version": "1.1.22",
+  "version": "1.1.23",
   "type": "module",
   "scripts": {
     "dev": "vite",
