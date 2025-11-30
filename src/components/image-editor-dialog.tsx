@@ -149,7 +149,7 @@ export function ImageEditorDialog({
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[80vh] dark:bg-background/95 backdrop-blur-md">
+      <DialogContent className="sm:max-w-6xl max-h-[80vh] dark:bg-background/95 backdrop-blur-md">
         <DialogHeader>
           <DialogTitle>Edit Images - {itemName}</DialogTitle>
         </DialogHeader>
