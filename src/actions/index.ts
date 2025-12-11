@@ -71,6 +71,7 @@ export {
   restartServer,
   shutdownServer,
 } from "./utils";
+export { discoverLocalServer } from "./discovery";
 
 // Types
 export type {

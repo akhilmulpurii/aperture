@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,8 +11,13 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { ThemeToggle } from "../components/ui/theme-toggle";
 import { VibrantAuroraBackground } from "../components/vibrant-aurora-background";
-import { checkServerHealth, setServerUrl } from "../actions";
-import { Loader2, Server, CheckCircle, Globe, Shield } from "lucide-react";
+import {
+  checkServerHealth,
+  discoverLocalServer,
+  setServerUrl,
+  getServerUrl,
+} from "../actions";
+import { Loader2, Server, CheckCircle, Globe, Shield, Radar } from "lucide-react";
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL || "";
 
@@ -33,7 +38,15 @@ export function ServerSetup({ onNext }: ServerSetupProps) {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("idle");
   const [error, setError] = useState("");
+  const isMountedRef = useRef(true);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const [discoveryStatus, setDiscoveryStatus] = useState("");
+  const [foundLocalUrl, setFoundLocalUrl] = useState("");
+  const [hasUserEdited, setHasUserEdited] = useState(Boolean(SERVER_BASE_URL));
   const [detectedUrl, setDetectedUrl] = useState("");
+  const [checkedStoredUrl, setCheckedStoredUrl] = useState(false);
+  const [hasStoredUrl, setHasStoredUrl] = useState(false);
+  const discoveryAbortRef = useRef<AbortController | null>(null);
 
   const isLoading =
     connectionStatus !== "idle" &&
@@ -88,6 +101,11 @@ export function ServerSetup({ onNext }: ServerSetupProps) {
 
     console.log("URL:", url);
 
+    if (discoveryAbortRef.current) {
+      discoveryAbortRef.current.abort();
+      setIsDiscovering(false);
+    }
+
     try {
       const cleanedUrl = cleanUrl(url);
       console.log("Cleaned URL:", cleanedUrl);
@@ -117,6 +135,100 @@ export function ServerSetup({ onNext }: ServerSetupProps) {
     }
   };
 
+  const handleApplyDiscovered = (candidate: string) => {
+    setUrl(candidate);
+    setHasUserEdited(true);
+    setError("");
+  };
+
+  const startDiscovery = async () => {
+    if (isDiscovering || isLoading) return;
+
+    setIsDiscovering(true);
+    setDiscoveryStatus("Searching your local network for a Jellyfin server…");
+    setFoundLocalUrl("");
+
+    if (discoveryAbortRef.current) {
+      discoveryAbortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    discoveryAbortRef.current = controller;
+
+    try {
+      const result = await discoverLocalServer({
+        signal: controller.signal,
+        requestTimeoutMs: 1200,
+        onProgress: (progress) => {
+          if (!controller.signal.aborted && progress < 1) {
+            const percent = Math.round(progress * 100);
+            setDiscoveryStatus(
+              `Searching your local network... ${Math.max(
+                10,
+                Math.min(percent, 95)
+              )}%`
+            );
+          }
+        },
+      });
+
+      if (controller.signal.aborted) return;
+      if (!isMountedRef.current) return;
+
+      if (result?.url) {
+        setDiscoveryStatus("Found a Jellyfin server on your network.");
+        setFoundLocalUrl(result.url);
+        if (!hasUserEdited && !url) {
+          setUrl(result.url);
+        }
+      } else {
+        setDiscoveryStatus("Couldn't automatically find a Jellyfin server.");
+      }
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        console.error("Discovery failed:", err);
+        setDiscoveryStatus("Unable to search the network right now.");
+      }
+    } finally {
+      if (!controller.signal.aborted && isMountedRef.current) {
+        setIsDiscovering(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    (async () => {
+      const savedUrl = await getServerUrl();
+      if (!isMountedRef.current) return;
+      if (savedUrl) {
+        setUrl(savedUrl);
+        setHasUserEdited(true);
+        setHasStoredUrl(true);
+      } else {
+        setHasStoredUrl(false);
+      }
+      setCheckedStoredUrl(true);
+    })();
+
+    return () => {
+      isMountedRef.current = false;
+      if (discoveryAbortRef.current) {
+        discoveryAbortRef.current.abort();
+      }
+    };
+    // We intentionally only run this once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!checkedStoredUrl) return;
+    if (SERVER_BASE_URL || hasStoredUrl) return;
+    startDiscovery();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedStoredUrl, hasStoredUrl]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative w-full">
       <VibrantAuroraBackground amplitude={0.8} blend={0.4} />
@@ -144,7 +256,10 @@ export function ServerSetup({ onNext }: ServerSetupProps) {
                 type="text"
                 placeholder="jellyfin.example.com or 192.168.1.100:8096"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setHasUserEdited(true);
+                }}
                 disabled={isLoading}
                 className={`${
                   error
@@ -197,6 +312,51 @@ export function ServerSetup({ onNext }: ServerSetupProps) {
                     192.168.1.100:8096
                   </code>
                 </p>
+              </div>
+
+              <div className="mt-4 rounded-md border border-dashed border-border p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Radar className="h-4 w-4 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Find server automatically</p>
+                      <p className="text-xs text-muted-foreground">
+                        We can search your local network for a Jellyfin server.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={startDiscovery}
+                    disabled={isDiscovering || isLoading}
+                  >
+                    {isDiscovering ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Radar className="h-4 w-4" />
+                    )}
+                    <span>{isDiscovering ? "Scanning..." : "Scan"}</span>
+                  </Button>
+                </div>
+
+                {discoveryStatus && (
+                  <p className="text-xs text-muted-foreground">{discoveryStatus}</p>
+                )}
+
+                {foundLocalUrl && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="px-0 text-left font-semibold"
+                    onClick={() => handleApplyDiscovered(foundLocalUrl)}
+                  >
+                    Use detected server ({foundLocalUrl})
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
