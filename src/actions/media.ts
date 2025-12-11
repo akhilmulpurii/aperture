@@ -216,6 +216,7 @@ export async function fetchMediaDetails(
         ItemFields.Genres,
         ItemFields.People,
         ItemFields.Studios,
+        ItemFields.Trickplay,
       ],
     });
     return data.Items?.[0] ?? null;
