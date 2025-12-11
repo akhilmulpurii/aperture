@@ -776,3 +776,141 @@ export async function fetchGenre(genreName: string) {
     return { Items: [], TotalRecordCount: 0, StartIndex: 0 };
   }
 }
+
+export async function fetchHeroItems(): Promise<JellyfinItem[]> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
+
+    const itemsApi = getItemsApi(api);
+
+    // parallel fetching of different categories
+    const [resumeData, latestMovies, latestShows, trendingData] =
+      await Promise.all([
+        // 1. Resume Items (Connect back to what they were watching)
+        itemsApi.getResumeItems({
+          userId: user.Id,
+          limit: 5,
+          fields: [
+            ItemFields.PrimaryImageAspectRatio,
+            ItemFields.Overview,
+            ItemFields.Taglines,
+            ItemFields.Genres,
+            "ProductionYear" as ItemFields,
+            "CommunityRating" as ItemFields,
+            "OfficialRating" as ItemFields,
+          ],
+          enableImages: true,
+          mediaTypes: [BaseItemKind.Movie, BaseItemKind.Series] as any,
+        }),
+        // 2. Latest Movies
+        itemsApi.getItems({
+          userId: user.Id,
+          includeItemTypes: [BaseItemKind.Movie],
+          recursive: true,
+          sortBy: [ItemSortBy.DateCreated],
+          sortOrder: [SortOrder.Descending],
+          limit: 5,
+          fields: [
+            ItemFields.PrimaryImageAspectRatio,
+            ItemFields.Overview,
+            ItemFields.Taglines,
+            ItemFields.Genres,
+            "ProductionYear" as ItemFields,
+            "CommunityRating" as ItemFields,
+            "OfficialRating" as ItemFields,
+          ],
+          enableImages: true,
+        }),
+        // 3. Latest TV Shows
+        itemsApi.getItems({
+          userId: user.Id,
+          includeItemTypes: [BaseItemKind.Series],
+          recursive: true,
+          sortBy: [ItemSortBy.DateCreated],
+          sortOrder: [SortOrder.Descending],
+          limit: 5,
+          fields: [
+            ItemFields.PrimaryImageAspectRatio,
+            ItemFields.Overview,
+            ItemFields.Taglines,
+            ItemFields.Genres,
+            "ProductionYear" as ItemFields,
+            "CommunityRating" as ItemFields,
+            "OfficialRating" as ItemFields,
+          ],
+          enableImages: true,
+        }),
+        // 4. Trending/High Rated (Discovery)
+        itemsApi.getItems({
+          userId: user.Id,
+          includeItemTypes: [BaseItemKind.Movie, BaseItemKind.Series],
+          recursive: true,
+          sortBy: [ItemSortBy.CommunityRating],
+          sortOrder: [SortOrder.Descending],
+          limit: 10,
+          filters: [
+            /* You might want 'IsUnplayed' here if you want new discoveries */
+          ],
+          fields: [
+            ItemFields.PrimaryImageAspectRatio,
+            ItemFields.Overview,
+            ItemFields.Taglines,
+            ItemFields.Genres,
+            "ProductionYear" as ItemFields,
+            "CommunityRating" as ItemFields,
+            "OfficialRating" as ItemFields,
+          ],
+          enableImages: true,
+        }),
+      ]);
+
+    const allItems = [
+      ...(resumeData.data.Items || []),
+      ...(latestMovies.data.Items || []),
+      ...(latestShows.data.Items || []),
+      ...(trendingData.data.Items || []),
+    ];
+
+    // Deduplicate by Id
+    const uniqueItems = Array.from(
+      new Map(allItems.map((item) => [item.Id, item])).values()
+    );
+
+    // Smart Shuffle / Priority Sort
+    // We want a mix: Resume first, then a mix of new and trending
+    // Simple approach: Resume items first, then shuffle the rest
+    const resumeIds = new Set(
+      (resumeData.data.Items || []).map((i) => i.Id)
+    );
+
+    const resumeContent = uniqueItems.filter((i) => resumeIds.has(i.Id));
+    const discoveryContent = uniqueItems.filter((i) => !resumeIds.has(i.Id));
+
+    // Fisher-Yates shuffle for discovery content
+    for (let i = discoveryContent.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [discoveryContent[i], discoveryContent[j]] = [
+        discoveryContent[j],
+        discoveryContent[i],
+      ];
+    }
+
+    // Combine: Resume (max 3) + Discovery (max 7) = 10 items for carousel
+    return [...resumeContent.slice(0, 3), ...discoveryContent].slice(0, 10);
+  } catch (error) {
+    console.error("Failed to fetch hero items:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again."
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+    return [];
+  }
+}

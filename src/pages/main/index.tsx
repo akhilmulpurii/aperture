@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/loading-spinner";
 
+import { HeroSection } from "../../components/hero/hero-section";
+
 export default function Home() {
   const navigate = useNavigate();
 
@@ -88,6 +90,8 @@ export default function Home() {
             <SearchBar />
           </div>
         </div>
+
+        <HeroSection serverUrl={serverUrl} />
 
         <div className="relative z-10 mb-8">
           <h2 className="text-3xl font-semibold text-foreground mb-2 font-poppins">
