@@ -107,11 +107,10 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
           </div>
 
            {/* Cinematic Gradient Overlays */}
-           {/* Bottom fade up: Fades to background color so text (in foreground color) is readable */}
-          <div className="absolute inset-x-0 bottom-0 h-4/5 bg-gradient-to-t from-background via-background/80 to-transparent" />
-          
-          {/* Left-side vignette */}
-          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
+           {/* Complex gradient map for clearer text and interesting visual */}
+           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent" />
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
        </div>
 
        {/* Content */}
@@ -127,7 +126,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
                     onLoad={() => setLogoLoaded(true)}
                  />
              ) : (
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-tight font-poppins">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight font-poppins drop-shadow-lg">
                     {item.Name}
                 </h1>
              )}
@@ -135,25 +134,25 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
              {/* Metadata Badges */}
              {!logoUrl && <div className="h-2" />} {/* Spacer if no logo */}
              
-             <div className="flex items-center flex-wrap gap-3 text-sm font-medium text-foreground/80">
+             <div className="flex items-center flex-wrap gap-3 text-sm font-medium text-white/90">
                 {item.ProductionYear && (
-                  <Badge variant="secondary" className="backdrop-blur-md shadow-sm">
+                  <Badge variant="secondary" className="backdrop-blur-md shadow-sm bg-white/20 text-white border-white/20 hover:bg-white/30">
                     {item.ProductionYear}
                   </Badge>
                 )}
                 {item.OfficialRating && (
-                   <span className="px-2 py-0.5 border border-border rounded text-xs uppercase bg-secondary/50 backdrop-blur-md shadow-sm">
+                   <span className="px-2 py-0.5 border border-white/20 rounded text-xs uppercase bg-black/40 backdrop-blur-md shadow-sm text-white">
                       {item.OfficialRating}
                    </span>
                 )}
                 {item.CommunityRating && (
-                    <div className="flex items-center gap-1 text-primary">
+                    <div className="flex items-center gap-1 text-yellow-400">
                         <span>★</span>
-                        <span className="font-semibold">{item.CommunityRating.toFixed(1)}</span>
+                        <span className="font-semibold text-white">{item.CommunityRating.toFixed(1)}</span>
                     </div>
                 )}
                 {item.RunTimeTicks && (
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-white/70 text-xs shadow-black/50 drop-shadow-sm">
                         {Math.round(item.RunTimeTicks / 600000000)} min
                     </span>
                 )}
@@ -162,7 +161,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
 
               {/* Taglines or Genres */}
               {item.Taglines && item.Taglines.length > 0 && (
-                  <p className="text-lg text-foreground/90 italic font-light">
+                  <p className="text-lg text-white/95 italic font-light drop-shadow-md">
                       {item.Taglines[0]}
                   </p>
               )}
@@ -170,7 +169,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
 
              {/* Overview (Truncated) */}
              {item.Overview && (
-                <p className="text-muted-foreground line-clamp-3 text-sm md:text-base max-w-xl leading-relaxed font-sans">
+                <p className="text-white/80 line-clamp-3 text-sm md:text-base max-w-xl leading-relaxed font-sans drop-shadow-md">
                    {item.Overview}
                 </p>
              )}
