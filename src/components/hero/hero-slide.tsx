@@ -7,6 +7,8 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { useEffect, useState } from "react";
 import { decode } from "blurhash";
+import { AmbientLight } from "./ambient-light";
+import { CinematicParticles } from "./cinematic-particles";
 
 interface HeroSlideProps {
   item: BaseItemDto;
@@ -18,6 +20,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
   const navigate = useNavigate();
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
 
   const backdropTag = item.BackdropImageTags?.[0];
   const backdropUrl = backdropTag
@@ -26,6 +29,13 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
 
   // Fallback to primary if no backdrop (though unlikely for movies/series)
   const imageUrl = backdropUrl || `${serverUrl}/Items/${item.Id}/Images/Primary?maxWidth=3840&quality=90`;
+
+  const logoTag = item.ImageTags?.Logo || item.ParentLogoImageTag;
+  const logoItemId = item.ImageTags?.Logo ? item.Id : item.ParentLogoItemId;
+  const logoUrl = logoTag && logoItemId
+      ? `${serverUrl}/Items/${logoItemId}/Images/Logo?maxWidth=500&quality=90&tag=${logoTag}`
+      : null;
+
 
   const blurHash = item.ImageBlurHashes?.Backdrop?.[backdropTag || ""] || item.ImageBlurHashes?.Primary?.[item.ImageTags?.Primary || ""];
 
@@ -71,58 +81,88 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
   };
 
   return (
-    <div className="relative w-full h-[65vh] min-h-[500px] overflow-hidden rounded-xl group select-none">
+    <div className="relative w-full h-[60vh] min-h-[400px] max-h-[600px] overflow-hidden rounded-xl group select-none shadow-lg border border-border bg-card">
+       {/* Cinematic Overlays */}
+       <CinematicParticles />
+       <AmbientLight />
+
        {/* Background Image / Blur */}
-       <div className="absolute inset-0">
+       <div className="absolute inset-0 overflow-hidden rounded-xl z-0">
           {blurDataUrl && !imageLoaded && (
             <div 
-              className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-700"
+              className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000"
               style={{ backgroundImage: `url(${blurDataUrl})` }}
             />
           )}
-          <img
-            src={imageUrl}
-            alt={item.Name || "Hero Background"}
-            className={`w-full h-full object-cover transition-opacity duration-700 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
-            onLoad={() => setImageLoaded(true)}
-            draggable={false}
-          />
-           {/* Gradient Overlays for Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
+
+          {/* Wrapper for Ken Burns Effect */}
+          <div className="w-full h-full animate-ken-burns">
+              <img
+                src={imageUrl}
+                alt={item.Name || "Hero Background"}
+                className={`w-full h-full object-cover transition-opacity duration-1000 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setImageLoaded(true)}
+                draggable={false}
+              />
+          </div>
+
+           {/* Cinematic Gradient Overlays */}
+           {/* Bottom fade up: Fades to background color so text (in foreground color) is readable */}
+          <div className="absolute inset-x-0 bottom-0 h-4/5 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          
+          {/* Left-side vignette */}
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
        </div>
 
        {/* Content */}
-       <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 lg:p-16 flex flex-col items-start justify-end h-full pointer-events-none">
-          <div className="max-w-2xl pointer-events-auto space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-700">
+       <div className="absolute bottom-0 left-0 w-full px-16 py-8 md:px-20 md:py-12 lg:px-24 lg:py-16 flex flex-col items-start justify-end h-full pointer-events-none">
+          <div className="max-w-4xl pointer-events-auto space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
+             
+             {/* Logo or Title */}
+             {logoUrl ? (
+                 <img 
+                    src={logoUrl} 
+                    alt={item.Name || "Logo"}
+                    className={`h-20 md:h-28 lg:h-32 w-auto object-contain object-left-bottom drop-shadow-2xl transition-opacity duration-700 ${logoLoaded ? "opacity-100" : "opacity-0"}`}
+                    onLoad={() => setLogoLoaded(true)}
+                 />
+             ) : (
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-tight font-poppins">
+                    {item.Name}
+                </h1>
+             )}
+
              {/* Metadata Badges */}
-             <div className="flex items-center gap-3 text-sm font-medium text-white/90">
+             {!logoUrl && <div className="h-2" />} {/* Spacer if no logo */}
+             
+             <div className="flex items-center flex-wrap gap-3 text-sm font-medium text-foreground/80">
                 {item.ProductionYear && (
-                  <Badge variant="outline" className="border-white/30 bg-black/20 backdrop-blur-md text-white">
+                  <Badge variant="secondary" className="backdrop-blur-md shadow-sm">
                     {item.ProductionYear}
                   </Badge>
                 )}
                 {item.OfficialRating && (
-                   <span className="px-2 py-0.5 border border-white/30 rounded text-xs uppercase bg-black/20 backdrop-blur-md">
+                   <span className="px-2 py-0.5 border border-border rounded text-xs uppercase bg-secondary/50 backdrop-blur-md shadow-sm">
                       {item.OfficialRating}
                    </span>
                 )}
                 {item.CommunityRating && (
-                    <div className="flex items-center gap-1 text-yellow-400">
+                    <div className="flex items-center gap-1 text-primary">
                         <span>★</span>
-                        <span>{item.CommunityRating.toFixed(1)}</span>
+                        <span className="font-semibold">{item.CommunityRating.toFixed(1)}</span>
                     </div>
+                )}
+                {item.RunTimeTicks && (
+                    <span className="text-muted-foreground text-xs">
+                        {Math.round(item.RunTimeTicks / 600000000)} min
+                    </span>
                 )}
              </div>
 
-             {/* Title */}
-             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight drop-shadow-lg leading-tight">
-                {item.Name}
-             </h1>
 
               {/* Taglines or Genres */}
               {item.Taglines && item.Taglines.length > 0 && (
-                  <p className="text-lg text-white/90 italic font-light drop-shadow-md">
+                  <p className="text-lg text-foreground/90 italic font-light">
                       {item.Taglines[0]}
                   </p>
               )}
@@ -130,28 +170,28 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
 
              {/* Overview (Truncated) */}
              {item.Overview && (
-                <p className="text-white/80 line-clamp-3 text-base md:text-lg max-w-xl drop-shadow-md leading-relaxed">
+                <p className="text-muted-foreground line-clamp-3 text-sm md:text-base max-w-xl leading-relaxed font-sans">
                    {item.Overview}
                 </p>
              )}
 
              {/* Action Buttons */}
-             <div className="flex items-center gap-4 pt-4">
+             <div className="flex items-center gap-3 pt-2">
                 <Button 
                    size="lg" 
                    onClick={handlePlay}
-                   className="bg-white text-black hover:bg-white/90 font-semibold px-8 h-12 rounded-full transition-transform active:scale-95 shadow-xl hover:shadow-2xl hover:shadow-white/10"
+                   className="font-bold px-8 h-10 rounded-lg shadow-md hover:scale-105 transition-all duration-300"
                 >
-                   <Play className="mr-2 h-5 w-5 fill-black" />
+                   <Play className="mr-2 h-4 w-4 fill-current" />
                    Play
                 </Button>
                 <Button 
                    size="lg" 
-                   variant="outline" 
+                   variant="secondary" 
                    onClick={handleDetails}
-                   className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 px-8 h-12 rounded-full transition-transform active:scale-95"
+                   className="border border-border backdrop-blur-md px-8 h-10 rounded-lg hover:bg-secondary/80 hover:scale-105 transition-all duration-300"
                 >
-                   <Info className="mr-2 h-5 w-5" />
+                   <Info className="mr-2 h-4 w-4" />
                    More Info
                 </Button>
              </div>

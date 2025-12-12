@@ -45,9 +45,9 @@ export function HeroCarousel({ items, serverUrl }: HeroCarouselProps) {
           variant="outline"
           size="icon"
           onClick={scrollPrev}
-          className="rounded-full bg-black/30 border-white/20 text-white hover:bg-black/50 h-12 w-12 backdrop-blur-sm"
+          className="bg-background/40 border-border text-foreground hover:bg-primary hover:text-primary-foreground backdrop-blur-md h-9 w-9 rounded-md shadow-sm"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
       </div>
 
@@ -56,9 +56,9 @@ export function HeroCarousel({ items, serverUrl }: HeroCarouselProps) {
           variant="outline"
           size="icon"
           onClick={scrollNext}
-          className="rounded-full bg-black/30 border-white/20 text-white hover:bg-black/50 h-12 w-12 backdrop-blur-sm"
+          className="bg-background/40 border-border text-foreground hover:bg-primary hover:text-primary-foreground backdrop-blur-md h-9 w-9 rounded-md shadow-sm"
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

@@ -91,9 +91,7 @@ export default function Home() {
           </div>
         </div>
 
-        <HeroSection serverUrl={serverUrl} />
-
-        <div className="relative z-10 mb-8">
+        <div className="relative z-10 mb-4">
           <h2 className="text-3xl font-semibold text-foreground mb-2 font-poppins">
             Welcome back, {user?.Name}
           </h2>
@@ -101,6 +99,8 @@ export default function Home() {
             Continue watching or discover something new
           </p>
         </div>
+
+        <HeroSection serverUrl={serverUrl} />
 
         {resumeItems.length > 0 && (
           <MediaSection
