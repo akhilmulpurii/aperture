@@ -15,6 +15,7 @@ import SettingsPage from "./pages/settings";
 import PasswordSettingsPage from "./pages/password";
 import QuickConnectPage from "./pages/quick-connect";
 import Main from "./pages/main";
+import PlaybackTestPage from "./pages/playback-test";
 // import Main Layout
 
 import MainLayout from "./components/main-layout";
@@ -66,6 +67,7 @@ function App() {
                 <Route path="/quick-connect" element={<QuickConnectPage />} />
               </Route>
               <Route path="/login" element={<Login />} />
+              <Route path="/playback-test" element={<PlaybackTestPage />} />
             </Routes>
           </Router>
         </SettingsProvider>
