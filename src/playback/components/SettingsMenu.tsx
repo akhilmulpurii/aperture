@@ -107,8 +107,6 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({ manager }) => {
         manager.reportState({ subtitleOffset: newOffset });
     };
 
-    console.log(subtitleTracks,playbackState)
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>

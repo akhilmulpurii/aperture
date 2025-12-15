@@ -309,25 +309,40 @@ export function usePlaybackManager(): PlaybackContextValue {
         activePlayerRef.current?.setAudioStreamIndex(index);
     }, []);
 
-    const setSubtitleStreamIndex = useCallback((index: number) => {
-        // Reload stream with new subtitle index (handles burn-in/transcoding)
+    const setSubtitleStreamIndex = useCallback(async (index: number) => {
         const item = playbackState.currentItem;
-        if (!item) return;
+        const mediaSourceId = playbackState.currentMediaSource?.Id;
+        
+        // Try client-side switch for sidecar/VTT
+        if (item?.Id && mediaSourceId && activePlayerRef.current?.name === 'HTML Video Player') {
+            try {
+                const subs = await getSubtitleTracks(item.Id, mediaSourceId);
+                const targetTrack = subs.find(t => t.index === index);
+                
+                // If target is a valid sidecar track, switch instantly without reload
+                if (targetTrack) {
+                     activePlayerRef.current.setSubtitleStreamIndex(index);
+                     updateState({ subtitleStreamIndex: index });
+                     return;
+                }
+            } catch (e) {
+                console.warn("Failed to check sidecar tracks during switch", e);
+            }
+        }
 
+        // Reload stream with new subtitle index (handles burn-in/transcoding)
+        if (!item) return;
+ 
         const startTicks = Math.floor(playbackState.currentTime * 10000000);
         
         play(item, {
             mediaSourceId: playbackState.currentMediaSource?.Id || undefined,
             startPositionTicks: startTicks,
             subtitleStreamIndex: index,
-            // Preserve audio stream if needed? options.audioStreamIndex?
-            // We don't have it tracked in state explicitly except potentially inside the player.
-            // But usually default is fine unless user changed audio.
-            // TODO: Track audioStreamIndex in state for full persistence.
         });
         
         updateState({ subtitleStreamIndex: index });
-    }, [play, playbackState, updateState]);
+    }, [play, playbackState.currentItem, playbackState.currentMediaSource, playbackState.currentTime, updateState]);
 
     const setPreferredQuality = useCallback((quality: string) => {
         updateState({ preferredQuality: quality });

@@ -172,7 +172,10 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         getPlaybackRate: () => videoRef.current?.playbackRate || 1,
         setAudioStreamIndex: (index: number) => console.log('Set audio index', index),
         setSubtitleStreamIndex: (index: number) => {
-           // TODO: Implement subtitle track switching
+           setTextTracks(prev => prev.map(t => ({
+               ...t,
+               default: t.index === index
+           })));
         },
         destroy: resetPlayer
     }), []); // Dependencies empty = stable handle
@@ -217,7 +220,7 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         >
             {textTracks.map((track, i) => (
                 <track
-                    key={`${i}-${track.src}`}
+                    key={`${i}-${track.src}-${track.default}`}
                     kind={track.kind}
                     label={track.label}
                     srcLang={track.language}
