@@ -4,11 +4,12 @@ import { isFullscreenAtom } from '../../lib/atoms';
 import { PlaybackContextValue } from '../hooks/usePlaybackManager';
 import { Slider } from '../../components/ui/slider';
 import { useTrickplay } from '../../hooks/useTrickplay';
+import { useSkipSegments } from '../../hooks/useSkipSegments';
 import { Button } from '../../components/ui/button';
 import { 
     Play, Pause, Volume2, VolumeX, 
     Settings, Maximize, Minimize, ArrowLeft,
-    RotateCcw, RotateCw, Heart 
+    RotateCcw, RotateCw, Heart, SkipForward
 } from 'lucide-react';
 import { formatVideoTime } from '../../lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +24,8 @@ export const VideoOSD: React.FC<VideoOSDProps> = ({ manager, className }) => {
     const { playbackState } = manager;
     const { paused, currentTime, duration, currentItem, currentMediaSource, volume, muted } = playbackState;
     const { initializeTrickplay, renderThumbnail } = useTrickplay();
+    const { checkSegment } = useSkipSegments(currentItem?.Id);
+    const activeSegment = checkSegment(currentTime);
 
     useEffect(() => {
         if (currentItem) {
@@ -182,8 +185,27 @@ export const VideoOSD: React.FC<VideoOSDProps> = ({ manager, className }) => {
                 )}
             </div>
 
+            {/* Skip Button */}
+            {activeSegment && isVisible && (
+                <div className="absolute bottom-32 right-8 z-50 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <Button 
+                        variant="ghost"
+                        className="bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 gap-2 pl-4 pr-6 py-6 transition-all"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            manager.seek(activeSegment.EndTicks);
+                        }}
+                    >
+                        <SkipForward className="w-5 h-5 fill-white" />
+                        <span className="font-semibold tracking-wide">
+                            SKIP {activeSegment.Type === 'Intro' ? 'INTRO' : 'CREDITS'}
+                        </span>
+                    </Button>
+                </div>
+            )}
+
             {/* Bottom Controls */}
-            <div 
+            <div  
                 className={`bg-gradient-to-t from-black/90 to-transparent p-4 pb-4 transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
                 onClick={handleControlsClick}
             >
