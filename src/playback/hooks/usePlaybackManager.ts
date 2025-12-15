@@ -145,7 +145,7 @@ export function usePlaybackManager(): PlaybackContextValue {
             paused: false, 
             isEnded: false, 
             currentTime: 0, 
-            duration: 0 
+            duration: (itemToPlay!.RunTimeTicks || 0) / 10000000
         });
 
         try {

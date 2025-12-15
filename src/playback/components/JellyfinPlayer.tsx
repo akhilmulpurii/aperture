@@ -47,19 +47,33 @@ export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({
         playbackState.aspectRatio === 'cover' ? 'object-cover' :
         'object-contain';
 
+    const { registerPlayer, unregisterPlayer } = manager;
+    
+    // Stable ref callback for Video Player
+    const videoRefCallback = React.useCallback((player: Player | null) => {
+        if (player) registerPlayer('Video', player);
+        else unregisterPlayer('Video');
+    }, [registerPlayer, unregisterPlayer]);
+
+    // Stable ref callback for Audio Player
+    const audioRefCallback = React.useCallback((player: Player | null) => {
+        if (player) registerPlayer('Audio', player);
+        else unregisterPlayer('Audio');
+    }, [registerPlayer, unregisterPlayer]);
+
     return (
         <div className={`relative bg-black flex flex-col justify-center items-center ${className} group`}>
              <div className="w-full h-full"> 
                 {/* Render the appropriate player */}
                 <HTMLVideoPlayer 
-                    ref={(player: Player | null) => {
-                        if (player) manager.registerPlayer('Video', player);
-                        else manager.unregisterPlayer('Video');
-                    }}
+                    ref={videoRefCallback}
                     className={activePlayerType === 'Video' ? `block w-full h-full ${aspectRatioClass}` : 'hidden'}
                     subtitleOffset={playbackState.subtitleOffset || 0}
                     onTimeUpdate={(time) => {
                          manager.reportState({ currentTime: time });
+                    }}
+                    onDurationChange={(duration) => {
+                         manager.reportState({ duration });
                     }}
                     onEnded={() => {
                          manager.reportState({ isEnded: true });
@@ -67,10 +81,7 @@ export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({
                     }}
                 />
                 <HTMLAudioPlayer 
-                    ref={(player: Player | null) => {
-                        if (player) manager.registerPlayer('Audio', player);
-                        else manager.unregisterPlayer('Audio');
-                    }}
+                    ref={audioRefCallback}
                     className={activePlayerType === 'Audio' ? 'block' : 'hidden'} 
                 />
              </div>
