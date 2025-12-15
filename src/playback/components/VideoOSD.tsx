@@ -78,13 +78,13 @@ export const VideoOSD: React.FC<VideoOSDProps> = ({ manager, className }) => {
 
     return (
         <div 
-            className={`absolute inset-0 z-50 flex flex-col justify-between p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 cursor-none'}`}
+            className={`absolute inset-0 z-50 flex flex-col justify-between transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 cursor-none'}`}
             onMouseMove={handleMouseMove}
             onClick={handleOverlayClick}
         >
             {/* Top Bar */}
             <div 
-                className={`relative flex items-center justify-between transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
+                className={`relative flex px-4 pt-4 items-center justify-between transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
                 onClick={handleControlsClick}
             >
                 <div className="flex items-center gap-4 z-10">
@@ -126,7 +126,7 @@ export const VideoOSD: React.FC<VideoOSDProps> = ({ manager, className }) => {
 
             {/* Bottom Controls */}
             <div 
-                className={`bg-gradient-to-t from-black/90 to-transparent p-4 pb-8 rounded-xl transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
+                className={`bg-gradient-to-t from-black/90 to-transparent p-4 pb-4 transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
                 onClick={handleControlsClick}
             >
                 {/* Timeline */}
@@ -170,12 +170,12 @@ export const VideoOSD: React.FC<VideoOSDProps> = ({ manager, className }) => {
                             <Button variant="ghost" size="icon" onClick={manager.toggleMute}>
                                 {muted || volume === 0 ? <VolumeX className="w-6 h-6 text-white" /> : <Volume2 className="w-6 h-6 text-white" />}
                             </Button>
-                            <div className="w-0 overflow-hidden group-hover:w-24 transition-all duration-300 ease-in-out">
+                            <div className="w-0 group-hover:w-24 transition-all duration-300 ease-in-out">
                                 <Slider 
                                     value={[muted ? 0 : volume]} 
                                     max={100} 
                                     onValueChange={(val) => manager.setVolume(val[0])}
-                                    className="w-24"
+                                    className="flex-1 cursor-pointer w-24"
                                 />
                             </div>
                         </div>
