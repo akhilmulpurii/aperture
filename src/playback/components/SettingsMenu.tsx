@@ -145,18 +145,10 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({ manager }) => {
                     <DropdownMenuSubTrigger>
                         <span className="flex-1">Subtitles</span>
                         <span className="text-xs text-gray-400 ml-2">
-                            {playbackState.subtitleOffset !== 0 ? `(${playbackState.subtitleOffset}ms) ` : ''}
-                            {subtitleTracks.find(t => t.index === playbackState.subtitleStreamIndex)?.label || (playbackState.subtitleStreamIndex === -1 ? "Off" : (subtitleTracks.length > 0 ? "Select" : "None"))}
+                            {subtitleTracks.find(t => t.index === playbackState.subtitleStreamIndex)?.language?.toUpperCase() || (playbackState.subtitleStreamIndex === -1 ? "Off" : (subtitleTracks.length > 0 ? "Select" : "None"))}
                         </span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent className="bg-black/90 text-white border-gray-800 rounded-md">
-                         <DropdownMenuLabel>Offset</DropdownMenuLabel>
-                         <div className="flex justify-between px-2 py-1 gap-1">
-                             <Button variant="outline" size="sm" onClick={() => adjustSubtitleOffset(-100)} className="h-6 text-xs">-100ms</Button>
-                             <Button variant="outline" size="sm" onClick={() => manager.reportState({ subtitleOffset: 0 })} className="h-6 text-xs">Reset</Button>
-                             <Button variant="outline" size="sm" onClick={() => adjustSubtitleOffset(100)} className="h-6 text-xs">+100ms</Button>
-                         </div>
-                         <DropdownMenuSeparator className="bg-gray-700 my-1" />
                         <DropdownMenuRadioGroup value={String(playbackState.subtitleStreamIndex ?? -1)} onValueChange={handleSubtitleChange}>
                              <DropdownMenuRadioItem value="-1">Off</DropdownMenuRadioItem>
                             {subtitleTracks.map((track, i) => (

@@ -390,8 +390,6 @@ export async function getSubtitleTracks(
       };
     });
 
-    console.log("Subtitle tracks:", subtitleTracks);
-
     return subtitleTracks;
   } catch (error) {
     console.error("Failed to fetch subtitle tracks:", error);
