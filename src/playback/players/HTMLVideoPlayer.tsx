@@ -50,7 +50,7 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         setTextTracks([]); // Clear tracks on reset
     };
 
-    const playInternal = async (url: string, options: PlayOptions) => {
+    const playInternal = async (item: BaseItemDto, url: string, options: PlayOptions) => {
         if (!videoRef.current) return;
 
         if (!url) {
@@ -72,22 +72,40 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         const seconds = startTicks / 10000000;
         const onError = propsRef.current.onError;
 
+        const isLive = item.Type === 'TvChannel' || options.mediaSource?.IsInfiniteStream;
+
         // Check for HLS
-        if (htmlMediaHelper.enableHlsJsPlayer(undefined, 'Video') && (url.includes('.m3u8') || options.mediaSourceId)) {
+        if (htmlMediaHelper.enableHlsJsPlayer(undefined, 'Video') && url.includes('.m3u8')) {
              // Basic HLS check - in real app might need more robust detection via MediaSource info
+             // Basic HLS check
              if (Hls.isSupported()) {
-                 const hls = new Hls({
+                 const hlsConfig: any = isLive ? {
                      enableWorker: true,
                      lowLatencyMode: true,
-                 });
+                     maxBufferLength: 30,
+                     backBufferLength: 30,
+                     startPosition: seconds
+                 } : {
+                     enableWorker: true,
+                     lowLatencyMode: false,
+                     // Match jellyfin-web: 240s (4 mins) buffer for VOD
+                     maxBufferLength: 240, 
+                     maxMaxBufferLength: 240,
+                     startPosition: seconds,
+                     manifestLoadingTimeOut: 20000,
+                 };
+
+                 console.log('HLS Config:', hlsConfig);
+
+                 const hls = new Hls(hlsConfig);
                  hls.loadSource(url);
                  hls.attachMedia(videoRef.current);
                  hlsRef.current = hls;
 
                  hls.on(Hls.Events.MANIFEST_PARSED, () => {
                      if (videoRef.current) {
-                         videoRef.current.currentTime = seconds;
-                         videoRef.current.play().catch(e => onError?.(e));
+                         // Note: startPosition in config handles the initial seek
+                         return videoRef.current.play().catch(e => onError?.(e));
                      }
                  });
                  
@@ -128,7 +146,7 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         play: async (item: BaseItemDto, options?: PlayOptions) => {
             if (!videoRef.current || !options) return;
             const playUrl = (options as any).url;
-            return playInternal(playUrl, options);
+            return playInternal(item, playUrl, options);
         },
         pause: () => videoRef.current?.pause(),
         unpause: () => videoRef.current?.play(),

@@ -72,6 +72,7 @@ export {
   fetchSystemInfo,
   restartServer,
   shutdownServer,
+  canBrowserDirectPlayHevc,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
 

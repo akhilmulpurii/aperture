@@ -23,7 +23,7 @@ const HEVC_MEDIA_TYPES = [
 
 let cachedHevcSupport: boolean | null = null;
 
-function canBrowserDirectPlayHevc(): boolean {
+export function canBrowserDirectPlayHevc(): boolean {
   if (cachedHevcSupport !== null) return cachedHevcSupport;
 
   if (typeof navigator === "undefined") {
@@ -208,12 +208,12 @@ export async function getStreamUrl(
   const supportsHevc = canBrowserDirectPlayHevc();
   const preferredVideoCodecs = supportsHevc ? "h264,hevc" : "h264";
   const requireAvc = (!supportsHevc).toString();
-  const allowVideoStreamCopy = supportsHevc.toString();
+  const allowVideoStreamCopy = "true";
 
   // Generate a unique PlaySessionId for each stream request
   const playSessionId = uuidv4();
 
-  let url = `${serverUrl}/Videos/${itemId}/master.m3u8?api_key=${user.AccessToken}&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&VideoCodec=${preferredVideoCodecs}&AudioCodec=aac,mp3&TranscodingProtocol=hls&RequireAvc=${requireAvc}&AllowVideoStreamCopy=${allowVideoStreamCopy}&AudioStreamIndex=${audioStreamIndex}`;
+  let url = `${serverUrl}/Videos/${itemId}/master.m3u8?api_key=${user.AccessToken}&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&VideoCodec=${preferredVideoCodecs}&AudioCodec=aac&TranscodingProtocol=hls&RequireAvc=${requireAvc}&AllowVideoStreamCopy=${allowVideoStreamCopy}&AudioStreamIndex=${audioStreamIndex}&SegmentContainer=mp4&BreakOnNonKeyFrames=True&MinSegments=2&MaxFramerate=60`;
 
   if (subtitleStreamIndex !== undefined) {
     url += `&SubtitleStreamIndex=${subtitleStreamIndex}`;
@@ -235,6 +235,10 @@ export async function getStreamUrl(
         url += "&width=1280&height=720&videoBitRate=4000000";
         break;
     }
+  } else {
+    // Default cap: 10 Mbps (High efficiency, good performance)
+    // This prevents "Auto" (undefined) from requesting unlimited bitrate which causes lag
+    url += "&videoBitRate=10000000";
   }
 
   return url;

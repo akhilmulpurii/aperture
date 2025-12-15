@@ -1,6 +1,16 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { BaseItemDto, MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models";
-import { markFavorite, unmarkFavorite, getStreamUrl, fetchMediaDetails, getSubtitleTracks, reportPlaybackStart, reportPlaybackProgress, reportPlaybackStopped } from '../../actions';
+import { 
+    fetchMediaDetails, 
+    reportPlaybackStart, 
+    reportPlaybackProgress, 
+    reportPlaybackStopped, 
+    getStreamUrl,
+    getDirectStreamUrl,
+    getSubtitleTracks,
+    markFavorite,
+    unmarkFavorite
+} from '../../actions';
 import { PlaybackState, Player, PlayOptions, PlayerType } from '../types';
 import { PlayQueueManager } from '../utils/playQueueManager';
 
@@ -205,6 +215,16 @@ export function usePlaybackManager(): PlaybackContextValue {
              try {
                 // Optimize burn-in: If we have sidecar for selected index, don't burn in.
                 let urlSubtitleIndex = options.subtitleStreamIndex;
+                // Fetch subtitle tracks for client-side rendering
+                if (!options.textTracks && itemToPlay?.Id && mediaSource?.Id) {
+                     try {
+                         const tracks = await getSubtitleTracks(itemToPlay.Id, mediaSource.Id);
+                         options.textTracks = tracks;
+                     } catch (e) {
+                         console.warn("Failed to fetch subtitle tracks for playback", e);
+                     }
+                }
+
                 if (options.textTracks && urlSubtitleIndex !== undefined && urlSubtitleIndex !== -1) {
                     const hasSidecar = options.textTracks.some(t => t.index === urlSubtitleIndex);
                     if (hasSidecar) {
@@ -212,14 +232,44 @@ export function usePlaybackManager(): PlaybackContextValue {
                     }
                 }
 
-                options.url = await getStreamUrl(
-                    itemToPlay!.Id!, 
-                    mediaSource.Id, 
-                    undefined, 
-                    options.videoBitrate,
-                    options.audioStreamIndex,
-                    urlSubtitleIndex
-                );
+                // Optimization: If the selected subtitle stream is text-based (srt, subrip, vtt, ass, ssa),
+                // we should extract it client-side instead of burning it in.
+                if (urlSubtitleIndex !== undefined && urlSubtitleIndex !== -1) {
+                    const selectedSub = mediaSource.MediaStreams?.find(s => s.Type === 'Subtitle' && s.Index === urlSubtitleIndex);
+                    const isTextSub = selectedSub && ['subrip', 'srt', 'ass', 'ssa', 'vtt'].includes((selectedSub.Codec || '').toLowerCase());
+                    if (isTextSub) {
+                        // Don't burn it in (let client fetch VTT)
+                        urlSubtitleIndex = -1;
+                    }
+                }
+
+                const isDirectPlayCompatible = 
+                    mediaSource.SupportsDirectPlay || 
+                    (mediaSource.Container === 'mp4' && mediaSource.MediaStreams?.some(s => s.Type === 'Video' && s.Codec === 'h264'));
+
+                // Ensure selected bitrate allows for direct play
+                const isBitrateCompatible = !options.videoBitrate || (mediaSource.Bitrate && options.videoBitrate >= mediaSource.Bitrate);
+
+                // Ensure Audio Codec is supported by browser (AAC, MP3, Opus, FLAC, Vorbis)
+                // If not, we must fallback to Direct Stream (Video Copy + Audio Transcode)
+                const selectedAudio = mediaSource.MediaStreams?.find(s => s.Type === 'Audio' && s.Index === options.audioStreamIndex);
+                const SUPPORTED_AUDIO_CODECS = ['aac', 'mp3', 'opus', 'flac', 'vorbis'];
+                const isAudioCompatible = selectedAudio && SUPPORTED_AUDIO_CODECS.includes((selectedAudio.Codec || '').toLowerCase());
+
+                if (isDirectPlayCompatible && urlSubtitleIndex === -1 && isBitrateCompatible && isAudioCompatible) {
+                     // Try Direct Play (Static URL)
+                     // Note: Direct Play doesn't support burning subtitles, so only use if no subs or sidecar subs
+                     options.url = await getDirectStreamUrl(itemToPlay!.Id!, mediaSource, options.audioStreamIndex);
+                } else {
+                    options.url = await getStreamUrl(
+                        itemToPlay!.Id!, 
+                        mediaSource.Id, 
+                        undefined, 
+                        options.videoBitrate,
+                        options.audioStreamIndex,
+                        urlSubtitleIndex
+                    );
+                }
              } catch (e) {
                  console.error("Failed to generate stream URL", e);
              }
@@ -251,7 +301,7 @@ export function usePlaybackManager(): PlaybackContextValue {
         }
 
         try {
-            await player.play(itemToPlay!, options);
+            await player.play(itemToPlay!, { ...options, mediaSource: mediaSource || undefined });
             // Volume/Mute sync
             // player.setVolume(playbackState.volume);
             // player.setMute(playbackState.muted);

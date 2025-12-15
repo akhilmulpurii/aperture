@@ -15,7 +15,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Settings, Check } from 'lucide-react';
 import { PlaybackContextValue } from '../hooks/usePlaybackManager';
-import { getAudioTracks, getSubtitleTracks } from '../../actions';
+import { getAudioTracks, getSubtitleTracks, canBrowserDirectPlayHevc } from '../../actions';
 import { getVideoQualityOptions, QualityOption } from '../utils/quality';
 
 interface SettingsMenuProps {
@@ -174,7 +174,17 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = ({ manager }) => {
                     <DropdownMenuSubContent className="bg-black/90 text-white border-gray-800 max-h-[60vh] overflow-y-auto">
                         <DropdownMenuRadioGroup value={playbackState.preferredQuality} onValueChange={handleQualityChange}>
                             <DropdownMenuRadioItem value="auto">Auto</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem value="direct">Direct Play</DropdownMenuRadioItem>
+                            
+                            {/* Only show Direct Play if video codec is supported */}
+                            {(() => {
+                                const videoStream = currentMediaSource?.MediaStreams?.find(s => s.Type === 'Video');
+                                const isHevc = videoStream?.Codec?.toLowerCase().includes('hevc') || videoStream?.Codec?.toLowerCase().includes('h265');
+                                const isSupported = !isHevc || canBrowserDirectPlayHevc();
+                                
+                                return isSupported && (
+                                    <DropdownMenuRadioItem value="direct">Direct Play</DropdownMenuRadioItem>
+                                );
+                            })()}
 
                             {qualityOptions.map((option) => (
                                 option.name !== 'Auto' && (

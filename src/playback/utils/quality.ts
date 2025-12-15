@@ -21,17 +21,9 @@ export function getVideoQualityOptions(options: VideoQualityInput): QualityOptio
     let referenceBitRate = videoBitRate;
 
     const bitrateConfigurations = [
-        { name: '120 Mbps', maxHeight: 2160, bitrate: 120000000 },
-        { name: '80 Mbps', maxHeight: 2160, bitrate: 80000000 },
-        { name: '60 Mbps', maxHeight: 2160, bitrate: 60000000 },
-        { name: '40 Mbps', maxHeight: 2160, bitrate: 40000000 },
-        { name: '20 Mbps', maxHeight: 2160, bitrate: 20000000 },
-        { name: '15 Mbps', maxHeight: 1440, bitrate: 15000000 },
         { name: '10 Mbps', maxHeight: 1440, bitrate: 10000000 },
         { name: '8 Mbps', maxHeight: 1080, bitrate: 8000000 },
-        { name: '6 Mbps', maxHeight: 1080, bitrate: 6000000 },
         { name: '4 Mbps', maxHeight: 720, bitrate: 4000000 },
-        { name: '3 Mbps', maxHeight: 720, bitrate: 3000000 },
         { name: '1.5 Mbps', maxHeight: 720, bitrate: 1500000 },
         { name: '720 kbps', maxHeight: 480, bitrate: 720000 },
         { name: '420 kbps', maxHeight: 360, bitrate: 420000 }

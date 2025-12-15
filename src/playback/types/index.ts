@@ -3,6 +3,7 @@ import { BaseItemDto, MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client
 export interface PlayOptions {
   fullscreen?: boolean;
   mediaSourceId?: string;
+  mediaSource?: MediaSourceInfo;
   audioStreamIndex?: number;
   subtitleStreamIndex?: number;
   startPositionTicks?: number;
