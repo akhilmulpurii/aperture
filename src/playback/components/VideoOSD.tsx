@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAtom } from 'jotai';
+import { isFullscreenAtom } from '../../lib/atoms';
 import { PlaybackContextValue } from '../hooks/usePlaybackManager';
 import { Slider } from '../../components/ui/slider';
 import { Button } from '../../components/ui/button';
@@ -58,13 +60,7 @@ export const VideoOSD: React.FC<VideoOSDProps> = ({ manager, className }) => {
         paused ? manager.unpause() : manager.pause();
     };
 
-    const [isFullscreen, setIsFullscreen] = useState(false);
-
-    useEffect(() => {
-        const handleChange = () => setIsFullscreen(!!document.fullscreenElement);
-        document.addEventListener('fullscreenchange', handleChange);
-        return () => document.removeEventListener('fullscreenchange', handleChange);
-    }, []);
+    const [isFullscreen] = useAtom(isFullscreenAtom);
 
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
