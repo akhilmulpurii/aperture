@@ -3,6 +3,7 @@ import { FullscreenDetector } from "../components/fullscreen-detector";
 import { LayoutContent } from "../components/layout-content";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { PlaybackProvider } from "../playback/context/PlaybackProvider";
 
 export default function MainLayout() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -19,10 +20,12 @@ export default function MainLayout() {
 
   return (
     <JotaiProvider>
-      <FullscreenDetector />
-      <LayoutContent>
-        <Outlet />
-      </LayoutContent>
+      <PlaybackProvider>
+        <FullscreenDetector />
+        <LayoutContent>
+          <Outlet />
+        </LayoutContent>
+      </PlaybackProvider>
     </JotaiProvider>
   );
 }

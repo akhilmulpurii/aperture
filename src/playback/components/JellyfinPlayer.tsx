@@ -3,7 +3,7 @@ import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { HTMLVideoPlayer } from '../players/HTMLVideoPlayer';
 import { HTMLAudioPlayer } from '../players/HTMLAudioPlayer';
 import { PlaybackControls } from './PlaybackControls';
-import { usePlaybackManager } from '../hooks/usePlaybackManager';
+import { PlaybackContextValue, usePlaybackManager } from '../hooks/usePlaybackManager';
 import { Player } from '../types';
 
 interface JellyfinPlayerProps {
@@ -11,15 +11,20 @@ interface JellyfinPlayerProps {
     item?: BaseItemDto;
     startPositionTicks?: number;
     options?: any;
+    manager?: PlaybackContextValue;
 }
 
 export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({ 
     className, 
     item, 
     startPositionTicks,
-    options
+    options,
+    manager: propManager
 }) => {
-    const manager = usePlaybackManager();
+    // If manager is passed via props (from Provider), use it. Otherwise, create a local one.
+    const localManager = usePlaybackManager();
+    const manager = propManager || localManager;
+    
     const { playbackState } = manager;
     
     // Auto-play when item changes

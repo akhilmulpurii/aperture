@@ -9,6 +9,7 @@ export interface PlayOptions {
   startIndex?: number;
   ids?: string[];
   startPosition?: number;
+  url?: string;
 }
 
 export type PlayerType = 'Video' | 'Audio' | 'Youtube' | 'Phote';
