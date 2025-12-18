@@ -235,6 +235,24 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         };
     }, [onTimeUpdate, onDurationChange, onEnded, onPause, onPlay, onVolumeChange, onError]);
 
+    // Sync DOM TextTracks mode whenever textTracks state changes
+    useEffect(() => {
+        if (!videoRef.current) return;
+        const domTracks = videoRef.current.textTracks;
+        
+        // Browsers can take a moment to populate textTracks after <track> tags are added
+        // We sync modes based on our internal state record
+        for (let i = 0; i < domTracks.length; i++) {
+            const domTrack = domTracks[i];
+            const matchingStateTrack = textTracks.find(t => t.label === domTrack.label);
+            if (matchingStateTrack) {
+                domTrack.mode = matchingStateTrack.default ? 'showing' : 'disabled';
+            } else {
+                domTrack.mode = 'disabled';
+            }
+        }
+    }, [textTracks]);
+
     return (
         <video 
             ref={videoRef}
@@ -244,7 +262,7 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         >
             {textTracks.map((track, i) => (
                 <track
-                    key={`${i}-${track.src}-${track.default}`}
+                    key={`${i}-${track.src}`} // Don't include 'default' in key to avoid recreation
                     kind={track.kind}
                     label={track.label}
                     srcLang={track.language}

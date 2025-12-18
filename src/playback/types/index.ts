@@ -45,6 +45,14 @@ export interface PlaybackState {
   preferredQuality: string;
   isMiniPlayer?: boolean;
   isLoading?: boolean;
+  textTracks?: Array<{
+    kind: string;
+    label: string;
+    src: string;
+    language: string;
+    default?: boolean;
+    index: number;
+  }>;
 }
 
 export interface Player {

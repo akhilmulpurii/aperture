@@ -185,6 +185,8 @@ export function usePlaybackManager(): PlaybackContextValue {
                  } else {
                      options.textTracks = subs;
                  }
+                 // Store in state so we don't re-fetch during switching
+                 updateState({ textTracks: subs });
              }
         } catch (e) {
             console.error("Failed to load sidecar subtitles", e);
@@ -481,15 +483,33 @@ export function usePlaybackManager(): PlaybackContextValue {
         
         // Try client-side switch for sidecar/VTT
         if (item?.Id && mediaSourceId && activePlayerRef.current?.name === 'HTML Video Player') {
+            // Use cached tracks from state if available
+            const subs = playbackState.textTracks || [];
+            
+            // If its "Off" (-1), we can always handle it client-side
+            if (index === -1) {
+                activePlayerRef.current.setSubtitleStreamIndex(index);
+                updateState({ subtitleStreamIndex: index });
+                return;
+            }
+
+            const targetTrack = subs.find(t => t.index === index);
+            
+            // If target is a valid sidecar track, switch instantly without reload
+            if (targetTrack) {
+                 activePlayerRef.current.setSubtitleStreamIndex(index);
+                 updateState({ subtitleStreamIndex: index });
+                 return;
+            }
+
+            // If not in state, try one quick fetch just in case
             try {
-                const subs = await getSubtitleTracks(item.Id, mediaSourceId);
-                const targetTrack = subs.find(t => t.index === index);
-                
-                // If target is a valid sidecar track, switch instantly without reload
-                if (targetTrack) {
-                     activePlayerRef.current.setSubtitleStreamIndex(index);
-                     updateState({ subtitleStreamIndex: index });
-                     return;
+                const freshSubs = await getSubtitleTracks(item.Id, mediaSourceId);
+                const freshTarget = freshSubs.find(t => t.index === index);
+                if (freshTarget) {
+                    updateState({ textTracks: freshSubs, subtitleStreamIndex: index });
+                    activePlayerRef.current.setSubtitleStreamIndex(index);
+                    return;
                 }
             } catch (e) {
                 console.warn("Failed to check sidecar tracks during switch", e);
@@ -508,7 +528,7 @@ export function usePlaybackManager(): PlaybackContextValue {
         });
         
         updateState({ subtitleStreamIndex: index });
-    }, [play, playbackState.currentItem, playbackState.currentMediaSource, playbackState.currentTime, updateState]);
+    }, [play, playbackState.currentItem, playbackState.currentMediaSource, playbackState.currentTime, playbackState.textTracks, updateState]);
 
     const setPreferredQuality = useCallback((quality: string) => {
         updateState({ preferredQuality: quality });
