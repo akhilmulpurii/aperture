@@ -67,8 +67,6 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const {
-    playbackMode,
-    setPlaybackMode,
     enableThemeBackdrops,
     setEnableThemeBackdrops,
     enableThemeSongs,
@@ -233,14 +231,6 @@ export default function SettingsPage() {
 
   // Mock preferences
   const preferences = [
-    {
-      id: "always-transcode",
-      title: "Always Transcode",
-      description: "Force media to be transcoded during playback.",
-      checked: playbackMode === "transcode",
-      onCheckedChange: (checked: boolean) =>
-        setPlaybackMode(checked ? "transcode" : "direct"),
-    },
     {
       id: "enable-theme-backdrops",
       title: "Enable Theme Backdrops",

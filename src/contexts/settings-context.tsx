@@ -6,7 +6,6 @@ export interface BitrateOption {
   bitrate: number;
 }
 
-export type PlaybackMode = "transcode" | "direct";
 
 export const BITRATE_OPTIONS: BitrateOption[] = [
   { value: "auto", label: "Auto", bitrate: 0 },
@@ -22,8 +21,6 @@ export type AIProvider = "gemini" | "ollama" | "groq" | "openrouter";
 interface SettingsContextType {
   videoBitrate: string;
   setVideoBitrate: (bitrate: string) => void;
-  playbackMode: PlaybackMode;
-  setPlaybackMode: (mode: PlaybackMode) => void;
   enableThemeBackdrops: boolean;
   setEnableThemeBackdrops: (enable: boolean) => void;
   enableThemeSongs: boolean;
@@ -36,7 +33,6 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [videoBitrate, setVideoBitrateState] = useState<string>("auto");
-  const [playbackMode, setPlaybackModeState] = useState<PlaybackMode>("direct");
   const [enableThemeBackdrops, setEnableThemeBackdropsState] = useState(true);
   const [enableThemeSongs, setEnableThemeSongsState] = useState(true);
 
@@ -50,10 +46,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       setVideoBitrateState(savedBitrate);
     }
 
-    const savedPlaybackMode = localStorage.getItem("aperture-playback-mode");
-    if (savedPlaybackMode === "direct" || savedPlaybackMode === "transcode") {
-      setPlaybackModeState(savedPlaybackMode);
-    }
 
     const savedThemeBackdrops = localStorage.getItem(
       "aperture-enable-theme-backdrops"
@@ -74,10 +66,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("aperture-video-bitrate", bitrate);
   };
 
-  const setPlaybackMode = (mode: PlaybackMode) => {
-    setPlaybackModeState(mode);
-    localStorage.setItem("aperture-playback-mode", mode);
-  };
 
   const setEnableThemeBackdrops = (enable: boolean) => {
     setEnableThemeBackdropsState(enable);
@@ -94,8 +82,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       value={{
         videoBitrate,
         setVideoBitrate,
-        playbackMode,
-        setPlaybackMode,
         enableThemeBackdrops,
         setEnableThemeBackdrops,
         enableThemeSongs,
