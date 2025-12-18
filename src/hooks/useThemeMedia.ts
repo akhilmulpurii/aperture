@@ -9,6 +9,8 @@ export function useThemeMedia(itemId?: string | null) {
   const [isLoadingTheme, setIsLoadingTheme] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [videoFinished, setVideoFinished] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
  
@@ -110,13 +112,16 @@ export function useThemeMedia(itemId?: string | null) {
     const audio = new Audio(themeSongUrl);
     audio.loop = true;
     audio.volume = 0.35;
+    audio.muted = isMuted;
     audioRef.current = audio;
 
     const startPlayback = async () => {
       try {
         // Ensure this audio instance is still the active one
         if (audioRef.current !== audio) return;
-        await audio.play();
+        if (isPlaying) {
+          await audio.play();
+        }
       } catch (error) {
         console.warn("Theme song autoplay was blocked:", error);
       }
@@ -127,7 +132,7 @@ export function useThemeMedia(itemId?: string | null) {
     return () => {
       cleanupAudio();
     };
-  }, [themeSongUrl, cleanupAudio, isPlayerActive]);
+  }, [themeSongUrl, cleanupAudio, isPlayerActive, isPlaying, isMuted]);
 
   useEffect(() => {
     if (!themeVideoUrl) return;
@@ -137,20 +142,43 @@ export function useThemeMedia(itemId?: string | null) {
 
   const tryPlayVideo = useCallback(async () => {
     const video = videoRef.current;
-    if (!video || videoFinished) return;
+    if (!video || videoFinished || !isPlaying) return;
     try {
+      video.muted = isMuted;
       await video.play();
     } catch (error) {
       console.warn("Theme video autoplay blocked:", error);
-      setVideoFinished(true);
+      // Don't set videoFinished(true) here as user might want to manually play later
+      setIsPlaying(false);
     }
-  }, [videoFinished]);
+  }, [videoFinished, isPlaying, isMuted]);
 
   useEffect(() => {
-    if (videoReady && themeVideoUrl && !videoFinished) {
+    if (videoReady && themeVideoUrl && !videoFinished && isPlaying) {
       tryPlayVideo();
     }
-  }, [videoReady, videoFinished, themeVideoUrl, tryPlayVideo]);
+  }, [videoReady, videoFinished, themeVideoUrl, tryPlayVideo, isPlaying]);
+
+  // Sync video muted state
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  // Sync video playing state
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (isPlaying && videoReady && !videoFinished) {
+      video.play().catch(err => {
+        console.warn("Manual theme play failed:", err);
+        setIsPlaying(false);
+      });
+    } else {
+      video.pause();
+    }
+  }, [isPlaying, videoReady, videoFinished]);
 
   // If player becomes active, we want to "unmount" (logically) the video state
   // so that when we return, we wait for readiness again.
@@ -175,6 +203,7 @@ export function useThemeMedia(itemId?: string | null) {
   }, []);
 
   const pauseThemeMedia = useCallback(() => {
+    setIsPlaying(false);
     const video = videoRef.current;
     if (video && !video.paused && !videoFinished) {
       video.pause();
@@ -184,6 +213,14 @@ export function useThemeMedia(itemId?: string | null) {
       audio.pause();
     }
   }, [videoFinished]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => !prev);
+  }, []);
+
+  const togglePlay = useCallback(() => {
+    setIsPlaying(prev => !prev);
+  }, []);
 
   const stopThemeMedia = useCallback(() => {
     const video = videoRef.current;
@@ -208,10 +245,16 @@ export function useThemeMedia(itemId?: string | null) {
 
   return {
     themeVideoUrl,
+    themeSongUrl,
     videoRef,
     showThemeVideo,
     shouldShowBackdropImage,
-    hasThemeVideo: Boolean(themeVideoUrl),
+    isMuted,
+    isPlaying,
+    isPlayerActive,
+    toggleMute,
+    togglePlay,
+    hasThemeMedia: Boolean(themeVideoUrl || themeSongUrl),
     isLoadingTheme,
     handleVideoCanPlay,
     handleVideoEnded,

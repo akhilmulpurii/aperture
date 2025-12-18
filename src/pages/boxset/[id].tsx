@@ -28,6 +28,7 @@ import _ from "lodash";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../../components/loading-spinner";
 import { useThemeMedia } from "../../hooks/useThemeMedia";
+import { ThemeMediaControls } from "../../components/media-page/ThemeMediaControls";
 import { motion } from "framer-motion";
 
 export default function BoxSet() {
@@ -50,6 +51,12 @@ export default function BoxSet() {
     handleVideoEnded,
     handleVideoError,
     pauseThemeMedia,
+    isMuted,
+    isPlaying,
+    isPlayerActive,
+    toggleMute,
+    togglePlay,
+    hasThemeMedia,
   } = useThemeMedia(boxset?.Id ?? null);
 
   useEffect(() => {
@@ -156,6 +163,13 @@ export default function BoxSet() {
         </div>
 
         {/* Search bar positioned over backdrop */}
+        <ThemeMediaControls
+          isMuted={isMuted}
+          isPlaying={isPlaying}
+          toggleMute={toggleMute}
+          togglePlay={togglePlay}
+          isVisible={hasThemeMedia && !isPlayerActive}
+        />
         <div className="absolute top-8 left-0 right-0 z-20 px-6">
           <SearchBar />
         </div>
