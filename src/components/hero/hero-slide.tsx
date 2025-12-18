@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { decode } from "blurhash";
 import { AmbientLight } from "./ambient-light";
 import { CinematicParticles } from "./cinematic-particles";
+import { OptimizedImage } from "../optimized-image";
 
 interface HeroSlideProps {
   item: BaseItemDto;
@@ -96,7 +97,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
 
           {/* Wrapper for Ken Burns Effect */}
           <div className="w-full h-full animate-ken-burns">
-              <img
+              <OptimizedImage
                 src={imageUrl}
                 alt={item.Name || "Hero Background"}
                 className={`w-full h-full object-cover transition-opacity duration-1000 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
@@ -118,7 +119,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
              
              {/* Logo or Title */}
              {logoUrl ? (
-                 <img 
+                 <OptimizedImage
                     src={logoUrl} 
                     alt={item.Name || "Logo"}
                     className={`h-20 md:h-28 lg:h-32 w-auto object-contain object-left-bottom drop-shadow-2xl transition-opacity duration-700 ${logoLoaded ? "opacity-100" : "opacity-0"}`}

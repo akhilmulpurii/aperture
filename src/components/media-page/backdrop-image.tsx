@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { decode } from "blurhash";
+import { OptimizedImage } from "../optimized-image";
 
 interface BackdropImageProps {
   movie: BaseItemDto;
@@ -72,10 +73,8 @@ export function BackdropImage({
       )}
 
       {/* Actual backdrop image */}
-      <img
-        className={`${className} transition-opacity duration-300 ${
-          imageLoaded ? "opacity-100" : "opacity-0"
-        }`}
+      <OptimizedImage
+        className={`${className} transition-opacity duration-300`}
         src={backdropImage}
         alt={`${movie.Name} backdrop`}
         width={width}
@@ -85,12 +84,6 @@ export function BackdropImage({
         }}
         onError={() => {
           console.error("Failed to load backdrop image");
-        }}
-        ref={(img) => {
-          // Check if image is already loaded (cached)
-          if (img && img.complete && img.naturalHeight !== 0) {
-            setImageLoaded(true);
-          }
         }}
       />
     </>

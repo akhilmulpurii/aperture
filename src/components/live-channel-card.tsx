@@ -5,6 +5,7 @@ import { usePlayback } from "../hooks/usePlayback";
 
 import { decode } from "blurhash";
 import { Link } from "react-router-dom";
+import { OptimizedImage } from "./optimized-image";
 
 export function LiveChannelCard({
   item,
@@ -96,7 +97,7 @@ export function LiveChannelCard({
               )}
               {/* Actual image */}
               {imageUrl ? (
-                <img
+                <OptimizedImage
                   src={imageUrl}
                   alt={item.Name || ""}
                   className={`w-full h-full object-cover transition-opacity duration-300 shadow-lg group-hover:shadow-md rounded-md opacity-100`}
@@ -104,12 +105,6 @@ export function LiveChannelCard({
                     setImageLoaded(true);
                   }}
                   draggable={false}
-                  ref={(img) => {
-                    // Check if image is already loaded (cached)
-                    if (img && img.complete && img.naturalHeight !== 0) {
-                      setImageLoaded(true);
-                    }
-                  }}
                 />
               ) : (
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center rounded-lg shadow-lg p-8">

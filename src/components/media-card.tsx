@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Play } from "lucide-react";
 import { decode } from "blurhash";
 import { usePlayback } from "../hooks/usePlayback";
+import { OptimizedImage } from "./optimized-image";
 
 type MediaCardProps = {
   item: BaseItemDto;
@@ -220,7 +221,11 @@ export const MediaCard = React.memo(function MediaCard({
         <Link to={linkHref} draggable={false} className="block w-full h-full">
           {canShowImage ? (
             <>
-              {/* Blur hash placeholder */}
+              {/* Blur hash placeholder handled internally by OptimizedImage or redundant if strict lazy load preferred.
+                  However, OptimizedImage doesn't support BlurHash prop yet.
+                  For now, we will use OptimizedImage for the main image loading/error handling 
+                  but keep the blurhash div behind it for the "instant" load effect until the image fades in.
+              */}
               {blurDataUrl && !imageLoaded && (
                 <div
                   className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${roundedClass}`}
@@ -233,15 +238,12 @@ export const MediaCard = React.memo(function MediaCard({
                 />
               )}
               {/* Actual image */}
-              <img
+              <OptimizedImage
                 src={imageUrl}
                 alt={item.Name || ""}
-                className={`w-full h-full object-cover transition-opacity duration-300 shadow-lg group-hover:shadow-md ${
-                  roundedClass
-                } opacity-100`}
+                className={`w-full h-full object-cover transition-opacity duration-300 shadow-lg group-hover:shadow-md ${roundedClass}`}
                 onLoad={handleImageLoad}
                 draggable={false}
-                ref={imageRef}
               />
             </>
           ) : (

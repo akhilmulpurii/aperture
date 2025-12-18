@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Vibrant } from "node-vibrant/browser";
+import { OptimizedImage } from "./optimized-image";
 
 interface VibrantBackdropProps {
   src: string;
@@ -52,7 +53,7 @@ export function VibrantBackdrop({
     : {};
 
   return (
-    <img
+    <OptimizedImage
       className={className}
       src={src}
       alt={alt}

@@ -2,6 +2,7 @@ import { useAuth } from "../hooks/useAuth";
 import { BaseItemPerson } from "@jellyfin/sdk/lib/generated-client/models";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { OptimizedImage } from "./optimized-image";
 
 // Utility function to format role names by adding spaces before capital letters
 function formatRole(role: string): string {
@@ -23,7 +24,7 @@ export function CastCrewCard({ person }: { person: BaseItemPerson }) {
       <figure className="cursor-pointer transition-transform">
         <div className="overflow-hidden rounded-full shadow-lg group-hover:brightness-75 transition">
           {person.PrimaryImageTag ? (
-            <img
+            <OptimizedImage
               src={imageUrl}
               alt={person.Name || "Cast member"}
               className="aspect-square h-fit w-24 object-cover"

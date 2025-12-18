@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { decode } from "blurhash";
+import { OptimizedImage } from "../optimized-image";
 
 interface PosterImageProps {
   movie: BaseItemDto;
@@ -68,10 +69,11 @@ export function PosterImage({
       )}
 
       {/* Actual poster image */}
-      <img
+      <OptimizedImage
         className={`${className} transition-opacity duration-300 ${
-          imageLoaded ? "opacity-100" : "opacity-0"
-        } ${!imageLoaded ? "absolute top-0 left-0" : ""}`}
+           // We rely on OptimizedImage's fade-in, but we also need position handling if placeholder is present
+           !imageLoaded ? "absolute top-0 left-0" : ""
+        }`}
         src={posterImage}
         alt={`${movie.Name} poster`}
         width={width}
@@ -81,12 +83,6 @@ export function PosterImage({
         }}
         onError={() => {
           console.error("Failed to load poster image");
-        }}
-        ref={(img) => {
-          // Check if image is already loaded (cached)
-          if (img && img.complete && img.naturalHeight !== 0) {
-            setImageLoaded(true);
-          }
         }}
       />
     </>
