@@ -90,7 +90,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
        <div className="absolute inset-0 overflow-hidden rounded-xl z-0">
           {blurDataUrl && !imageLoaded && (
             <div 
-              className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000"
+              className="absolute inset-0 w-full h-full bg-cover bg-top transition-opacity duration-1000"
               style={{ backgroundImage: `url(${blurDataUrl})` }}
             />
           )}
@@ -100,7 +100,7 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
               <OptimizedImage
                 src={imageUrl}
                 alt={item.Name || "Hero Background"}
-                className={`w-full h-full object-cover transition-opacity duration-1000 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+                className={`w-full h-full object-cover object-top transition-opacity duration-1000 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
                 onLoad={() => setImageLoaded(true)}
                 draggable={false}
               />
