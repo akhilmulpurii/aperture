@@ -66,7 +66,7 @@ export function AppSidebar({
   isTauriMac: boolean;
   isTauriFullscreen: boolean;
 }) {
-  const { state } = useSidebar();
+  const { isMobile } = useSidebar();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
@@ -208,8 +208,8 @@ export function AppSidebar({
                   </DropdownMenuTrigger>
                   {!isLoading && libraries.length > 0 ? (
                     <DropdownMenuContent
-                      side="right"
-                      align="start"
+                      side={isMobile ? "bottom" : "right"}
+                      align={isMobile ? "center" : "start"}
                       className="min-w-56 rounded-lg z-[10000000001]"
                     >
                       {libraries.map((library) => (
@@ -277,9 +277,9 @@ export function AppSidebar({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-28 z-100 rounded-lg"
                 side="top"
-                align="end"
+                align="start"
                 sideOffset={4}
               >
                 {/* <DropdownMenuSeparator /> */}
