@@ -191,7 +191,6 @@
   --jellyfin-blue-alt: #38bdf8;
 }
 
-
 .neon-grid {
   --background: #050012;
   --foreground: #fdf2ff;
@@ -508,7 +507,7 @@
   /* Use a deep background to contrast the white glass */
   --background: oklch(0.12 0.01 285);
   --foreground: oklch(0.985 0 0);
-  
+
   /* Pixel-perfect match with ThemeMediaControls (bg-white/10) */
   --card: rgba(255, 255, 255, 0.1);
   --card-foreground: oklch(0.985 0 0);
@@ -528,12 +527,12 @@
   --muted-foreground: oklch(0.95 0 0);
   --accent: rgba(255, 255, 255, 0.1);
   --accent-foreground: oklch(0.985 0 0);
-  
+
   /* Pixel-to-pixel match with ThemeMediaControls (border-white/10) */
   --border: rgba(255, 255, 255, 0.1);
   --sidebar-border: rgba(255, 255, 255, 0.15);
   --input: rgba(255, 255, 255, 0.1);
-  
+
   --ring: oklch(0.75 0.12 215);
   --color-1: oklch(0.75 0.12 215);
   --color-2: oklch(0.65 0.2 280);
@@ -544,8 +543,12 @@
 
 /* Ensure sidebar and search bar are unequivocally on top of aurora backgrounds */
 .glassmorphism [data-slot="sidebar-container"],
-.glassmorphism [data-slot="sidebar"] {
+.glassmorphism [data-slot="sidebar"]:not([data-mobile="true"]) {
   z-index: 100 !important;
+}
+
+.glassmorphism [data-slot="sidebar"][data-mobile="true"] {
+  z-index: 10000000001 !important;
 }
 
 /* Primary glass containers - Avoid nested blur targets */
