@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -10,21 +10,38 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { FileBrowserDropdown } from "../../components/file-browser-dropdown";
-import { fetchDashboardGeneralData } from "../../actions";
+import {
+  fetchDashboardGeneralData,
+  updateDashboardConfiguration,
+} from "../../actions";
+import { toast } from "sonner";
 import { LocalizationOption } from "@jellyfin/sdk/lib/generated-client/models";
+import type { ServerConfiguration } from "@jellyfin/sdk/lib/generated-client/models";
+import {
+  dashboardGeneralReducer,
+  initialGeneralFormState,
+} from "../../reducer/dashboard-general-reducer";
 
 export default function DashboardGeneralPage() {
-  const [cachePath, setCachePath] = useState("");
-  const [metadataPath, setMetadataPath] = useState("");
-  const [serverName, setServerName] = useState("");
-  const [quickConnectEnabled, setQuickConnectEnabled] = useState(false);
-  const [parallelLibraryScan, setParallelLibraryScan] = useState("");
-  const [parallelImageEncoding, setParallelImageEncoding] = useState("");
+  const [formState, dispatch] = useReducer(
+    dashboardGeneralReducer,
+    initialGeneralFormState
+  );
+  const {
+    configuration,
+    serverName,
+    cachePath,
+    metadataPath,
+    selectedLanguage,
+    quickConnectEnabled,
+    parallelLibraryScan,
+    parallelImageEncoding,
+  } = formState;
+  const [isSaving, setIsSaving] = useState(false);
   const [languageOptions, setLanguageOptions] = useState<LocalizationOption[]>(
     []
   );
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<LocalizationOption["Value"]>("");
+  const [serverNameError, setServerNameError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -34,19 +51,8 @@ export default function DashboardGeneralPage() {
         const result = await fetchDashboardGeneralData();
         if (!isMounted) return;
 
-        setServerName(result.configuration?.ServerName ?? "");
-        setCachePath(result.configuration?.CachePath ?? "");
-        setMetadataPath(result.configuration?.MetadataPath ?? "");
-        setQuickConnectEnabled(Boolean(result.quickConnectEnabled));
         setLanguageOptions(result.localizationOptions ?? []);
-        setParallelLibraryScan(
-          result.configuration?.LibraryScanFanoutConcurrency?.toString() ?? ""
-        );
-        setParallelImageEncoding(
-          result.configuration?.ParallelImageEncodingLimit?.toString() ?? ""
-        );
-
-        setSelectedLanguage(result.configuration?.UICulture ?? "");
+        dispatch({ type: "init", configuration: result.configuration ?? null });
       } catch (error) {
         console.error("Failed to load general settings:", error);
       }
@@ -59,6 +65,45 @@ export default function DashboardGeneralPage() {
     };
   }, []);
 
+  const handleSave = async () => {
+    if (!configuration || isSaving) return;
+    if (!serverName.trim()) {
+      setServerNameError("Server name is required.");
+      toast.error("Server name is required.");
+      return;
+    }
+
+    const nextConfig: ServerConfiguration = {
+      ...configuration,
+      ServerName: serverName.trim() || configuration.ServerName,
+      CachePath: cachePath.trim(),
+      MetadataPath: metadataPath.trim(),
+      UICulture: selectedLanguage || configuration.UICulture,
+      QuickConnectAvailable: quickConnectEnabled,
+      LibraryScanFanoutConcurrency:
+        parallelLibraryScan.trim() === ""
+          ? configuration.LibraryScanFanoutConcurrency
+          : Number(parallelLibraryScan),
+      ParallelImageEncodingLimit:
+        parallelImageEncoding.trim() === ""
+          ? configuration.ParallelImageEncodingLimit
+          : Number(parallelImageEncoding),
+    };
+
+    try {
+      setIsSaving(true);
+      setServerNameError("");
+      await updateDashboardConfiguration(nextConfig);
+      dispatch({ type: "init", configuration: nextConfig });
+      toast.success("Settings saved.");
+    } catch (error) {
+      console.error("Failed to save configuration:", error);
+      toast.error("Failed to save settings.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <form className="w-full space-y-8">
       <div className="rounded-2xl border border-border/70 bg-background/70 p-5 shadow-sm space-y-4">
@@ -67,7 +112,13 @@ export default function DashboardGeneralPage() {
           <Checkbox
             id="quick-connect-enabled"
             checked={quickConnectEnabled}
-            onCheckedChange={(value) => setQuickConnectEnabled(value === true)}
+            onCheckedChange={(value) =>
+              dispatch({
+                type: "set",
+                field: "quickConnectEnabled",
+                value: value === true,
+              })
+            }
           />
           <label
             htmlFor="quick-connect-enabled"
@@ -88,11 +139,21 @@ export default function DashboardGeneralPage() {
               type="text"
               placeholder="My Jellyfin Server"
               value={serverName}
-              onChange={(event) => setServerName(event.target.value)}
+              className={serverNameError ? "border-red-500" : ""}
+              onChange={(event) =>
+                dispatch({
+                  type: "set",
+                  field: "serverName",
+                  value: event.target.value,
+                })
+              }
             />
+            {serverNameError ? (
+              <p className="text-xs text-red-500">{serverNameError}</p>
+            ) : null}
             <p className="text-xs text-muted-foreground">
               This name will be used to identify the server and will default to
-              the server's hostname.
+              the server&apos;s hostname.
             </p>
           </div>
           <div className="space-y-2">
@@ -102,7 +163,13 @@ export default function DashboardGeneralPage() {
             <Select
               key={`Language-Select-${languageOptions.length}`}
               value={selectedLanguage || ""}
-              onValueChange={setSelectedLanguage}
+              onValueChange={(value) =>
+                dispatch({
+                  type: "set",
+                  field: "selectedLanguage",
+                  value,
+                })
+              }
             >
               <SelectTrigger id="server-display-language">
                 <SelectValue placeholder="Select language" />
@@ -135,12 +202,20 @@ export default function DashboardGeneralPage() {
                 placeholder="/var/cache/jellyfin"
                 className="pr-10"
                 value={cachePath}
-                onChange={(event) => setCachePath(event.target.value)}
+                onChange={(event) =>
+                  dispatch({
+                    type: "set",
+                    field: "cachePath",
+                    value: event.target.value,
+                  })
+                }
               />
               <FileBrowserDropdown
                 ariaLabel="Browse cache path"
                 className="absolute right-2 top-1/2 -translate-y-1/2"
-                onSelect={setCachePath}
+                onSelect={(value) =>
+                  dispatch({ type: "set", field: "cachePath", value })
+                }
               />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -157,12 +232,20 @@ export default function DashboardGeneralPage() {
                 placeholder="/var/lib/jellyfin/metadata"
                 className="pr-10"
                 value={metadataPath}
-                onChange={(event) => setMetadataPath(event.target.value)}
+                onChange={(event) =>
+                  dispatch({
+                    type: "set",
+                    field: "metadataPath",
+                    value: event.target.value,
+                  })
+                }
               />
               <FileBrowserDropdown
                 ariaLabel="Browse metadata path"
                 className="absolute right-2 top-1/2 -translate-y-1/2"
-                onSelect={setMetadataPath}
+                onSelect={(value) =>
+                  dispatch({ type: "set", field: "metadataPath", value })
+                }
               />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -185,7 +268,13 @@ export default function DashboardGeneralPage() {
               inputMode="numeric"
               placeholder="Auto"
               value={parallelLibraryScan}
-              onChange={(event) => setParallelLibraryScan(event.target.value)}
+              onChange={(event) =>
+                dispatch({
+                  type: "set",
+                  field: "parallelLibraryScan",
+                  value: event.target.value,
+                })
+              }
             />
             <p className="text-xs text-muted-foreground">
               Maximum number of parallel tasks during library scans. Leaving
@@ -204,7 +293,13 @@ export default function DashboardGeneralPage() {
               inputMode="numeric"
               placeholder="Auto"
               value={parallelImageEncoding}
-              onChange={(event) => setParallelImageEncoding(event.target.value)}
+              onChange={(event) =>
+                dispatch({
+                  type: "set",
+                  field: "parallelImageEncoding",
+                  value: event.target.value,
+                })
+              }
             />
             <p className="text-xs text-muted-foreground">
               Maximum number of image encodings that are allowed to run in
@@ -219,8 +314,10 @@ export default function DashboardGeneralPage() {
         <button
           type="button"
           className="rounded-md bg-primary px-6 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary/90"
+          onClick={handleSave}
+          disabled={isSaving || !configuration}
         >
-          Save changes
+          {isSaving ? "Saving..." : "Save changes"}
         </button>
       </div>
     </form>
