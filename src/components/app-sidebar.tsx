@@ -50,6 +50,7 @@ import {
   Antenna,
   LayoutDashboard,
   Users,
+  Wrench,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { THEME_OPTIONS } from "../constants/theme-options";
@@ -266,6 +267,16 @@ export function AppSidebar({
                         >
                           <LayoutDashboard className="h-4 w-4" />
                           <span>Overview</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/dashboard/general"
+                          className="flex items-center gap-2"
+                          onClick={() => setOpenMobile(false)}
+                        >
+                          <Wrench className="h-4 w-4" />
+                          <span>General</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
