@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchScheduledTasksList, startScheduledTask } from "../../actions";
 import type { TaskInfo } from "@jellyfin/sdk/lib/generated-client/models";
 import { Badge } from "../../components/ui/badge";
@@ -10,26 +10,63 @@ export default function ScheduledTasksPage() {
   const [tasks, setTasks] = useState<TaskInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [startingTaskId, setStartingTaskId] = useState<string | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMountedRef = useRef(false);
 
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
+
     const loadTasks = async () => {
       try {
         const data = await fetchScheduledTasksList(false);
-        if (!isMounted) return;
+        if (!isMountedRef.current) return;
         setTasks(data);
       } catch (error) {
         console.error("Failed to load scheduled tasks:", error);
       } finally {
-        if (isMounted) {
+        if (isMountedRef.current) {
           setIsLoading(false);
         }
       }
     };
 
-    loadTasks();
+    const clearPolling = () => {
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current);
+        pollTimeoutRef.current = null;
+      }
+    };
+
+    const scheduleNextPoll = () => {
+      clearPolling();
+      pollTimeoutRef.current = setTimeout(async () => {
+        if (!isMountedRef.current) return;
+        await loadTasks();
+        if (document.visibilityState === "visible") {
+          scheduleNextPoll();
+        }
+      }, 10000);
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        loadTasks().finally(() => {
+          scheduleNextPoll();
+        });
+      } else {
+        clearPolling();
+      }
+    };
+
+    loadTasks().finally(() => {
+      scheduleNextPoll();
+    });
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
+      clearPolling();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
