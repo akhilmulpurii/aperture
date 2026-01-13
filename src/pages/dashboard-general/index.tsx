@@ -28,7 +28,13 @@ export default function DashboardGeneralPage() {
               placeholder="/var/cache/jellyfin"
               className="pr-10"
             />
-            <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <button
+              type="button"
+              aria-label="Browse cache path"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+            </button>
           </div>
         </div>
         <div className="space-y-2">
@@ -40,7 +46,13 @@ export default function DashboardGeneralPage() {
               placeholder="/var/lib/jellyfin/metadata"
               className="pr-10"
             />
-            <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <button
+              type="button"
+              aria-label="Browse metadata path"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
