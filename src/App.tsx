@@ -10,11 +10,16 @@ import { CinematicSplashLoader } from "./components/cinematic-splash-loader";
 const minLoadTime = new Promise((resolve) => setTimeout(resolve, 1750));
 
 // Helper to wrap lazy imports with the minimum delay
-const lazyWithDelay = (factory: () => Promise<{ default: React.ComponentType<any> }>) =>
+const lazyWithDelay = (
+  factory: () => Promise<{ default: React.ComponentType<any> }>
+) =>
   lazy(() => Promise.all([factory(), minLoadTime]).then(([module]) => module));
-
-const Dashboard = lazyWithDelay(() => import("./pages/dashboard"));
+// Auth Routes
 const Login = lazyWithDelay(() => import("./pages/login"));
+// Dashboard Routes
+const Dashboard = lazyWithDelay(() => import("./pages/dashboard"));
+// Main App Routes
+const Main = lazyWithDelay(() => import("./pages/main"));
 const BoxsetPage = lazyWithDelay(() => import("./pages/boxset/[id]"));
 const EpisodePage = lazyWithDelay(() => import("./pages/episode/[id]"));
 const LiveTVIndex = lazyWithDelay(() => import("./pages/livetv"));
@@ -25,11 +30,10 @@ const PersonPage = lazyWithDelay(() => import("./pages/person/[id]"));
 const SearchPage = lazyWithDelay(() => import("./pages/search"));
 const SeasonPage = lazyWithDelay(() => import("./pages/season/[id]"));
 const SeriesPage = lazyWithDelay(() => import("./pages/series/[id]"));
+// Settings Routes
 const SettingsPage = lazyWithDelay(() => import("./pages/settings"));
 const PasswordSettingsPage = lazyWithDelay(() => import("./pages/password"));
 const QuickConnectPage = lazyWithDelay(() => import("./pages/quick-connect"));
-const Main = lazyWithDelay(() => import("./pages/main"));
-
 
 function App() {
   return (
