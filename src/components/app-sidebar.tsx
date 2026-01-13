@@ -48,6 +48,7 @@ import {
   ChevronRight,
   DiscAlbum,
   Antenna,
+  LayoutDashboard,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { THEME_OPTIONS } from "../constants/theme-options";
@@ -74,6 +75,7 @@ export function AppSidebar({
   const [isLoading, setIsLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { setOpenMobile } = useSidebar();
+  const isAdmin = Boolean(user?.Policy?.IsAdministrator);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -240,6 +242,35 @@ export function AppSidebar({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {isAdmin ? (
+                <DropdownMenu>
+                  <SidebarMenuItem>
+                    <DropdownMenuTrigger asChild>
+                      <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>Admin</span>
+                        <ChevronRight className="ml-auto h-4 w-4" />
+                      </SidebarMenuButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      side={isMobile ? "bottom" : "right"}
+                      align={isMobile ? "center" : "start"}
+                      className="min-w-56 rounded-lg z-[10000000001]"
+                    >
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-2"
+                          onClick={() => setOpenMobile(false)}
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          <span>Overview</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </SidebarMenuItem>
+                </DropdownMenu>
+              ) : null}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
