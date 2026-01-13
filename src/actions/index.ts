@@ -75,7 +75,10 @@ export {
   canBrowserDirectPlayHevc,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
-export { fetchDashboardGeneralData } from "./dashboard-general";
+export {
+  fetchDashboardGeneralData,
+  updateDashboardConfiguration,
+} from "./dashboard-general";
 
 // Types
 export type {
