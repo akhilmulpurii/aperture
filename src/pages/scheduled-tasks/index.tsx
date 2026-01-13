@@ -50,7 +50,7 @@ export default function ScheduledTasksPage() {
         if (document.visibilityState === "visible") {
           scheduleNextPoll();
         }
-      }, 10000);
+      }, 60000);
     };
 
     const handleVisibility = () => {
