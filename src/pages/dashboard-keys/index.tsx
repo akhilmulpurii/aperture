@@ -10,9 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import { Label } from "../../components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../components/ui/dialog";
 import { ArrowUpDown, KeyRound, Search } from "lucide-react";
-import { fetchApiKeys, normalizeApiKeys } from "../../actions";
+import { createApiKey, fetchApiKeys, normalizeApiKeys } from "../../actions";
 import type { AuthenticationInfo } from "@jellyfin/sdk/lib/generated-client/models";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
 
@@ -31,6 +40,18 @@ export default function DashboardKeysPage() {
   const [page, setPage] = useState(1);
   const [keys, setKeys] = useState<AuthenticationInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newAppName, setNewAppName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
+  const loadKeys = async () => {
+    try {
+      const result = await fetchApiKeys();
+      setKeys(normalizeApiKeys(result.Items ?? []));
+    } catch (error) {
+      console.error("Failed to load API keys:", error);
+    }
+  };
 
   const filtered = useMemo(() => {
     const lowerQuery = query.trim().toLowerCase();
@@ -69,13 +90,9 @@ export default function DashboardKeysPage() {
 
   useEffect(() => {
     let isMounted = true;
-    const loadKeys = async () => {
+    const loadInitial = async () => {
       try {
-        const result = await fetchApiKeys();
-        if (!isMounted) return;
-        setKeys(normalizeApiKeys(result.Items ?? []));
-      } catch (error) {
-        console.error("Failed to load API keys:", error);
+        await loadKeys();
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -83,11 +100,35 @@ export default function DashboardKeysPage() {
       }
     };
 
-    loadKeys();
+    loadInitial();
     return () => {
       isMounted = false;
     };
   }, []);
+
+  const handleCreateKey = async () => {
+    const trimmed = newAppName.trim();
+    if (!trimmed || isCreating) {
+      if (!trimmed) {
+        toast.error("App name is required.");
+      }
+      return;
+    }
+
+    try {
+      setIsCreating(true);
+      await createApiKey(trimmed);
+      await loadKeys();
+      setIsDialogOpen(false);
+      setNewAppName("");
+      toast.success("API key created.");
+    } catch (error) {
+      console.error("Failed to create API key:", error);
+      toast.error("Failed to create API key.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -141,6 +182,43 @@ export default function DashboardKeysPage() {
             />
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" className="gap-2">
+                New API Key
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>New API Key</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="api-key-app-name">App Name</Label>
+                  <Input
+                    id="api-key-app-name"
+                    type="text"
+                    placeholder="My app"
+                    value={newAppName}
+                    onChange={(event) => setNewAppName(event.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    A human readable name for identifying API keys. This setting
+                    will not affect functionality.
+                  </p>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    onClick={handleCreateKey}
+                    disabled={isCreating}
+                  >
+                    {isCreating ? "Creating..." : "Create"}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <Table>

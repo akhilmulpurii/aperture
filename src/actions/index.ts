@@ -85,7 +85,7 @@ export {
   fetchDirectoryContents,
   fetchParentPath,
 } from "./file-browser";
-export { fetchApiKeys, normalizeApiKeys } from "./api-keys";
+export { fetchApiKeys, normalizeApiKeys, createApiKey } from "./api-keys";
 
 // Types
 export type {

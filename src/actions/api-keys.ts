@@ -41,3 +41,18 @@ export function normalizeApiKeys(items: AuthenticationInfo[]): AuthenticationInf
     IsActive: Boolean(item.IsActive),
   }));
 }
+
+export async function createApiKey(appName: string): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+
+  if (!user.AccessToken) {
+    throw new Error("No access token found");
+  }
+
+  api.accessToken = user.AccessToken;
+  const apiKeyApi = getApiKeyApi(api);
+
+  await apiKeyApi.createKey({ app: appName });
+}
