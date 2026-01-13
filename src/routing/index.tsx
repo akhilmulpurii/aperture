@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CinematicSplashLoader } from "../components/cinematic-splash-loader";
 import MainLayout from "../components/main-layout";
+import DashboardLayout from "../components/dashboard-layout";
 
 // Lazy loaded Routes
 // Auth Routes
@@ -37,7 +38,7 @@ export default function AppRouter() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route index element={<Main />} />
-            <Route path="dashboard">
+            <Route path="dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="general" element={<DashboardGeneralPage />} />
               <Route path="users" element={<ManageUsersPage />} />
