@@ -14,6 +14,7 @@ const DashboardActivityPage = lazy(() => import("../pages/dashboard-activity"));
 const ScheduledTasksPage = lazy(() => import("../pages/scheduled-tasks"));
 const DashboardKeysPage = lazy(() => import("../pages/dashboard-keys"));
 const ManageUsersPage = lazy(() => import("../pages/manage-users"));
+const UsersLayout = lazy(() => import("../pages/manage-users/layout"));
 const AddUserPage = lazy(() => import("../pages/add-user"));
 const EditUserPage = lazy(() => import("../pages/edit-user"));
 // Main App Routes
@@ -43,7 +44,7 @@ export default function AppRouter() {
             <Route path="dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="general" element={<DashboardGeneralPage />} />
-              <Route path="users">
+              <Route path="users" element={<UsersLayout />}>
                 <Route index element={<ManageUsersPage />} />
                 <Route path="add" element={<AddUserPage />} />
                 <Route path=":id" element={<EditUserPage />} />
