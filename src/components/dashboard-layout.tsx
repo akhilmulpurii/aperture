@@ -8,8 +8,9 @@ export default function DashboardLayout() {
   let location = useLocation();
 
   const route = useMemo(() => {
-    const path = location.pathname.split("/dashboard/")[1];
-    return path || "dashboard";
+    const regex = /\/dashboard\/(.*?)(?=\/|$)/;
+    const match = location.pathname.match(regex);
+    return match ? match[1] : "dashboard";
   }, [location.pathname]);
 
   return (
