@@ -52,7 +52,8 @@ export default function ManageUsersPage() {
         </Link>
 
         {users.map((user) => (
-          <div
+          <Link
+            to={`/dashboard/users/${user.Id}`}
             key={user.Id}
             className="group flex flex-col items-center justify-center gap-3 transition-transform hover:scale-105 cursor-pointer"
           >
@@ -69,7 +70,7 @@ export default function ManageUsersPage() {
             <span className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
               {user.Name}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
