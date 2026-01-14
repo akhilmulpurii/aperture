@@ -1,11 +1,13 @@
 import { UserLibraryApi } from "@jellyfin/sdk/lib/generated-client/api/user-library-api";
 import { LibraryApi } from "@jellyfin/sdk/lib/generated-client/api/library-api";
 import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
+import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
 import {
   BaseItemDto,
   LogFile,
   SystemInfo,
+  UserDto,
 } from "@jellyfin/sdk/lib/generated-client/models";
 import { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
 import axios from "axios";
@@ -862,5 +864,23 @@ export async function shutdownServer(): Promise<void> {
   } catch (error) {
     console.error("Failed to fetch system info:", error);
     throw new Error(`Failed to shutdown server: ${error}`);
+  }
+}
+
+export async function fetchUsers(): Promise<UserDto[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    const { data } = await userApi.getUsers();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    return [];
   }
 }

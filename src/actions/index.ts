@@ -73,6 +73,7 @@ export {
   restartServer,
   shutdownServer,
   canBrowserDirectPlayHevc,
+  fetchUsers,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
 export {
