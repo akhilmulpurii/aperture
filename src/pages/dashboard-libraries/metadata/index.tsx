@@ -25,7 +25,7 @@ import {
 } from "./schema";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { dashboardLoadingAtom } from "../../../lib/atoms";
 import {
   fetchCultures,
@@ -51,7 +51,6 @@ const resolutionOptions = [
 
 export default function LibrariesMetadataPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
-  const isDashboardLoading = useAtomValue(dashboardLoadingAtom);
   const [cultures, setCultures] = useState<CultureDto[]>([]);
   const [countries, setCountries] = useState<CountryInfo[]>([]);
 
