@@ -1,21 +1,38 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AuroraBackground } from "./aurora-background";
 import { SearchBar } from "./search-component";
 import _ from "lodash";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { LoaderPinwheel } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { useAtomValue } from "jotai";
 import { dashboardLoadingAtom } from "../lib/atoms";
+import { StoreAuthData } from "../actions/store/store-auth-data";
+import { toast } from "sonner";
 
 export default function DashboardLayout() {
   let location = useLocation();
   const isLoading = useAtomValue(dashboardLoadingAtom);
+  const navigate = useNavigate();
 
   const route = useMemo(() => {
     const regex = /\/dashboard\/(.*?)(?=\/|$)/;
     const match = location.pathname.match(regex);
     return match ? match[1] : "dashboard";
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const validateAdministrator = async () => {
+      const authData = await StoreAuthData.get();
+      // @ts-ignore
+      if (authData?.user?.Policy?.IsAdministrator) {
+        // Do nothing
+      } else {
+        toast.error("You are not authorized to access this page");
+        navigate("/");
+      }
+    };
+    validateAdministrator();
   }, [location.pathname]);
 
   return (
