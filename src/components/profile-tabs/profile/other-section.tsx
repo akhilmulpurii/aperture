@@ -20,7 +20,7 @@ export function OtherSection() {
           control={form.control}
           name="IsDisabled"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start gap-3 rounded-xl border border-dashed border-border/70 bg-muted/10 px-3 py-2 space-y-0">
+            <FormItem className="flex flex-row items-start gap-3">
               <FormControl>
                 <Checkbox
                   checked={field.value}
