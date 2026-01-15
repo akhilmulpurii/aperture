@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import {
   UserDto,
   BaseItemDto,
+  UserPolicy,
 } from "@jellyfin/sdk/lib/generated-client/models";
 import { useEffect, useState } from "react";
 import {
@@ -10,6 +11,7 @@ import {
   uploadUserImage,
   fetchMediaFolders,
   updateUser,
+  updateUserPolicy,
 } from "../../../actions";
 import { toast } from "sonner";
 import { Button } from "../../ui/button";
@@ -149,7 +151,8 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           EnablePlaybackRemuxing: data.EnablePlaybackRemuxing,
           ForceRemoteSourceTranscoding: data.ForceRemoteSourceTranscoding,
           RemoteClientBitrateLimit:
-            data.RemoteClientBitrateLimit && !isNaN(data.RemoteClientBitrateLimit)
+            data.RemoteClientBitrateLimit &&
+            !isNaN(data.RemoteClientBitrateLimit)
               ? data.RemoteClientBitrateLimit * 1000000 // Convert to bits per second
               : 0,
           EnableContentDeletion: data.EnableContentDeletion,
@@ -168,7 +171,14 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
         },
       };
 
+      // Update basic user info (Name)
       await updateUser(user.Id, updatedUser);
+
+      // Update user policy
+      if (updatedUser.Policy) {
+        await updateUserPolicy(user.Id, updatedUser.Policy as UserPolicy);
+      }
+
       toast.success("User updated successfully");
     } catch (error) {
       console.error("Failed to update user:", error);

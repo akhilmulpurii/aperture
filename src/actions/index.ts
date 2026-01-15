@@ -76,6 +76,7 @@ export {
   canBrowserDirectPlayHevc,
   fetchUsers,
   updateUser,
+  updateUserPolicy,
   fetchMediaFolders,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
@@ -108,7 +109,6 @@ export type {
   RemoteImage,
   RemoteImagesResponse,
   CurrentImage,
-  UserPolicy,
   UserWithPolicy,
 } from "./utils";
 export type { QuickConnectResult } from "./auth";

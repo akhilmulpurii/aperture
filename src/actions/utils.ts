@@ -8,6 +8,7 @@ import {
   LogFile,
   SystemInfo,
   UserDto,
+  UserPolicy,
 } from "@jellyfin/sdk/lib/generated-client/models";
 import { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
 import axios from "axios";
@@ -699,11 +700,11 @@ export async function deleteImage(
   }
 }
 
-export interface UserPolicy {
-  IsAdministrator: boolean;
-  EnableMediaConversion: boolean;
-  EnableContentDeletion: boolean;
-}
+// export interface UserPolicy {
+//   IsAdministrator: boolean;
+//   EnableMediaConversion: boolean;
+//   EnableContentDeletion: boolean;
+// }
 
 export interface UserWithPolicy {
   Name: string;
@@ -756,6 +757,29 @@ export async function updateUser(
     });
   } catch (error) {
     console.error(`Failed to update user ${userId}:`, error);
+    throw error;
+  }
+}
+
+export async function updateUserPolicy(
+  userId: string,
+  userPolicy: UserPolicy
+): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    await userApi.updateUserPolicy({
+      userId,
+      userPolicy,
+    });
+  } catch (error) {
+    console.error(`Failed to update user policy ${userId}:`, error);
     throw error;
   }
 }
