@@ -1,5 +1,10 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { CinematicSplashLoader } from "../components/cinematic-splash-loader";
 import MainLayout from "../components/main-layout";
 import DashboardLayout from "../components/dashboard-layout";
@@ -81,8 +86,8 @@ export default function AppRouter() {
                 />
               </Route>
               <Route path="playback">
+                <Route index element={<Navigate to="transcoding" replace />} />
                 <Route
-                  index
                   path="transcoding"
                   element={<PlaybackTranscodingPage />}
                 />
