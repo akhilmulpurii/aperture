@@ -24,16 +24,89 @@ import {
   DisplayFormValues,
 } from "./schema";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { useSetAtom } from "jotai";
+import { dashboardLoadingAtom } from "../../../lib/atoms";
+import {
+  fetchSystemConfiguration,
+  fetchMetadataConfiguration,
+  updateSystemConfiguration,
+  updateMetadataConfiguration,
+} from "../../../actions";
 
 export default function LibrariesDisplayPage() {
+  const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const form = useForm<DisplayFormValues>({
     resolver: zodResolver(displayFormSchema) as any,
     defaultValues: defaultDisplayFormValues,
   });
 
-  function onSubmit(data: DisplayFormValues) {
-    console.log(data);
-    toast.success("Display settings saved (UI only)");
+  useEffect(() => {
+    const loadData = async () => {
+      setDashboardLoading(true);
+      try {
+        const [config, metadata] = await Promise.all([
+          fetchSystemConfiguration(),
+          fetchMetadataConfiguration(),
+        ]);
+
+        form.reset({
+          metadata: {
+            UseFileCreationTimeForDateAdded: (metadata as any)
+              .UseFileCreationTimeForDateAdded
+              ? "UseFileCreationTime"
+              : "UseDateScanned",
+          },
+          configuration: {
+            EnableFolderView: config.EnableFolderView || false,
+            DisplaySpecialsWithinSeasons:
+              config.DisplaySpecialsWithinSeasons || false,
+            EnableGroupingMoviesIntoCollections:
+              (config as any).EnableGroupingMoviesIntoCollections || false,
+            EnableGroupingShowsIntoCollections:
+              (config as any).EnableGroupingShowsIntoCollections || false,
+            EnableExternalContentInSuggestions:
+              config.EnableExternalContentInSuggestions || false,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load display settings");
+      } finally {
+        setDashboardLoading(false);
+      }
+    };
+    loadData();
+  }, [setDashboardLoading, form]);
+
+  async function onSubmit(data: DisplayFormValues) {
+    setDashboardLoading(true);
+    try {
+      const [currentConfig, currentMetadata] = await Promise.all([
+        fetchSystemConfiguration(),
+        fetchMetadataConfiguration(),
+      ]);
+
+      const newConfig = { ...currentConfig, ...data.configuration };
+      const newMetadata = {
+        ...currentMetadata,
+        UseFileCreationTimeForDateAdded:
+          data.metadata.UseFileCreationTimeForDateAdded ===
+          "UseFileCreationTime",
+      };
+
+      await Promise.all([
+        updateSystemConfiguration(newConfig),
+        updateMetadataConfiguration(newMetadata as any),
+      ]);
+
+      toast.success("Display settings saved");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save display settings");
+    } finally {
+      setDashboardLoading(false);
+    }
   }
 
   return (
@@ -59,6 +132,7 @@ export default function LibrariesDisplayPage() {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
