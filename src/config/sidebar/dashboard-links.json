@@ -35,19 +35,19 @@
       "items": [
         {
           "name": "Transcoding",
-          "url": "/dashboard/transcoding"
+          "url": "/dashboard/playback/transcoding"
         },
         {
           "name": "Resume",
-          "url": "/dashboard/resume"
+          "url": "/dashboard/playback/resume"
         },
         {
           "name": "Streaming",
-          "url": "/dashboard/streaming"
+          "url": "/dashboard/playback/streaming"
         },
         {
           "name": "Trickplay",
-          "url": "/dashboard/trickplay"
+          "url": "/dashboard/playback/trickplay"
         }
       ]
     },

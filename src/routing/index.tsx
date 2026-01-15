@@ -27,6 +27,18 @@ const LibrariesMetadataPage = lazy(
 const LibrariesNfoSettingsPage = lazy(
   () => import("../pages/dashboard-libraries/nfo-settings")
 );
+const PlaybackTranscodingPage = lazy(
+  () => import("../pages/dashboard-playback/transcoding")
+);
+const PlaybackResumePage = lazy(
+  () => import("../pages/dashboard-playback/resume")
+);
+const PlaybackStreamingPage = lazy(
+  () => import("../pages/dashboard-playback/streaming")
+);
+const PlaybackTrickplayPage = lazy(
+  () => import("../pages/dashboard-playback/trickplay")
+);
 // Main App Routes
 const Main = lazy(() => import("../pages/main"));
 const BoxsetPage = lazy(() => import("../pages/boxset/[id]"));
@@ -67,6 +79,16 @@ export default function AppRouter() {
                   path="nfo-settings"
                   element={<LibrariesNfoSettingsPage />}
                 />
+              </Route>
+              <Route path="playback">
+                <Route
+                  index
+                  path="transcoding"
+                  element={<PlaybackTranscodingPage />}
+                />
+                <Route path="resume" element={<PlaybackResumePage />} />
+                <Route path="streaming" element={<PlaybackStreamingPage />} />
+                <Route path="trickplay" element={<PlaybackTrickplayPage />} />
               </Route>
               <Route path="activity" element={<DashboardActivityPage />} />
               <Route path="tasks" element={<ScheduledTasksPage />} />
