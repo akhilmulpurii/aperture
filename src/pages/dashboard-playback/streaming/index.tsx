@@ -37,7 +37,7 @@ export default function PlaybackStreamingPage() {
       setDashboardLoading(true);
       try {
         const config = await fetchSystemConfiguration();
-        
+
         // Convert from bps to Mbps for display (1 Mbps = 1,000,000 bps)
         const bitrateInMbps = (config.RemoteClientBitrateLimit || 0) / 1000000;
 
@@ -58,7 +58,7 @@ export default function PlaybackStreamingPage() {
     setDashboardLoading(true);
     try {
       const currentConfig = await fetchSystemConfiguration();
-      
+
       // Convert from Mbps to bps for API (1 Mbps = 1,000,000 bps)
       const bitrateInBps = Math.round(data.RemoteClientBitrateLimit * 1000000);
 
@@ -101,11 +101,12 @@ export default function PlaybackStreamingPage() {
                       <Input type="number" step="0.5" {...field} />
                     </FormControl>
                     <FormDescription>
-                      An optional per-stream bitrate limit for all out of network
-                      devices. This is useful to prevent devices from requesting a
-                      higher bitrate than your internet connection can handle.
-                      This may result in increased CPU load on your server in
-                      order to transcode videos on the fly to a lower bitrate.
+                      An optional per-stream bitrate limit for all out of
+                      network devices. This is useful to prevent devices from
+                      requesting a higher bitrate than your internet connection
+                      can handle. This may result in increased CPU load on your
+                      server in order to transcode videos on the fly to a lower
+                      bitrate.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
