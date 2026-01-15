@@ -17,6 +17,16 @@ const ManageUsersPage = lazy(() => import("../pages/manage-users"));
 const UsersLayout = lazy(() => import("../pages/manage-users/layout"));
 const AddUserPage = lazy(() => import("../pages/add-user"));
 const EditUserPage = lazy(() => import("../pages/edit-user"));
+const LibrariesPage = lazy(() => import("../pages/dashboard-libraries"));
+const LibrariesDisplayPage = lazy(
+  () => import("../pages/dashboard-libraries/display")
+);
+const LibrariesMetadataPage = lazy(
+  () => import("../pages/dashboard-libraries/metadata")
+);
+const LibrariesNfoSettingsPage = lazy(
+  () => import("../pages/dashboard-libraries/nfo-settings")
+);
 // Main App Routes
 const Main = lazy(() => import("../pages/main"));
 const BoxsetPage = lazy(() => import("../pages/boxset/[id]"));
@@ -48,6 +58,15 @@ export default function AppRouter() {
                 <Route index element={<ManageUsersPage />} />
                 <Route path="add" element={<AddUserPage />} />
                 <Route path=":id" element={<EditUserPage />} />
+              </Route>
+              <Route path="libraries">
+                <Route index element={<LibrariesPage />} />
+                <Route path="display" element={<LibrariesDisplayPage />} />
+                <Route path="metadata" element={<LibrariesMetadataPage />} />
+                <Route
+                  path="nfo-settings"
+                  element={<LibrariesNfoSettingsPage />}
+                />
               </Route>
               <Route path="activity" element={<DashboardActivityPage />} />
               <Route path="tasks" element={<ScheduledTasksPage />} />
