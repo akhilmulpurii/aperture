@@ -23,13 +23,17 @@ import { MediaPlaybackSection } from "./media-playback-section";
 import { MediaDeletionSection } from "./media-deletion-section";
 import { RemoteControlSection } from "./remote-control-section";
 import { OtherSection } from "./other-section";
+import { dashboardLoadingAtom } from "../../../lib/atoms";
+import { useAtomValue, useSetAtom } from "jotai";
 
 export default function ProfileTab({ user }: { user?: UserDto }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
-  const [isLoadingLibraries, setIsLoadingLibraries] = useState(true);
+  const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
+  const dashboardLoading = useAtomValue(dashboardLoadingAtom);
 
   useEffect(() => {
+    setDashboardLoading(true);
     fetchMediaFolders()
       .then((libs) => {
         setLibraries(libs);
@@ -37,7 +41,9 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
       .catch((err) => {
         console.error("Failed to fetch media folders:", err);
       })
-      .finally(() => setIsLoadingLibraries(false));
+      .finally(() => {
+        setDashboardLoading(false);
+      });
   }, []);
 
   const form = useForm<ProfileFormValues>({
@@ -117,6 +123,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
   }, [user?.Id, form]); // Only depend on ID, not full object
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDashboardLoading(true);
     const file = e.target.files?.[0];
     if (file && user?.Id) {
       try {
@@ -126,13 +133,15 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
         setAvatarUrl(`${newUrl}&t=${Date.now()}`);
       } catch (error) {
         console.error("Failed to upload image", error);
+      } finally {
+        setDashboardLoading(false);
       }
     }
   };
 
   async function onSubmit(data: ProfileFormValues) {
     if (!user?.Id) return;
-
+    setDashboardLoading(true);
     try {
       const updatedUser: UserDto = {
         ...user,
@@ -183,6 +192,8 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
     } catch (error) {
       console.error("Failed to update user:", error);
       toast.error("Failed to update user");
+    } finally {
+      setDashboardLoading(false);
     }
   }
 
@@ -200,7 +211,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
         <MediaPlaybackSection />
         <MediaDeletionSection
           libraries={libraries}
-          isLoadingLibraries={isLoadingLibraries}
+          isLoadingLibraries={dashboardLoading}
         />
         <RemoteControlSection />
         <OtherSection />
