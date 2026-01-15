@@ -1,0 +1,29 @@
+{
+  "name": "Dashboard",
+  "sections": [
+    {
+      "name": "Overview",
+      "url": "/dashboard"
+    },
+    {
+      "name": "General",
+      "url": "/dashboard/general"
+    },
+    {
+      "name": "Manage users",
+      "url": "/dashboard/users"
+    },
+    {
+      "name": "Activity",
+      "url": "/dashboard/activity"
+    },
+    {
+      "name": "Scheduled tasks",
+      "url": "/dashboard/tasks"
+    },
+    {
+      "name": "API keys",
+      "url": "/dashboard/keys"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom"; // for React Router
 // @ts-ignore
 import Logo from "../assets/logo/icon.png";
+import dashboardLinksConfig from "../config/sidebar/dashboard-links.json";
 
 import {
   Sidebar,
@@ -209,7 +210,11 @@ export function AppSidebar({
               </SidebarMenuItem>
 
               {/* Libraries Section */}
-              <Collapsible asChild defaultOpen={false} className="group/collapsible">
+              <Collapsible
+                asChild
+                defaultOpen={false}
+                className="group/collapsible"
+              >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip="Libraries">
@@ -254,84 +259,37 @@ export function AppSidebar({
               </SidebarMenuItem>
 
               {/* Admin Section */}
+              {/* Migrate this to json config  */}
+
               {isAdmin && (
-                <Collapsible asChild defaultOpen={false} className="group/collapsible">
+                <Collapsible
+                  asChild
+                  defaultOpen={false}
+                  className="group/collapsible"
+                >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton tooltip="Admin">
                         <LayoutDashboard className="h-4 w-4" />
-                        <span>Admin</span>
+                        <span>{dashboardLinksConfig.name}</span>
                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link
-                              to="/dashboard"
-                              onClick={() => setOpenMobile(false)}
-                            >
-                              <LayoutDashboard className="h-4 w-4" />
-                              <span>Overview</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link
-                              to="/dashboard/general"
-                              onClick={() => setOpenMobile(false)}
-                            >
-                              <Wrench className="h-4 w-4" />
-                              <span>General</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link
-                              to="/dashboard/users"
-                              onClick={() => setOpenMobile(false)}
-                            >
-                              <Users className="h-4 w-4" />
-                              <span>Manage users</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link
-                              to="/dashboard/activity"
-                              onClick={() => setOpenMobile(false)}
-                            >
-                              <Activity className="h-4 w-4" />
-                              <span>Activity</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link
-                              to="/dashboard/tasks"
-                              onClick={() => setOpenMobile(false)}
-                            >
-                              <CalendarClock className="h-4 w-4" />
-                              <span>Scheduled tasks</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                        <SidebarMenuSubItem>
-                          <SidebarMenuSubButton asChild>
-                            <Link
-                              to="/dashboard/keys"
-                              onClick={() => setOpenMobile(false)}
-                            >
-                              <Key className="h-4 w-4" />
-                              <span>API keys</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
+                        {dashboardLinksConfig.sections.map((section) => (
+                          <SidebarMenuSubItem key={section.name}>
+                            <SidebarMenuSubButton asChild>
+                              <Link
+                                to={section.url}
+                                onClick={() => setOpenMobile(false)}
+                              >
+                                <LayoutDashboard className="h-4 w-4" />
+                                <span>{section.name}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
