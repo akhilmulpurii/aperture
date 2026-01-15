@@ -3,6 +3,8 @@ import { AuroraBackground } from "./aurora-background";
 import { SearchBar } from "./search-component";
 import _ from "lodash";
 import { useMemo } from "react";
+import { LoaderPinwheel } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 export default function DashboardLayout() {
   let location = useLocation();
@@ -23,10 +25,17 @@ export default function DashboardLayout() {
             <SearchBar />
           </div>
         </div>
-        <div className="mb-8">
-          <h2 className="text-3xl font-semibold text-foreground mb-2 font-poppins">
+        <div className="flex flex-row mb-10 items-center gap-4">
+          <h2 className="text-3xl font-semibold text-foreground font-poppins">
             {_.startCase(route)}
           </h2>
+          <Badge
+            className="bg-background/90 backdrop-blur-sm px-3 py-2 flex flex-row gap-2 items-center"
+            variant="outline"
+          >
+            <LoaderPinwheel className="animate-spin text-primary w-6 h-6" />
+            <span className="text-sm">Loading...</span>
+          </Badge>
         </div>
         <div className="mx-auto w-full max-w-none 2xl:max-w-[1400px]">
           <Outlet />
