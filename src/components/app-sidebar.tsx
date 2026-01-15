@@ -17,17 +17,21 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "../components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../components/ui/collapsible";
 import {
   getUser,
   getServerUrl,
@@ -43,7 +47,6 @@ import {
   ChevronUp,
   Home,
   Library,
-  Monitor,
   Settings2,
   ChevronRight,
   DiscAlbum,
@@ -56,7 +59,6 @@ import {
   Key,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import { THEME_OPTIONS } from "../constants/theme-options";
 
 interface JellyfinLibrary {
   Id: string;
@@ -72,14 +74,13 @@ export function AppSidebar({
   isTauriMac: boolean;
   isTauriFullscreen: boolean;
 }) {
-  const { isMobile } = useSidebar();
+  const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const { setOpenMobile } = useSidebar();
   const isAdmin = Boolean(user?.Policy?.IsAdministrator);
 
   useEffect(() => {
@@ -161,6 +162,8 @@ export function AppSidebar({
       variant="floating"
       collapsible="icon"
       className={`${isTauriMac && !isTauriFullscreen ? "pt-10" : ""} z-20`}
+      onMouseEnter={() => !isMobile && setOpen(true)}
+      onMouseLeave={() => !isMobile && setOpen(false)}
     >
       <SidebarHeader>
         <SidebarMenu>
@@ -204,41 +207,43 @@ export function AppSidebar({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <DropdownMenu>
+
+              {/* Libraries Section */}
+              <Collapsible asChild defaultOpen={false} className="group/collapsible">
                 <SidebarMenuItem>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip="Libraries">
                       <Library className="h-4 w-4" />
                       <span>Libraries</span>
-                      <ChevronRight className="ml-auto h-4 w-4" />
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
-                  </DropdownMenuTrigger>
-                  {!isLoading && libraries.length > 0 ? (
-                    <DropdownMenuContent
-                      side={isMobile ? "bottom" : "right"}
-                      align={isMobile ? "center" : "start"}
-                      className="min-w-56 rounded-lg z-[10000000001]"
-                    >
-                      {libraries.map((library) => (
-                        <DropdownMenuItem asChild key={library.Id}>
-                          <Link
-                            onClick={() => setOpenMobile(false)}
-                            to={
-                              library.CollectionType !== "livetv"
-                                ? `/library/${library.Id}`
-                                : `/livetv/`
-                            }
-                            className="flex items-center gap-2"
-                          >
-                            {getLibraryIcon(library.CollectionType!)}
-                            <span>{library.Name}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  ) : null}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {!isLoading && libraries.length > 0
+                        ? libraries.map((library) => (
+                            <SidebarMenuSubItem key={library.Id}>
+                              <SidebarMenuSubButton asChild>
+                                <Link
+                                  to={
+                                    library.CollectionType !== "livetv"
+                                      ? `/library/${library.Id}`
+                                      : `/livetv/`
+                                  }
+                                  onClick={() => setOpenMobile(false)}
+                                >
+                                  {getLibraryIcon(library.CollectionType!)}
+                                  <span>{library.Name}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))
+                        : null}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              </DropdownMenu>
+              </Collapsible>
+
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/settings" onClick={() => setOpenMobile(false)}>
@@ -247,85 +252,91 @@ export function AppSidebar({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {isAdmin ? (
-                <DropdownMenu>
+
+              {/* Admin Section */}
+              {isAdmin && (
+                <Collapsible asChild defaultOpen={false} className="group/collapsible">
                   <SidebarMenuItem>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip="Admin">
                         <LayoutDashboard className="h-4 w-4" />
                         <span>Admin</span>
-                        <ChevronRight className="ml-auto h-4 w-4" />
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                       </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      side={isMobile ? "bottom" : "right"}
-                      align={isMobile ? "center" : "start"}
-                      className="min-w-56 rounded-lg z-[10000000001]"
-                    >
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenMobile(false)}
-                        >
-                          <LayoutDashboard className="h-4 w-4" />
-                          <span>Overview</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard/general"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenMobile(false)}
-                        >
-                          <Wrench className="h-4 w-4" />
-                          <span>General</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard/users"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenMobile(false)}
-                        >
-                          <Users className="h-4 w-4" />
-                          <span>Manage users</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard/activity"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenMobile(false)}
-                        >
-                          <Activity className="h-4 w-4" />
-                          <span>Activity</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard/tasks"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenMobile(false)}
-                        >
-                          <CalendarClock className="h-4 w-4" />
-                          <span>Scheduled tasks</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard/keys"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenMobile(false)}
-                        >
-                          <Key className="h-4 w-4" />
-                          <span>API keys</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/dashboard"
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <LayoutDashboard className="h-4 w-4" />
+                              <span>Overview</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/dashboard/general"
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <Wrench className="h-4 w-4" />
+                              <span>General</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/dashboard/users"
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <Users className="h-4 w-4" />
+                              <span>Manage users</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/dashboard/activity"
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <Activity className="h-4 w-4" />
+                              <span>Activity</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/dashboard/tasks"
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <CalendarClock className="h-4 w-4" />
+                              <span>Scheduled tasks</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/dashboard/keys"
+                              onClick={() => setOpenMobile(false)}
+                            >
+                              <Key className="h-4 w-4" />
+                              <span>API keys</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
-                </DropdownMenu>
-              ) : null}
+                </Collapsible>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -368,7 +379,6 @@ export function AppSidebar({
                 align="start"
                 sideOffset={4}
               >
-                {/* <DropdownMenuSeparator /> */}
                 <DropdownMenuItem onClick={handleLogout} className="gap-2">
                   <LogOut className="h-4 w-4 text-red-600 dark:text-red-500" />
                   <span>Log out</span>
@@ -378,7 +388,7 @@ export function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

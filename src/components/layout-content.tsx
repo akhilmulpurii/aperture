@@ -41,15 +41,21 @@ export function LayoutContent({ children }: LayoutContentProps) {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <SidebarProvider>
+      <SidebarProvider
+        defaultOpen={false}
+        style={
+          {
+            "--sidebar-width": "16rem",
+            "--sidebar-width-icon": "3rem",
+          } as React.CSSProperties
+        }
+      >
         <AppSidebar
           isTauriMac={isTauriMac}
           isTauriFullscreen={isTauriFullscreen}
         />
         <SidebarInset
-          className={`flex-1 overflow-hidden ${
-            isTauriMac && !isTauriFullscreen ? "pl-2.5" : ""
-          }`}
+          className={`flex-1 overflow-hidden transition-all duration-300 ease-in-out md:pl-[calc(var(--sidebar-width-icon)+1.5rem)]`}
         >
           <div className="flex-1 overflow-y-auto no-scrollbar">{children}</div>
         </SidebarInset>
