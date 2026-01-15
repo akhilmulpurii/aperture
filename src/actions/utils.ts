@@ -4,6 +4,7 @@ import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
 import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
 import { DevicesApi } from "@jellyfin/sdk/lib/generated-client/api/devices-api";
+import { LocalizationApi } from "@jellyfin/sdk/lib/generated-client/api/localization-api";
 import {
   BaseItemDto,
   LogFile,
@@ -11,6 +12,7 @@ import {
   UserDto,
   UserPolicy,
   DeviceInfoDto,
+  ParentalRating,
 } from "@jellyfin/sdk/lib/generated-client/models";
 import { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
 import axios from "axios";
@@ -949,6 +951,24 @@ export async function shutdownServer(): Promise<void> {
   } catch (error) {
     console.error("Failed to fetch system info:", error);
     throw new Error(`Failed to shutdown server: ${error}`);
+  }
+}
+
+export async function fetchParentalRatings(): Promise<ParentalRating[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const localizationApi = new LocalizationApi(api.configuration);
+    const { data } = await localizationApi.getParentalRatings();
+    return data || [];
+  } catch (error) {
+    console.error("Failed to fetch parental ratings:", error);
+    return [];
   }
 }
 

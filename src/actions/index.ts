@@ -79,6 +79,7 @@ export {
   updateUserPolicy,
   fetchMediaFolders,
   fetchDevices,
+  fetchParentalRatings,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
 export {
