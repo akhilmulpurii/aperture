@@ -20,32 +20,32 @@ import {
 } from "../../ui/form";
 
 const profileFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  Name: z.string().min(1, "Name is required"),
   // General
-  allowRemote: z.boolean().default(true),
-  allowManageServer: z.boolean().default(false),
-  allowManageCollections: z.boolean().default(false),
-  allowEditSubtitles: z.boolean().default(false),
+  EnableRemoteAccess: z.boolean().default(true),
+  IsAdministrator: z.boolean().default(false),
+  EnableCollectionManagement: z.boolean().default(false),
+  EnableSubtitleManagement: z.boolean().default(false),
   // Feature Access
-  allowLiveTv: z.boolean().default(true),
-  allowLiveTvRecording: z.boolean().default(false),
+  EnableLiveTvAccess: z.boolean().default(true),
+  EnableLiveTvManagement: z.boolean().default(false),
   // Media Playback
-  allowPlayback: z.boolean().default(true),
-  allowAudioTranscoding: z.boolean().default(true),
-  allowVideoTranscoding: z.boolean().default(true),
-  allowConversion: z.boolean().default(true),
-  forceTranscoding: z.boolean().default(false),
-  bitrateLimit: z.preprocess(
+  EnableMediaPlayback: z.boolean().default(true),
+  EnableAudioPlaybackTranscoding: z.boolean().default(true),
+  EnableVideoPlaybackTranscoding: z.boolean().default(true),
+  EnablePlaybackRemuxing: z.boolean().default(true),
+  ForceRemoteSourceTranscoding: z.boolean().default(false),
+  RemoteClientBitrateLimit: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
     z.number().min(0).optional()
   ),
   // Allow Media Deletion
-  allowDeletionFromAll: z.boolean().default(false),
+  EnableContentDeletion: z.boolean().default(false),
   // Remote Control
-  allowRemoteControlUsers: z.boolean().default(false),
-  allowRemoteControlDevices: z.boolean().default(true),
+  EnableRemoteControlOfOtherUsers: z.boolean().default(false),
+  EnableSharedDeviceControl: z.boolean().default(true),
   // Other
-  isDisabled: z.boolean().default(false),
+  IsDisabled: z.boolean().default(false),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -56,23 +56,31 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema) as any,
     defaultValues: {
-      name: user?.Name || "",
-      allowRemote: true,
-      allowManageServer: false,
-      allowManageCollections: false,
-      allowEditSubtitles: false,
-      allowLiveTv: true,
-      allowLiveTvRecording: false,
-      allowPlayback: true,
-      allowAudioTranscoding: true,
-      allowVideoTranscoding: true,
-      allowConversion: true,
-      forceTranscoding: false,
-      bitrateLimit: undefined,
-      allowDeletionFromAll: false,
-      allowRemoteControlUsers: false,
-      allowRemoteControlDevices: true,
-      isDisabled: false,
+      Name: user?.Name || "",
+      EnableRemoteAccess: user?.Policy?.EnableRemoteAccess ?? true,
+      IsAdministrator: user?.Policy?.IsAdministrator ?? false,
+      EnableCollectionManagement:
+        user?.Policy?.EnableCollectionManagement ?? false,
+      EnableSubtitleManagement: user?.Policy?.EnableSubtitleManagement ?? false,
+      EnableLiveTvAccess: user?.Policy?.EnableLiveTvAccess ?? true,
+      EnableLiveTvManagement: user?.Policy?.EnableLiveTvManagement ?? false,
+      EnableMediaPlayback: user?.Policy?.EnableMediaPlayback ?? true,
+      EnableAudioPlaybackTranscoding:
+        user?.Policy?.EnableAudioPlaybackTranscoding ?? true,
+      EnableVideoPlaybackTranscoding:
+        user?.Policy?.EnableVideoPlaybackTranscoding ?? true,
+      EnablePlaybackRemuxing: user?.Policy?.EnablePlaybackRemuxing ?? true,
+      ForceRemoteSourceTranscoding:
+        user?.Policy?.ForceRemoteSourceTranscoding ?? false,
+      RemoteClientBitrateLimit: user?.Policy?.RemoteClientBitrateLimit
+        ? user.Policy.RemoteClientBitrateLimit / 1000000
+        : undefined,
+      EnableContentDeletion: user?.Policy?.EnableContentDeletion ?? false,
+      EnableRemoteControlOfOtherUsers:
+        user?.Policy?.EnableRemoteControlOfOtherUsers ?? false,
+      EnableSharedDeviceControl:
+        user?.Policy?.EnableSharedDeviceControl ?? true,
+      IsDisabled: user?.Policy?.IsDisabled ?? false,
     },
   });
 
@@ -83,24 +91,32 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
         .catch(() => setAvatarUrl(null));
 
       form.reset({
-        name: user.Name || "",
-        // In a real app, map other user properties here
-        allowRemote: true,
-        allowManageServer: false,
-        allowManageCollections: false,
-        allowEditSubtitles: false,
-        allowLiveTv: true,
-        allowLiveTvRecording: false,
-        allowPlayback: true,
-        allowAudioTranscoding: true,
-        allowVideoTranscoding: true,
-        allowConversion: true,
-        forceTranscoding: false,
-        bitrateLimit: undefined,
-        allowDeletionFromAll: false,
-        allowRemoteControlUsers: false,
-        allowRemoteControlDevices: true,
-        isDisabled: false,
+        Name: user.Name || "",
+        EnableRemoteAccess: user.Policy?.EnableRemoteAccess ?? true,
+        IsAdministrator: user.Policy?.IsAdministrator ?? false,
+        EnableCollectionManagement:
+          user.Policy?.EnableCollectionManagement ?? false,
+        EnableSubtitleManagement:
+          user.Policy?.EnableSubtitleManagement ?? false,
+        EnableLiveTvAccess: user.Policy?.EnableLiveTvAccess ?? true,
+        EnableLiveTvManagement: user.Policy?.EnableLiveTvManagement ?? false,
+        EnableMediaPlayback: user.Policy?.EnableMediaPlayback ?? true,
+        EnableAudioPlaybackTranscoding:
+          user.Policy?.EnableAudioPlaybackTranscoding ?? true,
+        EnableVideoPlaybackTranscoding:
+          user.Policy?.EnableVideoPlaybackTranscoding ?? true,
+        EnablePlaybackRemuxing: user.Policy?.EnablePlaybackRemuxing ?? true,
+        ForceRemoteSourceTranscoding:
+          user.Policy?.ForceRemoteSourceTranscoding ?? false,
+        RemoteClientBitrateLimit: user.Policy?.RemoteClientBitrateLimit
+          ? user.Policy.RemoteClientBitrateLimit / 1000000 // Convert back to Mbps
+          : undefined,
+        EnableContentDeletion: user.Policy?.EnableContentDeletion ?? false,
+        EnableRemoteControlOfOtherUsers:
+          user.Policy?.EnableRemoteControlOfOtherUsers ?? false,
+        EnableSharedDeviceControl:
+          user.Policy?.EnableSharedDeviceControl ?? true,
+        IsDisabled: user.Policy?.IsDisabled ?? false,
       });
     }
   }, [user, form]);
@@ -124,7 +140,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
     // TODO: Implement update user API call
   }
 
-  const name = form.watch("name");
+  const Name = form.watch("Name");
 
   return (
     <Form {...form}>
@@ -145,7 +161,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
                     className="object-cover"
                   />
                   <AvatarFallback className="text-4xl">
-                    {name.substring(0, 2).toUpperCase()}
+                    {Name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
@@ -184,7 +200,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
             <div className="space-y-6">
               <FormField
                 control={form.control as unknown as any}
-                name="name"
+                name="Name"
                 render={({ field }: { field: any }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
@@ -199,7 +215,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
               <div className="space-y-4">
                 <FormField
                   control={form.control as unknown as any}
-                  name="allowRemote"
+                  name="EnableRemoteAccess"
                   render={({ field }: { field: any }) => (
                     <FormItem className="flex flex-row items-start gap-3 rounded-xl border border-dashed border-border/70 bg-muted/10 px-3 py-2 space-y-0">
                       <FormControl>
@@ -222,7 +238,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
                 <FormField
                   control={form.control as unknown as any}
-                  name="allowManageServer"
+                  name="IsAdministrator"
                   render={({ field }: { field: any }) => (
                     <FormItem className="flex flex-row items-center gap-3 space-y-0">
                       <FormControl>
@@ -240,7 +256,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
                 <FormField
                   control={form.control as unknown as any}
-                  name="allowManageCollections"
+                  name="EnableCollectionManagement"
                   render={({ field }: { field: any }) => (
                     <FormItem className="flex flex-row items-center gap-3 space-y-0">
                       <FormControl>
@@ -258,7 +274,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
                 <FormField
                   control={form.control as unknown as any}
-                  name="allowEditSubtitles"
+                  name="EnableSubtitleManagement"
                   render={({ field }: { field: any }) => (
                     <FormItem className="flex flex-row items-center gap-3 space-y-0">
                       <FormControl>
@@ -286,7 +302,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <FormField
               control={form.control as unknown as any}
-              name="allowLiveTv"
+              name="EnableLiveTvAccess"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -304,7 +320,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
             <FormField
               control={form.control as unknown as any}
-              name="allowLiveTvRecording"
+              name="EnableLiveTvManagement"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -330,7 +346,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <FormField
               control={form.control as unknown as any}
-              name="allowPlayback"
+              name="EnableMediaPlayback"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -348,7 +364,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
             <FormField
               control={form.control as unknown as any}
-              name="allowAudioTranscoding"
+              name="EnableAudioPlaybackTranscoding"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -366,7 +382,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
             <FormField
               control={form.control as unknown as any}
-              name="allowVideoTranscoding"
+              name="EnableVideoPlaybackTranscoding"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -384,7 +400,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
             <FormField
               control={form.control as unknown as any}
-              name="allowConversion"
+              name="EnablePlaybackRemuxing"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -403,7 +419,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
             <FormField
               control={form.control as unknown as any}
-              name="forceTranscoding"
+              name="ForceRemoteSourceTranscoding"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0 lg:col-span-2">
                   <FormControl>
@@ -428,7 +444,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           <div className="pt-2 max-w-md">
             <FormField
               control={form.control as unknown as any}
-              name="bitrateLimit"
+              name="RemoteClientBitrateLimit"
               render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Internet streaming bitrate limit (Mbps)</FormLabel>
@@ -468,7 +484,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           <div className="space-y-4">
             <FormField
               control={form.control as unknown as any}
-              name="allowDeletionFromAll"
+              name="EnableContentDeletion"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -482,7 +498,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
               )}
             />
 
-            {!form.watch("allowDeletionFromAll") && (
+            {!form.watch("EnableContentDeletion") && (
               <div className="pl-6 pt-2 text-sm text-muted-foreground">
                 {/* Logic to list individual libraries would go here */}
                 (Library list would appear here)
@@ -499,7 +515,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <FormField
               control={form.control as unknown as any}
-              name="allowRemoteControlUsers"
+              name="EnableRemoteControlOfOtherUsers"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -517,7 +533,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
 
             <FormField
               control={form.control as unknown as any}
-              name="allowRemoteControlDevices"
+              name="EnableSharedDeviceControl"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
@@ -546,7 +562,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
           <div className="space-y-4">
             <FormField
               control={form.control as unknown as any}
-              name="isDisabled"
+              name="IsDisabled"
               render={({ field }: { field: any }) => (
                 <FormItem className="flex flex-row items-start gap-3 rounded-xl border border-dashed border-border/70 bg-muted/10 px-3 py-2 space-y-0">
                   <FormControl>
