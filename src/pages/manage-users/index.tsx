@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../components/ui/avatar";
 import { fetchUsers, getUserImageUrl } from "../../actions";
 import { UserDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { Link } from "react-router-dom";
+import { UserCard } from "./user-card";
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<UserDto[]>([]);
@@ -36,6 +32,10 @@ export default function ManageUsersPage() {
     loadUsers();
   }, []);
 
+  const handleUserDeleted = (userId: string) => {
+    setUsers((prevUsers) => prevUsers.filter((u) => u.Id !== userId));
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
@@ -52,25 +52,12 @@ export default function ManageUsersPage() {
         </Link>
 
         {users.map((user) => (
-          <Link
-            to={`/dashboard/users/${user.Id}`}
+          <UserCard
             key={user.Id}
-            className="group flex flex-col items-center justify-center gap-3 transition-transform hover:scale-105 cursor-pointer"
-          >
-            <Avatar className="h-32 w-32 border-2 border-transparent ring-offset-background transition-all group-hover:border-primary group-hover:ring-2 group-hover:ring-primary/20 group-hover:ring-offset-2">
-              <AvatarImage
-                src={user.Id ? userImages[user.Id] : undefined}
-                alt={user.Name || "User"}
-                className="object-cover"
-              />
-              <AvatarFallback className="text-3xl font-semibold bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                {user.Name?.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
-              {user.Name}
-            </span>
-          </Link>
+            user={user}
+            imageUrl={user.Id ? userImages[user.Id] : undefined}
+            onUserDeleted={handleUserDeleted}
+          />
         ))}
       </div>
     </div>

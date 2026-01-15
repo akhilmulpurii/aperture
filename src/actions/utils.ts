@@ -791,6 +791,23 @@ export async function createUser(
   }
 }
 
+export async function deleteUser(userId: string): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    await userApi.deleteUser({ userId });
+  } catch (error: any) {
+    console.error(`Failed to delete user ${userId}:`, error);
+    throw error;
+  }
+}
+
 export async function updateUserPolicy(
   userId: string,
   userPolicy: UserPolicy

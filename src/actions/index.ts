@@ -81,6 +81,7 @@ export {
   fetchDevices,
   fetchParentalRatings,
   createUser,
+  deleteUser,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
 export {
