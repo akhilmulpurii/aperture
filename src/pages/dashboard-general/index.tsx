@@ -21,8 +21,11 @@ import {
   dashboardGeneralReducer,
   initialGeneralFormState,
 } from "../../reducer/dashboard-general-reducer";
+import { useSetAtom } from "jotai";
+import { dashboardLoadingAtom } from "../../lib/atoms";
 
 export default function DashboardGeneralPage() {
+  const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const [formState, dispatch] = useReducer(
     dashboardGeneralReducer,
     initialGeneralFormState
@@ -47,6 +50,7 @@ export default function DashboardGeneralPage() {
     let isMounted = true;
 
     const loadData = async () => {
+      setDashboardLoading(true);
       try {
         const result = await fetchDashboardGeneralData();
         if (!isMounted) return;
@@ -55,6 +59,8 @@ export default function DashboardGeneralPage() {
         dispatch({ type: "init", configuration: result.configuration ?? null });
       } catch (error) {
         console.error("Failed to load general settings:", error);
+      } finally {
+        setDashboardLoading(false);
       }
     };
 
@@ -93,6 +99,7 @@ export default function DashboardGeneralPage() {
     try {
       setIsSaving(true);
       setServerNameError("");
+      setDashboardLoading(true);
       await updateDashboardConfiguration(nextConfig);
       dispatch({ type: "init", configuration: nextConfig });
       toast.success("Settings saved.");
@@ -101,6 +108,7 @@ export default function DashboardGeneralPage() {
       toast.error("Failed to save settings.");
     } finally {
       setIsSaving(false);
+      setDashboardLoading(false);
     }
   };
 
