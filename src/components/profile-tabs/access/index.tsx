@@ -18,21 +18,23 @@ import { toast } from "sonner";
 import { accessFormSchema, AccessFormValues } from "./schema";
 import { LibraryAccessSection } from "./library-access-section";
 import { DeviceAccessSection } from "./device-access-section";
+import { useAtomValue, useSetAtom } from "jotai";
+import { dashboardLoadingAtom } from "../../../lib/atoms";
 
 export default function AccessTab({ user }: { user?: UserDto }) {
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
-  const [isLoadingLibraries, setIsLoadingLibraries] = useState(true);
   const [devices, setDevices] = useState<DeviceInfoDto[]>([]);
-  const [isLoadingDevices, setIsLoadingDevices] = useState(true);
+  const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
+  const dashboardLoading = useAtomValue(dashboardLoadingAtom);
 
   useEffect(() => {
-    fetchMediaFolders()
-      .then(setLibraries)
-      .finally(() => setIsLoadingLibraries(false));
-
-    fetchDevices()
-      .then(setDevices)
-      .finally(() => setIsLoadingDevices(false));
+    setDashboardLoading(true);
+    Promise.all([fetchMediaFolders(), fetchDevices()])
+      .then(([libraries, devices]) => {
+        setLibraries(libraries);
+        setDevices(devices);
+      })
+      .finally(() => setDashboardLoading(false));
   }, []);
 
   const form = useForm<AccessFormValues>({
@@ -62,6 +64,7 @@ export default function AccessTab({ user }: { user?: UserDto }) {
   async function onSubmit(data: AccessFormValues) {
     if (!user?.Id || !user.Policy) return;
 
+    setDashboardLoading(true);
     try {
       const updatedPolicy: UserPolicy = {
         ...user.Policy,
@@ -76,6 +79,8 @@ export default function AccessTab({ user }: { user?: UserDto }) {
     } catch (error) {
       console.error("Failed to update access settings:", error);
       toast.error("Failed to update access settings");
+    } finally {
+      setDashboardLoading(false);
     }
   }
 
@@ -87,11 +92,11 @@ export default function AccessTab({ user }: { user?: UserDto }) {
       >
         <LibraryAccessSection
           libraries={libraries}
-          isLoadingLibraries={isLoadingLibraries}
+          isLoadingLibraries={dashboardLoading}
         />
         <DeviceAccessSection
           devices={devices}
-          isLoadingDevices={isLoadingDevices}
+          isLoadingDevices={dashboardLoading}
         />
 
         <div className="flex justify-end pt-6">
