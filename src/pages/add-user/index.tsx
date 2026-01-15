@@ -21,12 +21,19 @@ import {
   updateUserPolicy,
   getUserById,
 } from "../../actions";
-import { BaseItemDto, UserPolicy } from "@jellyfin/sdk/lib/generated-client/models";
+import {
+  BaseItemDto,
+  UserPolicy,
+} from "@jellyfin/sdk/lib/generated-client/models";
+import { dashboardLoadingAtom } from "../../lib/atoms";
+import { useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 
 export default function AddUserPage() {
   const navigate = useNavigate();
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
-  const [isLoadingLibraries, setIsLoadingLibraries] = useState(true);
+  const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
+  const dashboardLoading = useAtomValue(dashboardLoadingAtom);
 
   const form = useForm<AddUserFormValues>({
     resolver: zodResolver(addUserFormSchema) as any,
@@ -46,7 +53,7 @@ export default function AddUserPage() {
   useEffect(() => {
     fetchMediaFolders()
       .then(setLibraries)
-      .finally(() => setIsLoadingLibraries(false));
+      .finally(() => setDashboardLoading(false));
   }, []);
 
   async function onSubmit(data: AddUserFormValues) {
@@ -60,12 +67,12 @@ export default function AddUserPage() {
         const freshUser = await getUserById(createdUser.Id);
 
         if (freshUser && freshUser.Policy) {
-           const updatedPolicy: UserPolicy = {
-             ...freshUser.Policy,
-             EnableAllFolders: data.EnableAllFolders,
-             EnabledFolders: data.EnabledFolders || [],
-           };
-           await updateUserPolicy(createdUser.Id, updatedPolicy);
+          const updatedPolicy: UserPolicy = {
+            ...freshUser.Policy,
+            EnableAllFolders: data.EnableAllFolders,
+            EnabledFolders: data.EnabledFolders || [],
+          };
+          await updateUserPolicy(createdUser.Id, updatedPolicy);
         }
       }
 
@@ -75,14 +82,18 @@ export default function AddUserPage() {
       console.error("Failed to create user:", error);
       const errorMessage =
         error?.response?.data || error.message || "Failed to create user";
-      toast.error(typeof errorMessage === "string" ? errorMessage : "Failed to create user");
+      toast.error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : "Failed to create user"
+      );
     }
   }
 
   return (
     <div className="w-full max-w-2xl pb-10">
       <h2 className="text-2xl font-bold tracking-tight mb-6">Add New User</h2>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* General Section */}
@@ -110,7 +121,11 @@ export default function AddUserPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Optional" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="Optional"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -149,7 +164,7 @@ export default function AddUserPage() {
                     control={form.control}
                     name="EnabledFolders"
                     render={({ field }) => {
-                      if (isLoadingLibraries) {
+                      if (dashboardLoading) {
                         return (
                           <div className="text-sm text-muted-foreground">
                             Loading libraries...
@@ -168,40 +183,40 @@ export default function AddUserPage() {
                       return (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {libraries.map((library) => {
-                             const libraryId = library.Id;
-                             if (!libraryId) return null;
+                            const libraryId = library.Id;
+                            if (!libraryId) return null;
 
-                             return (
-                               <FormItem
-                                 key={libraryId}
-                                 className="flex flex-row items-center gap-2 space-y-0"
-                               >
-                                 <FormControl>
-                                   <Checkbox
-                                     checked={field.value?.includes(libraryId)}
-                                     onCheckedChange={(checked) => {
-                                       const currentValue = field.value || [];
-                                       if (checked) {
-                                         field.onChange([
-                                           ...currentValue,
-                                           libraryId,
-                                         ]);
-                                       } else {
-                                         field.onChange(
-                                           currentValue.filter(
-                                             (val) => val !== libraryId
-                                           )
-                                         );
-                                       }
-                                     }}
-                                   />
-                                 </FormControl>
-                                 <FormLabel className="font-normal text-sm cursor-pointer break-all">
-                                   {library.Name}
-                                 </FormLabel>
-                               </FormItem>
-                             );
-                           })}
+                            return (
+                              <FormItem
+                                key={libraryId}
+                                className="flex flex-row items-center gap-2 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(libraryId)}
+                                    onCheckedChange={(checked) => {
+                                      const currentValue = field.value || [];
+                                      if (checked) {
+                                        field.onChange([
+                                          ...currentValue,
+                                          libraryId,
+                                        ]);
+                                      } else {
+                                        field.onChange(
+                                          currentValue.filter(
+                                            (val) => val !== libraryId
+                                          )
+                                        );
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal text-sm cursor-pointer break-all">
+                                  {library.Name}
+                                </FormLabel>
+                              </FormItem>
+                            );
+                          })}
                         </div>
                       );
                     }}
