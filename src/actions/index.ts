@@ -89,6 +89,12 @@ export {
   updateDashboardConfiguration,
 } from "./dashboard-general";
 export {
+  fetchSystemConfiguration,
+  fetchMetadataConfiguration,
+  updateSystemConfiguration,
+  updateMetadataConfiguration,
+} from "./configuration";
+export {
   fetchDefaultDirectoryBrowser,
   fetchDrives,
   fetchDirectoryContents,
