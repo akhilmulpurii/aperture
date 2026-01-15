@@ -108,7 +108,7 @@ export default function DashboardGeneralPage() {
     <form className="w-full space-y-8">
       <div className="rounded-2xl border border-border/70 bg-background/70 p-5 shadow-sm space-y-4">
         <h3 className="text-lg font-semibold text-foreground">Quick Connect</h3>
-        <div className="flex items-start gap-3 rounded-xl border border-dashed border-border/70 bg-muted/10 px-3 py-2">
+        <div className="flex items-start gap-3">
           <Checkbox
             id="quick-connect-enabled"
             checked={quickConnectEnabled}
