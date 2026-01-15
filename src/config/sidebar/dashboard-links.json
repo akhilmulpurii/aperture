@@ -31,6 +31,27 @@
       ]
     },
     {
+      "name": "Playback",
+      "items": [
+        {
+          "name": "Transcoding",
+          "url": "/dashboard/transcoding"
+        },
+        {
+          "name": "Resume",
+          "url": "/dashboard/resume"
+        },
+        {
+          "name": "Streaming",
+          "url": "/dashboard/streaming"
+        },
+        {
+          "name": "Trickplay",
+          "url": "/dashboard/trickplay"
+        }
+      ]
+    },
+    {
       "name": "Manage users",
       "url": "/dashboard/users"
     },
