@@ -18,6 +18,7 @@ export const transcodingSettingsFormSchema = z.object({
   EnableDecodingColorDepth10Vp9: z.boolean().default(false),
   EnableDecodingColorDepth10HevcRext: z.boolean().default(false),
   EnableDecodingColorDepth12HevcRext: z.boolean().default(false),
+  EnableHardwareEncoding: z.boolean().default(false),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -32,4 +33,5 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     EnableDecodingColorDepth10Vp9: false,
     EnableDecodingColorDepth10HevcRext: false,
     EnableDecodingColorDepth12HevcRext: false,
+    EnableHardwareEncoding: false,
   };

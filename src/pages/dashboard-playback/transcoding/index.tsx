@@ -68,6 +68,7 @@ export default function PlaybackTranscodingPage() {
             config.EnableDecodingColorDepth10HevcRext || false,
           EnableDecodingColorDepth12HevcRext:
             config.EnableDecodingColorDepth12HevcRext || false,
+          EnableHardwareEncoding: config.EnableHardwareEncoding || false,
         });
       } catch (error) {
         console.error(error);
@@ -94,6 +95,7 @@ export default function PlaybackTranscodingPage() {
           data.EnableDecodingColorDepth10HevcRext,
         EnableDecodingColorDepth12HevcRext:
           data.EnableDecodingColorDepth12HevcRext,
+        EnableHardwareEncoding: data.EnableHardwareEncoding,
       };
 
       await updateEncodingConfiguration(newConfig);
@@ -290,6 +292,27 @@ export default function PlaybackTranscodingPage() {
                     )}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-4">
+                <FormLabel>Hardware encoding options</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="EnableHardwareEncoding"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Enable hardware encoding</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
           </div>
