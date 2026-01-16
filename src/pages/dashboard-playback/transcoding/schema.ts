@@ -25,6 +25,8 @@ export const transcodingSettingsFormSchema = z.object({
   VaapiDevice: z.string().optional(),
   EnableIntelLowPowerH264HwEncoder: z.boolean().default(false),
   EnableIntelLowPowerHevcHwEncoder: z.boolean().default(false),
+  AllowHevcEncoding: z.boolean().default(false),
+  AllowAv1Encoding: z.boolean().default(false),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -46,4 +48,6 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     VaapiDevice: "",
     EnableIntelLowPowerH264HwEncoder: false,
     EnableIntelLowPowerHevcHwEncoder: false,
+    AllowHevcEncoding: false,
+    AllowAv1Encoding: false,
   };
