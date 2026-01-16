@@ -315,7 +315,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="LibrarySettings.Enabled"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -406,7 +406,7 @@ export default function AddLibraryPage() {
                 control={form.control}
                 name="MovieOptions.EnableEmbeddedTitles"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -431,7 +431,7 @@ export default function AddLibraryPage() {
                   control={form.control}
                   name="MovieOptions.EnableEmbeddedExtrasTitles"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -490,7 +490,7 @@ export default function AddLibraryPage() {
                 control={form.control}
                 name="LibrarySettings.EnableRealtimeMonitor"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -512,7 +512,7 @@ export default function AddLibraryPage() {
                 control={form.control}
                 name="MovieOptions.AutomaticallyAddToCollection"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -625,7 +625,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="SaveLocalMetadata"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -673,7 +673,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="Trickplay.EnableTrickplayImageExtraction"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -696,7 +696,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="Trickplay.ExtractTrickplayImagesDuringLibraryScan"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -721,7 +721,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="Trickplay.SaveTrickplayImagesIntoMediaFolders"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -750,7 +750,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="ChapterImages.EnableChapterImageExtraction"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -773,7 +773,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="ChapterImages.ExtractChapterImagesDuringLibraryScan"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -869,7 +869,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="SubtitleDownloads.RequirePerfectSubtitleMatch"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -895,7 +895,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="SubtitleDownloads.SkipSubtitlesIfAudioTrackMatches"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -920,7 +920,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="SubtitleDownloads.SkipSubtitlesIfEmbeddedSubtitlesPresent"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -945,7 +945,7 @@ export default function AddLibraryPage() {
               control={form.control}
               name="SubtitleDownloads.SaveSubtitlesWithMedia"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
