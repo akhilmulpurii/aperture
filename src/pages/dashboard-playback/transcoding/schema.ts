@@ -45,6 +45,10 @@ export const transcodingSettingsFormSchema = z.object({
   TonemappingDesat: z.coerce.number().min(0).default(0),
   TonemappingPeak: z.coerce.number().min(0).default(100),
   TonemappingParam: z.coerce.number().min(0).default(0),
+  EncoderAppPathDisplay: z.string().optional(),
+  TranscodingTempPath: z.string().optional(),
+  FallbackFontPath: z.string().optional(),
+  EnableFallbackFont: z.boolean().default(false),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -75,4 +79,8 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     TonemappingDesat: 0,
     TonemappingPeak: 100,
     TonemappingParam: 0,
+    EncoderAppPathDisplay: "",
+    TranscodingTempPath: "",
+    FallbackFontPath: "",
+    EnableFallbackFont: false,
   };
