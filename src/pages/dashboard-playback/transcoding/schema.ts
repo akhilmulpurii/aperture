@@ -28,6 +28,18 @@ export const transcodingSettingsFormSchema = z.object({
   AllowHevcEncoding: z.boolean().default(false),
   AllowAv1Encoding: z.boolean().default(false),
   EnableTonemapping: z.boolean().default(false),
+  TonemappingAlgorithm: z
+    .enum([
+      "none",
+      "clip",
+      "linear",
+      "gamma",
+      "reinhard",
+      "hable",
+      "mobius",
+      "bt2390",
+    ])
+    .default("bt2390"),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -52,4 +64,5 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     AllowHevcEncoding: false,
     AllowAv1Encoding: false,
     EnableTonemapping: false,
+    TonemappingAlgorithm: "bt2390",
   };

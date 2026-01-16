@@ -44,6 +44,17 @@ const hardwareDecodingCodecs = [
   { label: "AV1", value: "av1" },
 ];
 
+const tonemappingAlgorithms = [
+  { label: "None", value: "none" },
+  { label: "Clip", value: "clip" },
+  { label: "Linear", value: "linear" },
+  { label: "Gamma", value: "gamma" },
+  { label: "Reinhard", value: "reinhard" },
+  { label: "Hable", value: "hable" },
+  { label: "Mobius", value: "mobius" },
+  { label: "BT.2390", value: "bt2390" },
+];
+
 export default function PlaybackTranscodingPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const form = useForm<TranscodingSettingsFormValues>({
@@ -88,6 +99,8 @@ export default function PlaybackTranscodingPage() {
           AllowHevcEncoding: config.AllowHevcEncoding || false,
           AllowAv1Encoding: config.AllowAv1Encoding || false,
           EnableTonemapping: config.EnableTonemapping || false,
+          TonemappingAlgorithm:
+            (config.TonemappingAlgorithm as any) || "bt2390",
         });
       } catch (error) {
         console.error(error);
@@ -114,6 +127,7 @@ export default function PlaybackTranscodingPage() {
       form.setValue("EnableIntelLowPowerH264HwEncoder", false);
       form.setValue("EnableIntelLowPowerHevcHwEncoder", false);
       form.setValue("EnableTonemapping", false);
+      form.setValue("TonemappingAlgorithm", "bt2390");
     }
   }, [hardwareAccelerationType, form]);
 
@@ -186,6 +200,7 @@ export default function PlaybackTranscodingPage() {
         AllowHevcEncoding: data.AllowHevcEncoding,
         AllowAv1Encoding: data.AllowAv1Encoding,
         EnableTonemapping: data.EnableTonemapping,
+        TonemappingAlgorithm: data.TonemappingAlgorithm as any,
       };
 
       await updateEncodingConfiguration(newConfig);
@@ -645,6 +660,51 @@ export default function PlaybackTranscodingPage() {
                         corresponding GPGPU runtime.
                       </FormDescription>
                     </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="TonemappingAlgorithm"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tone mapping algorithm</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select algorithm" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tonemappingAlgorithms.map((algorithm) => (
+                          <SelectItem
+                            key={algorithm.value}
+                            value={algorithm.value}
+                          >
+                            {algorithm.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    <FormDescription>
+                      Tone mapping can be fine-tuned. If you are not familiar
+                      with these options, just keep the default. The recommended
+                      value is 'BT.2390'.{" "}
+                      <a
+                        className="text-primary underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://ffmpeg.org/ffmpeg-all.html#tonemap_005fopencl"
+                      >
+                        (Learn more)
+                      </a>
+                    </FormDescription>
                   </FormItem>
                 )}
               />
