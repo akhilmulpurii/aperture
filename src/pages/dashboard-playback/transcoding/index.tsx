@@ -693,16 +693,15 @@ export default function PlaybackTranscodingPage() {
                     </Select>
                     <FormMessage />
                     <FormDescription>
-                      Tone mapping can be fine-tuned. If you are not familiar
-                      with these options, just keep the default. The recommended
-                      value is 'BT.2390'.{" "}
                       <a
                         className="text-primary underline"
                         target="_blank"
                         rel="noopener noreferrer"
                         href="https://ffmpeg.org/ffmpeg-all.html#tonemap_005fopencl"
                       >
-                        (Learn more)
+                        Tone mapping can be fine-tuned. If you are not familiar
+                        with these options, just keep the default. The
+                        recommended value is 'BT.2390'.
                       </a>
                     </FormDescription>
                   </FormItem>
