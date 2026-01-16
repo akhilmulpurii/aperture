@@ -5,6 +5,7 @@ import { getAuthData } from "./utils";
 import {
   MetadataConfiguration,
   XbmcMetadataOptions,
+  EncodingOptions,
 } from "@jellyfin/sdk/lib/generated-client/models";
 
 export async function fetchSystemConfiguration(): Promise<ServerConfiguration> {
@@ -63,6 +64,25 @@ export async function fetchXbmcMetadataConfiguration(): Promise<XbmcMetadataOpti
   return data as unknown as XbmcMetadataOptions;
 }
 
+export async function fetchEncodingConfiguration(): Promise<EncodingOptions> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+
+  if (!user.AccessToken) {
+    throw new Error("No access token found");
+  }
+
+  api.accessToken = user.AccessToken;
+
+  const configurationApi = getConfigurationApi(api);
+  const { data } = await configurationApi.getNamedConfiguration({
+    key: "encoding",
+  });
+
+  return data as unknown as EncodingOptions;
+}
+
 export async function updateSystemConfiguration(
   configuration: ServerConfiguration
 ): Promise<void> {
@@ -119,5 +139,25 @@ export async function updateXbmcMetadataConfiguration(
   await configurationApi.updateNamedConfiguration({
     key: "xbmcmetadata",
     body: xbmcMetadataConfiguration,
+  });
+}
+
+export async function updateEncodingConfiguration(
+  encodingOptions: EncodingOptions
+): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+
+  if (!user.AccessToken) {
+    throw new Error("No access token found");
+  }
+
+  api.accessToken = user.AccessToken;
+  const configurationApi = getConfigurationApi(api);
+
+  await configurationApi.updateNamedConfiguration({
+    key: "encoding",
+    body: encodingOptions,
   });
 }

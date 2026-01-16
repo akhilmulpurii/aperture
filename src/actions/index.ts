@@ -97,6 +97,8 @@ export {
   updateMetadataConfiguration,
   fetchXbmcMetadataConfiguration,
   updateXbmcMetadataConfiguration,
+  fetchEncodingConfiguration,
+  updateEncodingConfiguration,
 } from "./configuration";
 export {
   fetchDefaultDirectoryBrowser,
