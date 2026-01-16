@@ -101,6 +101,11 @@ export default function PlaybackTranscodingPage() {
           EnableTonemapping: config.EnableTonemapping || false,
           TonemappingAlgorithm:
             (config.TonemappingAlgorithm as any) || "bt2390",
+          TonemappingMode: (config.TonemappingMode as any) || "auto",
+          TonemappingRange: (config.TonemappingRange as any) || "auto",
+          TonemappingDesat: config.TonemappingDesat || 0,
+          TonemappingPeak: config.TonemappingPeak || 100,
+          TonemappingParam: config.TonemappingParam || 0,
         });
       } catch (error) {
         console.error(error);
@@ -128,6 +133,11 @@ export default function PlaybackTranscodingPage() {
       form.setValue("EnableIntelLowPowerHevcHwEncoder", false);
       form.setValue("EnableTonemapping", false);
       form.setValue("TonemappingAlgorithm", "bt2390");
+      form.setValue("TonemappingMode", "auto");
+      form.setValue("TonemappingRange", "auto");
+      form.setValue("TonemappingDesat", 0);
+      form.setValue("TonemappingPeak", 100);
+      form.setValue("TonemappingParam", 0);
     }
   }, [hardwareAccelerationType, form]);
 
@@ -201,6 +211,11 @@ export default function PlaybackTranscodingPage() {
         AllowAv1Encoding: data.AllowAv1Encoding,
         EnableTonemapping: data.EnableTonemapping,
         TonemappingAlgorithm: data.TonemappingAlgorithm as any,
+        TonemappingMode: data.TonemappingMode as any,
+        TonemappingRange: data.TonemappingRange as any,
+        TonemappingDesat: data.TonemappingDesat,
+        TonemappingPeak: data.TonemappingPeak,
+        TonemappingParam: data.TonemappingParam,
       };
 
       await updateEncodingConfiguration(newConfig);
@@ -693,20 +708,142 @@ export default function PlaybackTranscodingPage() {
                     </Select>
                     <FormMessage />
                     <FormDescription>
+                      Tone mapping can be fine-tuned. If you are not familiar
+                      with these options, just keep the default. The recommended
+                      value is 'BT.2390'.{" "}
                       <a
                         className="text-primary underline"
                         target="_blank"
                         rel="noopener noreferrer"
                         href="https://ffmpeg.org/ffmpeg-all.html#tonemap_005fopencl"
                       >
-                        Tone mapping can be fine-tuned. If you are not familiar
-                        with these options, just keep the default. The
-                        recommended value is 'BT.2390'.
+                        (Learn more)
                       </a>
                     </FormDescription>
                   </FormItem>
                 )}
               />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="TonemappingMode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tone mapping mode</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="auto">Auto</SelectItem>
+                          <SelectItem value="max">MAX</SelectItem>
+                          <SelectItem value="rgb">RGB</SelectItem>
+                          <SelectItem value="lum">LUM</SelectItem>
+                          <SelectItem value="itp">ITP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select the tone mapping mode. If you experience blown
+                        out highlights try switching to the RGB mode.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="TonemappingRange"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tone mapping range</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select range" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="auto">Auto</SelectItem>
+                          <SelectItem value="tv">TV</SelectItem>
+                          <SelectItem value="pc">PC</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select the output color range. Auto is the same as the
+                        input range.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="TonemappingDesat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tone mapping desat</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.1" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Apply desaturation for highlights that exceed this level
+                        of brightness. The recommended value is 0 (disable).
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="TonemappingPeak"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tone mapping peak</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.1" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Override the embedded metadata value for the input
+                        signal with this peak value instead. The default value
+                        is 100 (1000nit).
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="TonemappingParam"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tone mapping param</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.1" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Tune the tone mapping algorithm. Generally leave it
+                        blank.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </div>
 

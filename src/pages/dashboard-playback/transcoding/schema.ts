@@ -40,6 +40,11 @@ export const transcodingSettingsFormSchema = z.object({
       "bt2390",
     ])
     .default("bt2390"),
+  TonemappingMode: z.enum(["auto", "max", "rgb", "lum", "itp"]).default("auto"),
+  TonemappingRange: z.enum(["auto", "tv", "pc"]).default("auto"),
+  TonemappingDesat: z.coerce.number().min(0).default(0),
+  TonemappingPeak: z.coerce.number().min(0).default(100),
+  TonemappingParam: z.coerce.number().min(0).default(0),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -65,4 +70,9 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     AllowAv1Encoding: false,
     EnableTonemapping: false,
     TonemappingAlgorithm: "bt2390",
+    TonemappingMode: "auto",
+    TonemappingRange: "auto",
+    TonemappingDesat: 0,
+    TonemappingPeak: 100,
+    TonemappingParam: 0,
   };
