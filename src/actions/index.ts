@@ -34,6 +34,8 @@ export {
   markFavorite,
   unmarkFavorite,
   fetchVirtualFolders,
+  removeVirtualFolder,
+  renameVirtualFolder,
 } from "./media";
 
 // TV show actions
