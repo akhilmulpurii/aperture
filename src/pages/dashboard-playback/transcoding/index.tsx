@@ -75,7 +75,8 @@ export default function PlaybackTranscodingPage() {
           EnableDecodingColorDepth12HevcRext:
             config.EnableDecodingColorDepth12HevcRext || false,
           EnableHardwareEncoding: config.EnableHardwareEncoding || false,
-          EnableEnhancedNvdecDecoder: config.EnableEnhancedNvdecDecoder || false,
+          EnableEnhancedNvdecDecoder:
+            config.EnableEnhancedNvdecDecoder || false,
           QsvDevice: config.QsvDevice || "",
           PreferSystemNativeHwDecoder:
             config.PreferSystemNativeHwDecoder || false,
@@ -130,15 +131,7 @@ export default function PlaybackTranscodingPage() {
           "av1",
         ];
       case "rkmpp":
-        return [
-          "h264",
-          "hevc",
-          "mpeg2video",
-          "mpeg4",
-          "vp8",
-          "vp9",
-          "av1",
-        ];
+        return ["h264", "hevc", "mpeg2video", "mpeg4", "vp8", "vp9", "av1"];
       case "videotoolbox":
         return ["h264", "hevc", "vp8", "vp9", "av1"];
       case "v4l2m2m":
@@ -184,10 +177,8 @@ export default function PlaybackTranscodingPage() {
         QsvDevice: data.QsvDevice,
         PreferSystemNativeHwDecoder: data.PreferSystemNativeHwDecoder,
         VaapiDevice: data.VaapiDevice,
-        EnableIntelLowPowerH264HwEncoder:
-          data.EnableIntelLowPowerH264HwEncoder,
-        EnableIntelLowPowerHevcHwEncoder:
-          data.EnableIntelLowPowerHevcHwEncoder,
+        EnableIntelLowPowerH264HwEncoder: data.EnableIntelLowPowerH264HwEncoder,
+        EnableIntelLowPowerHevcHwEncoder: data.EnableIntelLowPowerHevcHwEncoder,
       };
 
       await updateEncodingConfiguration(newConfig);
