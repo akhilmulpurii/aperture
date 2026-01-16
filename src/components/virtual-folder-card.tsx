@@ -122,7 +122,7 @@ export default function VirtualFolderCard({
 
         <div
           className="absolute inset-0 z-10 cursor-pointer"
-          onClick={() => navigate(`/dashboard/library/${library.ItemId}`)}
+          onClick={() => navigate(`/dashboard/libraries/${library.ItemId}`)}
         />
 
         <CardContent className="p-6 flex flex-col items-center text-center gap-4 h-full">
