@@ -27,6 +27,7 @@ export const transcodingSettingsFormSchema = z.object({
   EnableIntelLowPowerHevcHwEncoder: z.boolean().default(false),
   AllowHevcEncoding: z.boolean().default(false),
   AllowAv1Encoding: z.boolean().default(false),
+  EnableTonemapping: z.boolean().default(false),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -50,4 +51,5 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     EnableIntelLowPowerHevcHwEncoder: false,
     AllowHevcEncoding: false,
     AllowAv1Encoding: false,
+    EnableTonemapping: false,
   };

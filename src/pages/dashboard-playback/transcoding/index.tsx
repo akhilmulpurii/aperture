@@ -87,6 +87,7 @@ export default function PlaybackTranscodingPage() {
             config.EnableIntelLowPowerHevcHwEncoder || false,
           AllowHevcEncoding: config.AllowHevcEncoding || false,
           AllowAv1Encoding: config.AllowAv1Encoding || false,
+          EnableTonemapping: config.EnableTonemapping || false,
         });
       } catch (error) {
         console.error(error);
@@ -112,6 +113,7 @@ export default function PlaybackTranscodingPage() {
       form.setValue("VaapiDevice", "");
       form.setValue("EnableIntelLowPowerH264HwEncoder", false);
       form.setValue("EnableIntelLowPowerHevcHwEncoder", false);
+      form.setValue("EnableTonemapping", false);
     }
   }, [hardwareAccelerationType, form]);
 
@@ -183,6 +185,7 @@ export default function PlaybackTranscodingPage() {
         EnableIntelLowPowerHevcHwEncoder: data.EnableIntelLowPowerHevcHwEncoder,
         AllowHevcEncoding: data.AllowHevcEncoding,
         AllowAv1Encoding: data.AllowAv1Encoding,
+        EnableTonemapping: data.EnableTonemapping,
       };
 
       await updateEncodingConfiguration(newConfig);
@@ -609,6 +612,42 @@ export default function PlaybackTranscodingPage() {
                   )}
                 />
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border/70 bg-background/70 p-5 shadow-sm space-y-6">
+            <div className="flex flex-col space-y-1.5">
+              <h3 className="text-lg font-semibold text-foreground">
+                Tone mapping
+              </h3>
+            </div>
+
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="EnableTonemapping"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Enable Tone mapping</FormLabel>
+                      <FormDescription>
+                        Tone-mapping can transform the dynamic range of a video
+                        from HDR to SDR while maintaining image details and
+                        colors, which are very important information for
+                        representing the original scene. Currently works only
+                        with 10bit HDR10, HLG and DoVi videos. This requires the
+                        corresponding GPGPU runtime.
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
 
