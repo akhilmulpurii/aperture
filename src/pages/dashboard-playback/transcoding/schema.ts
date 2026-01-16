@@ -49,6 +49,34 @@ export const transcodingSettingsFormSchema = z.object({
   TranscodingTempPath: z.string().optional(),
   FallbackFontPath: z.string().optional(),
   EnableFallbackFont: z.boolean().default(false),
+  EnableAudioVbr: z.boolean().default(false),
+  DownMixAudioBoost: z.coerce.number().min(0).default(2),
+  DownMixStereoAlgorithm: z
+    .enum(["None", "Dave750", "NightmodeDialogue", "Rfc7845", "Ac4"])
+    .default("None"),
+  MaxMuxingQueueSize: z.coerce.number().min(0).default(2048),
+  EncoderPreset: z
+    .enum([
+      "auto",
+      "placebo",
+      "veryslow",
+      "slower",
+      "slow",
+      "medium",
+      "fast",
+      "faster",
+      "veryfast",
+      "superfast",
+      "ultrafast",
+    ])
+    .default("auto"),
+  H264Crf: z.coerce.number().min(0).max(51).default(23),
+  H265Crf: z.coerce.number().min(0).max(51).default(28),
+  DeinterlaceMethod: z.enum(["yadif", "bwdif"]).default("yadif"),
+  DeinterlaceDoubleRate: z.boolean().default(false),
+  EnableSubtitleExtraction: z.boolean().default(true),
+  EnableThrottling: z.boolean().default(true),
+  EnableSegmentDeletion: z.boolean().default(true),
 });
 
 export type TranscodingSettingsFormValues = z.infer<
@@ -83,4 +111,16 @@ export const defaultTranscodingSettingsFormValues: TranscodingSettingsFormValues
     TranscodingTempPath: "",
     FallbackFontPath: "",
     EnableFallbackFont: false,
+    EnableAudioVbr: false,
+    DownMixAudioBoost: 2,
+    DownMixStereoAlgorithm: "None",
+    MaxMuxingQueueSize: 2048,
+    EncoderPreset: "auto",
+    H264Crf: 23,
+    H265Crf: 28,
+    DeinterlaceMethod: "yadif",
+    DeinterlaceDoubleRate: false,
+    EnableSubtitleExtraction: true,
+    EnableThrottling: true,
+    EnableSegmentDeletion: true,
   };
