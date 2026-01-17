@@ -15,6 +15,7 @@ import { createJellyfinInstance } from "../lib/utils";
 import { JellyfinUserWithToken } from "../types/jellyfin";
 import { StoreAuthData } from "./store/store-auth-data";
 import { StoreServerURL } from "./store/store-server-url";
+import { LibraryOptions } from "@jellyfin/sdk/lib/generated-client/models";
 
 // Type aliases for easier use
 type JellyfinItem = BaseItemDto;
@@ -1091,5 +1092,43 @@ export async function fetchLibraryOptionsInfo(
       LyricFetchers: [],
       TypeOptions: [],
     };
+  }
+}
+
+export async function addLibrary(
+  name: string,
+  collectionType: string,
+  paths: string[],
+  libraryOptions: LibraryOptions
+): Promise<void> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
+
+    const libraryStructureApi = new LibraryStructureApi(api.configuration);
+
+    await libraryStructureApi.addVirtualFolder({
+      name,
+      collectionType,
+      collectionTypeOptions: {
+        LibraryOptions: libraryOptions,
+      },
+      refreshLibrary: true,
+      paths,
+    } as any);
+  } catch (error) {
+    console.error("Failed to add library:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again."
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+    throw error;
   }
 }

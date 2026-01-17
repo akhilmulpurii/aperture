@@ -37,8 +37,9 @@ import {
 import { FileBrowserDropdown } from "../../../components/file-browser-dropdown";
 import { Plus, Trash2 } from "lucide-react";
 import { Checkbox } from "../../../components/ui/checkbox";
-import { fetchLibraryOptionsInfo } from "../../../actions/media";
+import { fetchLibraryOptionsInfo, addLibrary } from "../../../actions/media";
 import { ReorderableList } from "../../../components/reorderable-list";
+import { LibraryOptions } from "@jellyfin/sdk/lib/generated-client/models/library-options";
 
 const CONTENT_TYPES = [
   { value: "movies", label: "Movies" },
@@ -221,6 +222,7 @@ export default function AddLibraryPage() {
             MediaSegmentProviders.map((f): any => ({
               Name: f?.Name || "",
               Enabled: f?.DefaultEnabled || false,
+              id: f?.Name || Math.random().toString(),
             }))
           );
         }
@@ -236,9 +238,128 @@ export default function AddLibraryPage() {
   }, [collectionType, setDashboardLoading, form]);
 
   async function onSubmit(data: AddLibraryFormValues) {
-    // TODO: Handle submission
-    console.log(data);
-    toast.info("Library creation not implemented yet");
+    setDashboardLoading(true);
+    try {
+      const typeOptions = [];
+
+      typeOptions.push({
+        Type: data.CollectionType === "movies" ? "Movie" : "Series",
+        MetadataFetchers: data.MetadataFetchers.filter((f) => f.Enabled).map(
+          (f) => f.Name
+        ),
+        MetadataFetcherOrder: data.MetadataFetchers.map((f) => f.Name),
+        ImageFetchers: data.ImageFetchers.filter((f) => f.Enabled).map(
+          (f) => f.Name
+        ),
+        ImageFetcherOrder: data.ImageFetchers.map((f) => f.Name),
+        ImageOptions: [],
+      });
+
+      if (data.CollectionType === "tvshows") {
+        typeOptions.push({
+          Type: "Season",
+          MetadataFetchers: data.SeasonMetadataFetchers.filter(
+            (f) => f.Enabled
+          ).map((f) => f.Name),
+          MetadataFetcherOrder: data.SeasonMetadataFetchers.map((f) => f.Name),
+          ImageFetchers: data.SeasonImageFetchers.filter((f) => f.Enabled).map(
+            (f) => f.Name
+          ),
+          ImageFetcherOrder: data.SeasonImageFetchers.map((f) => f.Name),
+          ImageOptions: [],
+        });
+
+        typeOptions.push({
+          Type: "Episode",
+          MetadataFetchers: data.EpisodeMetadataFetchers.filter(
+            (f) => f.Enabled
+          ).map((f) => f.Name),
+          MetadataFetcherOrder: data.EpisodeMetadataFetchers.map((f) => f.Name),
+          ImageFetchers: data.EpisodeImageFetchers.filter((f) => f.Enabled).map(
+            (f) => f.Name
+          ),
+          ImageFetcherOrder: data.EpisodeImageFetchers.map((f) => f.Name),
+          ImageOptions: [],
+        });
+      }
+
+      const libraryOptions: LibraryOptions = {
+        Enabled: data.LibrarySettings.Enabled,
+        EnableRealtimeMonitor: data.LibrarySettings.EnableRealtimeMonitor,
+        PreferredMetadataLanguage:
+          data.LibrarySettings.PreferredMetadataLanguage,
+        MetadataCountryCode: data.LibrarySettings.MetadataCountryCode,
+        SeasonZeroDisplayName: data.LibrarySettings.SeasonZeroDisplayName,
+        EnableEmbeddedTitles: data.MovieOptions.EnableEmbeddedTitles,
+        EnableEmbeddedExtrasTitles:
+          data.MovieOptions.EnableEmbeddedExtrasTitles,
+        EnableEmbeddedEpisodeInfos:
+          data.MovieOptions.EnableEmbeddedEpisodeInfos,
+        AllowEmbeddedSubtitles: data.MovieOptions.AllowEmbeddedSubtitles as any,
+        AutomaticallyAddToCollection:
+          data.MovieOptions.AutomaticallyAddToCollection,
+        EnableAutomaticSeriesGrouping:
+          data.MovieOptions.EnableAutomaticSeriesGrouping,
+        AutomaticRefreshIntervalDays: Number(
+          data.MovieOptions.AutomaticRefreshIntervalDays
+        ),
+        SaveLocalMetadata: data.SaveLocalMetadata,
+        EnableChapterImageExtraction:
+          data.ChapterImages.EnableChapterImageExtraction,
+        ExtractChapterImagesDuringLibraryScan:
+          data.ChapterImages.ExtractChapterImagesDuringLibraryScan,
+        EnableTrickplayImageExtraction:
+          data.Trickplay.EnableTrickplayImageExtraction,
+        ExtractTrickplayImagesDuringLibraryScan:
+          data.Trickplay.ExtractTrickplayImagesDuringLibraryScan,
+        SaveTrickplayWithMedia:
+          data.Trickplay.SaveTrickplayImagesIntoMediaFolders,
+        SubtitleDownloadLanguages: data.SubtitleDownloads.DownloadLanguages,
+        RequirePerfectSubtitleMatch:
+          data.SubtitleDownloads.RequirePerfectSubtitleMatch,
+        SkipSubtitlesIfAudioTrackMatches:
+          data.SubtitleDownloads.SkipSubtitlesIfAudioTrackMatches,
+        SkipSubtitlesIfEmbeddedSubtitlesPresent:
+          data.SubtitleDownloads.SkipSubtitlesIfEmbeddedSubtitlesPresent,
+        SaveSubtitlesWithMedia: data.SubtitleDownloads.SaveSubtitlesWithMedia,
+
+        MetadataSavers: data.MetadataSavers.filter((s) => s.Enabled).map(
+          (s) => s.Name
+        ),
+        DisabledLocalMetadataReaders: [],
+        LocalMetadataReaderOrder: [],
+
+        DisabledSubtitleFetchers:
+          data.SubtitleDownloads.SubtitleFetchers.filter((s) => !s.Enabled).map(
+            (s) => s.Name
+          ),
+        SubtitleFetcherOrder: data.SubtitleDownloads.SubtitleFetchers.map(
+          (s) => s.Name
+        ),
+
+        DisabledMediaSegmentProviders: data.MediaSegmentProviders.filter(
+          (s) => !s.Enabled
+        ).map((s) => s.Name),
+        MediaSegmentProvideOrder: data.MediaSegmentProviders.map((s) => s.Name),
+
+        TypeOptions: typeOptions,
+      };
+
+      await addLibrary(
+        data.Name,
+        data.CollectionType,
+        data.Paths,
+        libraryOptions
+      );
+
+      toast.success("Library added successfully");
+      navigate("/dashboard/libraries");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add library");
+    } finally {
+      setDashboardLoading(false);
+    }
   }
 
   return (
