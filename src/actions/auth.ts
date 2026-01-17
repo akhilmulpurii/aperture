@@ -331,7 +331,9 @@ export async function initiateQuickConnect(): Promise<QuickConnectResult | null>
     });
 
     if (!response.ok) {
-      throw new Error(`Quick Connect initiate failed with status ${response.status}`);
+      throw new Error(
+        `Quick Connect initiate failed with status ${response.status}`
+      );
     }
 
     const result = (await response.json()) as QuickConnectResult;
@@ -455,8 +457,10 @@ export async function getUser(): Promise<JellyfinUserWithToken | null> {
 }
 
 export async function changeUserPassword(
-  currentPassword: string,
-  newPassword: string
+  currentPassword?: string,
+  newPassword?: string,
+  targetUserId?: string,
+  resetPassword?: boolean
 ): Promise<void> {
   const authData = await StoreAuthData.get();
 
@@ -480,11 +484,14 @@ export async function changeUserPassword(
   const userApi = getUserApi(api);
 
   try {
+    const userIdToUpdate = targetUserId || storedUser.Id;
+
     await userApi.updateUserPassword({
-      userId: storedUser.Id,
+      userId: userIdToUpdate,
       updateUserPassword: {
         CurrentPw: currentPassword,
         NewPw: newPassword,
+        ResetPassword: resetPassword,
       },
     });
   } catch (error: any) {

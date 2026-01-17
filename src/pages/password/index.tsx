@@ -14,6 +14,8 @@ import {
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { changeUserPassword } from "../../actions";
+import { useAtomValue, useSetAtom } from "jotai";
+import { dashboardLoadingAtom } from "../../lib/atoms";
 
 const MIN_PASSWORD_LENGTH = 3;
 
@@ -22,10 +24,10 @@ export default function PasswordSettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
+  const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
+  const dashboardLoading = useAtomValue(dashboardLoadingAtom);
   const meetsLengthRequirement = newPassword.length >= MIN_PASSWORD_LENGTH;
 
   const passwordsMatch =
@@ -37,7 +39,7 @@ export default function PasswordSettingsPage() {
     currentPassword.length > 0 &&
     meetsLengthRequirement &&
     passwordsMatch &&
-    !isSubmitting;
+    !dashboardLoading;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -56,7 +58,7 @@ export default function PasswordSettingsPage() {
       return;
     }
 
-    setIsSubmitting(true);
+    setDashboardLoading(true);
     try {
       await changeUserPassword(currentPassword, newPassword);
       toast.success("Password updated successfully.");
@@ -74,7 +76,7 @@ export default function PasswordSettingsPage() {
       setFormError(message);
       toast.error(message);
     } finally {
-      setIsSubmitting(false);
+      setDashboardLoading(false);
     }
   };
 
@@ -134,7 +136,9 @@ export default function PasswordSettingsPage() {
                       value={newPassword}
                       onChange={(event) => setNewPassword(event.target.value)}
                       autoComplete="new-password"
-                      aria-invalid={!meetsLengthRequirement && newPassword !== ""}
+                      aria-invalid={
+                        !meetsLengthRequirement && newPassword !== ""
+                      }
                       required
                     />
                     <p className="text-xs text-muted-foreground">
@@ -201,7 +205,7 @@ export default function PasswordSettingsPage() {
                   Back to settings
                 </Button>
                 <Button type="submit" disabled={!canSubmit}>
-                  {isSubmitting ? (
+                  {dashboardLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Updating…

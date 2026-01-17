@@ -33,6 +33,9 @@ export {
   scanLibrary,
   markFavorite,
   unmarkFavorite,
+  fetchVirtualFolders,
+  removeVirtualFolder,
+  renameVirtualFolder,
 } from "./media";
 
 // TV show actions
@@ -66,6 +69,7 @@ export {
   fetchCurrentImages,
   reorderBackdropImage,
   deleteImage,
+  getUserById,
   getUserWithPolicy,
   fetchScheduledTasks,
   fetchJellyfinLogs,
@@ -73,15 +77,57 @@ export {
   restartServer,
   shutdownServer,
   canBrowserDirectPlayHevc,
+  fetchUsers,
+  updateUser,
+  updateUserPolicy,
+  fetchMediaFolders,
+  fetchDevices,
+  fetchParentalRatings,
+  fetchCultures,
+  fetchCountries,
+  createUser,
+  deleteUser,
 } from "./utils";
 export { discoverLocalServer } from "./discovery";
+export {
+  fetchDashboardGeneralData,
+  updateDashboardConfiguration,
+} from "./dashboard-general";
+export {
+  fetchSystemConfiguration,
+  fetchMetadataConfiguration,
+  updateSystemConfiguration,
+  updateMetadataConfiguration,
+  fetchXbmcMetadataConfiguration,
+  updateXbmcMetadataConfiguration,
+  fetchEncodingConfiguration,
+  updateEncodingConfiguration,
+} from "./configuration";
+export {
+  fetchDefaultDirectoryBrowser,
+  fetchDrives,
+  fetchDirectoryContents,
+  fetchParentPath,
+} from "./file-browser";
+export {
+  fetchApiKeys,
+  normalizeApiKeys,
+  createApiKey,
+  revokeApiKey,
+} from "./api-keys";
+export {
+  fetchScheduledTasksList,
+  startScheduledTask,
+  stopScheduledTask,
+  updateTaskTriggers,
+} from "./scheduled-tasks";
+export { fetchActivityLogEntries } from "./activity-log";
 
 // Types
 export type {
   RemoteImage,
   RemoteImagesResponse,
   CurrentImage,
-  UserPolicy,
   UserWithPolicy,
 } from "./utils";
 export type { QuickConnectResult } from "./auth";

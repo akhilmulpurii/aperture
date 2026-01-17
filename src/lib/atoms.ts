@@ -2,6 +2,9 @@ import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { MediaSourceInfo } from "../types/jellyfin";
 
+// Global loading state for dashboard
+export const dashboardLoadingAtom = atom(false);
+
 // Fullscreen state
 export const isFullscreenAtom = atom(false);
 

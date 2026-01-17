@@ -1,11 +1,20 @@
 import { UserLibraryApi } from "@jellyfin/sdk/lib/generated-client/api/user-library-api";
 import { LibraryApi } from "@jellyfin/sdk/lib/generated-client/api/library-api";
 import { getUserViewsApi } from "@jellyfin/sdk/lib/utils/api/user-views-api";
+import { getUserApi } from "@jellyfin/sdk/lib/utils/api/user-api";
 import { getSystemApi } from "@jellyfin/sdk/lib/utils/api/system-api";
+import { DevicesApi } from "@jellyfin/sdk/lib/generated-client/api/devices-api";
+import { LocalizationApi } from "@jellyfin/sdk/lib/generated-client/api/localization-api";
 import {
   BaseItemDto,
   LogFile,
   SystemInfo,
+  UserDto,
+  UserPolicy,
+  DeviceInfoDto,
+  ParentalRating,
+  CultureDto,
+  CountryInfo,
 } from "@jellyfin/sdk/lib/generated-client/models";
 import { MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models/media-source-info";
 import axios from "axios";
@@ -379,7 +388,9 @@ export async function getSubtitleTracks(
     );
     const subtitleStreams =
       mediaSource?.MediaStreams?.filter(
-        (stream) => stream.Type === "Subtitle" && (stream.Codec || '').toLowerCase() !== 'pgssub'
+        (stream) =>
+          stream.Type === "Subtitle" &&
+          (stream.Codec || "").toLowerCase() !== "pgssub"
       ) || [];
     const subtitleTracks = subtitleStreams.map((stream) => {
       const src = `${serverUrl}/Videos/${itemId}/${mediaSourceId}/Subtitles/${stream.Index}/Stream.vtt?api_key=${user.AccessToken}`;
@@ -451,9 +462,9 @@ export async function getAudioTracks(
 
     // Sort: Default first, then Language
     audioTracks.sort((a, b) => {
-        if (a.default && !b.default) return -1;
-        if (!a.default && b.default) return 1;
-        return (a.language || "").localeCompare(b.language || "");
+      if (a.default && !b.default) return -1;
+      if (!a.default && b.default) return 1;
+      return (a.language || "").localeCompare(b.language || "");
     });
 
     return audioTracks;
@@ -462,6 +473,24 @@ export async function getAudioTracks(
     return [];
   }
 }
+export async function fetchMediaFolders(): Promise<BaseItemDto[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const libraryApi = new LibraryApi(api.configuration);
+    const { data } = await libraryApi.getMediaFolders();
+    return data.Items || [];
+  } catch (error) {
+    console.error("Failed to fetch media folders:", error);
+    return [];
+  }
+}
+
 export async function getUserLibraries(): Promise<BaseItemDto[]> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -677,11 +706,11 @@ export async function deleteImage(
   }
 }
 
-export interface UserPolicy {
-  IsAdministrator: boolean;
-  EnableMediaConversion: boolean;
-  EnableContentDeletion: boolean;
-}
+// export interface UserPolicy {
+//   IsAdministrator: boolean;
+//   EnableMediaConversion: boolean;
+//   EnableContentDeletion: boolean;
+// }
 
 export interface UserWithPolicy {
   Name: string;
@@ -695,6 +724,113 @@ export interface UserWithPolicy {
   LastActivityDate: string;
   Configuration: any;
   Policy: UserPolicy;
+}
+
+export async function getUserById(userId: string): Promise<UserDto | null> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    const { data } = await userApi.getUserById({ userId });
+    return data;
+  } catch (error) {
+    console.error(`Failed to fetch user ${userId}:`, error);
+    return null;
+  }
+}
+
+export async function updateUser(
+  userId: string,
+  userDto: UserDto
+): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    await userApi.updateUser({
+      userId,
+      userDto,
+    });
+  } catch (error) {
+    console.error(`Failed to update user ${userId}:`, error);
+    throw error;
+  }
+}
+
+export async function createUser(
+  name: string,
+  password?: string
+): Promise<UserDto> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    const { data } = await userApi.createUserByName({
+      createUserByName: {
+        Name: name,
+        Password: password,
+      },
+    });
+    return data;
+  } catch (error: any) {
+    console.error(`Failed to create user ${name}:`, error);
+    throw error;
+  }
+}
+
+export async function deleteUser(userId: string): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    await userApi.deleteUser({ userId });
+  } catch (error: any) {
+    console.error(`Failed to delete user ${userId}:`, error);
+    throw error;
+  }
+}
+
+export async function updateUserPolicy(
+  userId: string,
+  userPolicy: UserPolicy
+): Promise<void> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    await userApi.updateUserPolicy({
+      userId,
+      userPolicy,
+    });
+  } catch (error) {
+    console.error(`Failed to update user policy ${userId}:`, error);
+    throw error;
+  }
 }
 
 export async function getUserWithPolicy(
@@ -831,40 +967,124 @@ export async function fetchSystemInfo(): Promise<SystemInfo | null> {
 
 export async function restartServer(): Promise<void> {
   const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
 
   try {
-    const response = await fetch(`${serverUrl}/System/Restart`, {
-      method: "POST",
-      headers: {
-        Authorization: `MediaBrowser Token="${user.AccessToken}"`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to restart server: ${response.statusText}`);
-    }
+    const systemApi = getSystemApi(api);
+    await systemApi.restartApplication();
   } catch (error) {
-    console.error("Failed to restart server:", error);
-    throw error;
+    console.error("Failed to fetch system info:", error);
+    throw new Error(`Failed to restart server: ${error}`);
   }
 }
 
 export async function shutdownServer(): Promise<void> {
   const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
 
   try {
-    const response = await fetch(`${serverUrl}/System/Shutdown`, {
-      method: "POST",
-      headers: {
-        Authorization: `MediaBrowser Token="${user.AccessToken}"`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to shutdown server: ${response.statusText}`);
-    }
+    const systemApi = getSystemApi(api);
+    await systemApi.shutdownApplication();
   } catch (error) {
-    console.error("Failed to shutdown server:", error);
-    throw error;
+    console.error("Failed to fetch system info:", error);
+    throw new Error(`Failed to shutdown server: ${error}`);
+  }
+}
+
+export async function fetchParentalRatings(): Promise<ParentalRating[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const localizationApi = new LocalizationApi(api.configuration);
+    const { data } = await localizationApi.getParentalRatings();
+    return data || [];
+  } catch (error) {
+    console.error("Failed to fetch parental ratings:", error);
+    return [];
+  }
+}
+
+export async function fetchDevices(): Promise<DeviceInfoDto[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const devicesApi = new DevicesApi(api.configuration);
+    const { data } = await devicesApi.getDevices();
+    return data.Items || [];
+  } catch (error) {
+    console.error("Failed to fetch devices:", error);
+    return [];
+  }
+}
+
+export async function fetchUsers(): Promise<UserDto[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userApi = getUserApi(api);
+    const { data } = await userApi.getUsers();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    return [];
+  }
+}
+
+export async function fetchCultures(): Promise<CultureDto[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const localizationApi = new LocalizationApi(api.configuration);
+    const { data } = await localizationApi.getCultures();
+    return data || [];
+  } catch (error) {
+    console.error("Failed to fetch cultures:", error);
+    return [];
+  }
+}
+
+export async function fetchCountries(): Promise<CountryInfo[]> {
+  const { serverUrl, user } = await getAuthData();
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  api.accessToken = user.AccessToken;
+
+  try {
+    const localizationApi = new LocalizationApi(api.configuration);
+    const { data } = await localizationApi.getCountries();
+    return data || [];
+  } catch (error) {
+    console.error("Failed to fetch countries:", error);
+    return [];
   }
 }

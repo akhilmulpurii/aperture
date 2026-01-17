@@ -1,0 +1,71 @@
+{
+  "name": "Dashboard",
+  "sections": [
+    {
+      "name": "Overview",
+      "url": "/dashboard"
+    },
+    {
+      "name": "General",
+      "url": "/dashboard/general"
+    },
+    {
+      "name": "Libraries",
+      "items": [
+        {
+          "name": "Libraries",
+          "url": "/dashboard/libraries"
+        },
+        {
+          "name": "Display",
+          "url": "/dashboard/libraries/display"
+        },
+        {
+          "name": "Metadata",
+          "url": "/dashboard/libraries/metadata"
+        },
+        {
+          "name": "NFO Settings",
+          "url": "/dashboard/libraries/nfo-settings"
+        }
+      ]
+    },
+    {
+      "name": "Playback",
+      "items": [
+        {
+          "name": "Transcoding",
+          "url": "/dashboard/playback/transcoding"
+        },
+        {
+          "name": "Resume",
+          "url": "/dashboard/playback/resume"
+        },
+        {
+          "name": "Streaming",
+          "url": "/dashboard/playback/streaming"
+        },
+        {
+          "name": "Trickplay",
+          "url": "/dashboard/playback/trickplay"
+        }
+      ]
+    },
+    {
+      "name": "Manage users",
+      "url": "/dashboard/users"
+    },
+    {
+      "name": "Activity",
+      "url": "/dashboard/activity"
+    },
+    {
+      "name": "Scheduled tasks",
+      "url": "/dashboard/tasks"
+    },
+    {
+      "name": "API keys",
+      "url": "/dashboard/keys"
+    }
+  ]
+}

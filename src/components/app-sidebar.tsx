@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom"; // for React Router
 // @ts-ignore
 import Logo from "../assets/logo/icon.png";
+import dashboardLinksConfig from "../config/sidebar/dashboard-links.json";
 
 import {
   Sidebar,
@@ -17,17 +18,21 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
 } from "../components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../components/ui/collapsible";
 import {
   getUser,
   getServerUrl,
@@ -43,14 +48,18 @@ import {
   ChevronUp,
   Home,
   Library,
-  Monitor,
   Settings2,
   ChevronRight,
   DiscAlbum,
   Antenna,
+  LayoutDashboard,
+  Users,
+  Wrench,
+  CalendarClock,
+  Activity,
+  Key,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import { THEME_OPTIONS } from "../constants/theme-options";
 
 interface JellyfinLibrary {
   Id: string;
@@ -66,14 +75,14 @@ export function AppSidebar({
   isTauriMac: boolean;
   isTauriFullscreen: boolean;
 }) {
-  const { isMobile } = useSidebar();
+  const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const { setOpenMobile } = useSidebar();
+  const isAdmin = Boolean(user?.Policy?.IsAdministrator);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -154,6 +163,8 @@ export function AppSidebar({
       variant="floating"
       collapsible="icon"
       className={`${isTauriMac && !isTauriFullscreen ? "pt-10" : ""} z-20`}
+      onMouseEnter={() => !isMobile && setOpen(true)}
+      onMouseLeave={() => !isMobile && setOpen(false)}
     >
       <SidebarHeader>
         <SidebarMenu>
@@ -197,41 +208,47 @@ export function AppSidebar({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <DropdownMenu>
+
+              {/* Libraries Section */}
+              <Collapsible
+                asChild
+                defaultOpen={false}
+                className="group/collapsible"
+              >
                 <SidebarMenuItem>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip="Libraries">
                       <Library className="h-4 w-4" />
                       <span>Libraries</span>
-                      <ChevronRight className="ml-auto h-4 w-4" />
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
-                  </DropdownMenuTrigger>
-                  {!isLoading && libraries.length > 0 ? (
-                    <DropdownMenuContent
-                      side={isMobile ? "bottom" : "right"}
-                      align={isMobile ? "center" : "start"}
-                      className="min-w-56 rounded-lg z-[10000000001]"
-                    >
-                      {libraries.map((library) => (
-                        <DropdownMenuItem asChild key={library.Id}>
-                          <Link
-                            onClick={() => setOpenMobile(false)}
-                            to={
-                              library.CollectionType !== "livetv"
-                                ? `/library/${library.Id}`
-                                : `/livetv/`
-                            }
-                            className="flex items-center gap-2"
-                          >
-                            {getLibraryIcon(library.CollectionType!)}
-                            <span>{library.Name}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  ) : null}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {!isLoading && libraries.length > 0
+                        ? libraries.map((library) => (
+                            <SidebarMenuSubItem key={library.Id}>
+                              <SidebarMenuSubButton asChild>
+                                <Link
+                                  to={
+                                    library.CollectionType !== "livetv"
+                                      ? `/library/${library.Id}`
+                                      : `/livetv/`
+                                  }
+                                  onClick={() => setOpenMobile(false)}
+                                >
+                                  {getLibraryIcon(library.CollectionType!)}
+                                  <span>{library.Name}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))
+                        : null}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              </DropdownMenu>
+              </Collapsible>
+
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/settings" onClick={() => setOpenMobile(false)}>
@@ -240,6 +257,86 @@ export function AppSidebar({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
+              {/* Admin Section */}
+              {/* Migrate this to json config  */}
+
+              {isAdmin && (
+                <Collapsible
+                  asChild
+                  defaultOpen={false}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip="Admin">
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>{dashboardLinksConfig.name}</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {dashboardLinksConfig.sections.map((section: any) => {
+                          if (section.items) {
+                            return (
+                              <Collapsible
+                                asChild
+                                defaultOpen={false}
+                                className="group/collapsible-nested"
+                                key={section.name}
+                              >
+                                <SidebarMenuSubItem>
+                                  <CollapsibleTrigger asChild>
+                                    <SidebarMenuSubButton>
+                                      <LayoutDashboard className="h-4 w-4" />
+                                      <span>{section.name}</span>
+                                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible-nested:rotate-90" />
+                                    </SidebarMenuSubButton>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <SidebarMenuSub>
+                                      {section.items.map((item: any) => (
+                                        <SidebarMenuSubItem key={item.name}>
+                                          <SidebarMenuSubButton asChild>
+                                            <Link
+                                              to={item.url}
+                                              onClick={() =>
+                                                setOpenMobile(false)
+                                              }
+                                            >
+                                              <LayoutDashboard className="h-4 w-4" />
+                                              <span>{item.name}</span>
+                                            </Link>
+                                          </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                      ))}
+                                    </SidebarMenuSub>
+                                  </CollapsibleContent>
+                                </SidebarMenuSubItem>
+                              </Collapsible>
+                            );
+                          }
+
+                          return (
+                            <SidebarMenuSubItem key={section.name}>
+                              <SidebarMenuSubButton asChild>
+                                <Link
+                                  to={section.url}
+                                  onClick={() => setOpenMobile(false)}
+                                >
+                                  <LayoutDashboard className="h-4 w-4" />
+                                  <span>{section.name}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                        </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -282,7 +379,6 @@ export function AppSidebar({
                 align="start"
                 sideOffset={4}
               >
-                {/* <DropdownMenuSeparator /> */}
                 <DropdownMenuItem onClick={handleLogout} className="gap-2">
                   <LogOut className="h-4 w-4 text-red-600 dark:text-red-500" />
                   <span>Log out</span>
@@ -292,7 +388,7 @@ export function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

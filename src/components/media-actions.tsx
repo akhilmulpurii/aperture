@@ -17,14 +17,21 @@ import {
 } from "../components/ui/dialog";
 import { MediaInfoDialog } from "../components/media-info-dialog";
 import { ImageEditorDialog } from "../components/image-editor-dialog";
-import { Info, Download, Play, ArrowLeft, Layers, ChevronDown, Music } from "lucide-react";
+import {
+  Info,
+  Download,
+  Play,
+  ArrowLeft,
+  Layers,
+  ChevronDown,
+  Music,
+} from "lucide-react";
 import {
   getDownloadUrl,
   getStreamUrl,
   getSubtitleTracks,
   getUserWithPolicy,
   getUser,
-  type UserPolicy,
 } from "../actions";
 import {
   getMediaDetailsFromName,
@@ -35,6 +42,7 @@ import {
 import { usePlayback } from "../hooks/usePlayback";
 import { useIsMobile } from "../hooks/use-mobile";
 import { DolbyDigital, DolbyTrueHd, DolbyVision, DtsHd } from "./icons/codecs";
+import { UserPolicy } from "@jellyfin/sdk/lib/generated-client/models";
 
 interface MediaActionsProps {
   movie?: JellyfinItem;
@@ -54,7 +62,9 @@ export function MediaActions({
   const isMobile = useIsMobile();
   const [selectedVersion, setSelectedVersion] =
     useState<MediaSourceInfo | null>(null);
-  const [selectedAudioStreamIndex, setSelectedAudioStreamIndex] = useState<number | undefined>(undefined);
+  const [selectedAudioStreamIndex, setSelectedAudioStreamIndex] = useState<
+    number | undefined
+  >(undefined);
   const [userPolicy, setUserPolicy] = useState<UserPolicy | null>(null);
 
   // Determine if this is a resume or new play
@@ -72,32 +82,40 @@ export function MediaActions({
     if (media?.MediaSources && media.MediaSources.length > 0) {
       const defaultSource = media.MediaSources[0];
       setSelectedVersion(defaultSource);
-      
+
       // Select default audio stream
       if (defaultSource.MediaStreams) {
-          const defaultAudio = defaultSource.MediaStreams.find(s => s.Type === 'Audio' && s.IsDefault);
-          if (defaultAudio) {
-              setSelectedAudioStreamIndex(defaultAudio.Index);
-          } else {
-              // Fallback to first audio stream
-              const firstAudio = defaultSource.MediaStreams.find(s => s.Type === 'Audio');
-              setSelectedAudioStreamIndex(firstAudio?.Index);
-          }
+        const defaultAudio = defaultSource.MediaStreams.find(
+          (s) => s.Type === "Audio" && s.IsDefault
+        );
+        if (defaultAudio) {
+          setSelectedAudioStreamIndex(defaultAudio.Index);
+        } else {
+          // Fallback to first audio stream
+          const firstAudio = defaultSource.MediaStreams.find(
+            (s) => s.Type === "Audio"
+          );
+          setSelectedAudioStreamIndex(firstAudio?.Index);
+        }
       }
     }
   }, [media]);
 
   // Update selected audio when version changes
   useEffect(() => {
-      if (selectedVersion?.MediaStreams) {
-          const defaultAudio = selectedVersion.MediaStreams.find(s => s.Type === 'Audio' && s.IsDefault);
-          if (defaultAudio) {
-              setSelectedAudioStreamIndex(defaultAudio.Index);
-          } else {
-               const firstAudio = selectedVersion.MediaStreams.find(s => s.Type === 'Audio');
-               setSelectedAudioStreamIndex(firstAudio?.Index);
-          }
+    if (selectedVersion?.MediaStreams) {
+      const defaultAudio = selectedVersion.MediaStreams.find(
+        (s) => s.Type === "Audio" && s.IsDefault
+      );
+      if (defaultAudio) {
+        setSelectedAudioStreamIndex(defaultAudio.Index);
+      } else {
+        const firstAudio = selectedVersion.MediaStreams.find(
+          (s) => s.Type === "Audio"
+        );
+        setSelectedAudioStreamIndex(firstAudio?.Index);
       }
+    }
   }, [selectedVersion]);
 
   // Fetch user policy when component mounts
@@ -195,31 +213,40 @@ export function MediaActions({
   const renderSourceLabel = (source: MediaSourceInfo, isDropdown = false) => {
     const techName = getMediaSourceDisplayName(source);
     const verName = getVersionName(source);
-    
-    const isBracketed = verName.startsWith('[') && verName.endsWith(']');
-    const cleanVerName = isBracketed ? verName.replace(/[\[\]]/g, '') : verName;
-    
-    const isRedundant = !isBracketed && (verName === techName || techName.toLowerCase().includes(verName.toLowerCase()));
+
+    const isBracketed = verName.startsWith("[") && verName.endsWith("]");
+    const cleanVerName = isBracketed ? verName.replace(/[\[\]]/g, "") : verName;
+
+    const isRedundant =
+      !isBracketed &&
+      (verName === techName ||
+        techName.toLowerCase().includes(verName.toLowerCase()));
 
     if (isRedundant) {
-        return techName;
+      return techName;
     }
 
     if (isDropdown) {
-        return (
-            <div className="flex flex-col items-start gap-0.5 leading-tight">
-                <span className="font-medium text-[0.8rem] text-primary">{cleanVerName}</span>
-                <span className="text-xs text-muted-foreground font-normal">{techName}</span>
-            </div>
-        );
+      return (
+        <div className="flex flex-col items-start gap-0.5 leading-tight">
+          <span className="font-medium text-[0.8rem] text-primary">
+            {cleanVerName}
+          </span>
+          <span className="text-xs text-muted-foreground font-normal">
+            {techName}
+          </span>
+        </div>
+      );
     }
 
     return (
-        <span className="flex items-center gap-1.5">
-            <span className="font-semibold text-primary opacity-90">{cleanVerName}</span>
-            <span className="opacity-50">•</span>
-            <span>{techName}</span>
+      <span className="flex items-center gap-1.5">
+        <span className="font-semibold text-primary opacity-90">
+          {cleanVerName}
         </span>
+        <span className="opacity-50">•</span>
+        <span>{techName}</span>
+      </span>
     );
   };
 
@@ -286,41 +313,43 @@ export function MediaActions({
   };
 
   const getAudioStreamDisplayName = (stream: any, includeTitle = true) => {
-      // 1. codec cleaning
-      const codecMap: Record<string, string> = {
-          'ac3': 'Dolby Digital',
-          'eac3': 'Dolby Digital Plus',
-          'dca': 'DTS',
-          'dts': 'DTS',
-          'dtshd': 'DTS-HD',
-          'truehd': 'TrueHD',
-          'aac': 'AAC',
-          'mp3': 'MP3',
-          'flac': 'FLAC',
-          'opus': 'Opus',
-          'vorbis': 'Vorbis',
-          'pcm': 'PCM'
-      };
-      
-      const rawCodec = (stream.Codec || '').toLowerCase();
-      const codec = codecMap[rawCodec] || stream.Codec?.toUpperCase() || 'Unknown';
+    // 1. codec cleaning
+    const codecMap: Record<string, string> = {
+      ac3: "Dolby Digital",
+      eac3: "Dolby Digital Plus",
+      dca: "DTS",
+      dts: "DTS",
+      dtshd: "DTS-HD",
+      truehd: "TrueHD",
+      aac: "AAC",
+      mp3: "MP3",
+      flac: "FLAC",
+      opus: "Opus",
+      vorbis: "Vorbis",
+      pcm: "PCM",
+    };
 
-      // 2. channel cleaning
-      const channels = stream.ChannelLayout || (stream.Channels ? `${stream.Channels}ch` : '');
+    const rawCodec = (stream.Codec || "").toLowerCase();
+    const codec =
+      codecMap[rawCodec] || stream.Codec?.toUpperCase() || "Unknown";
 
-      // 3. title/commentary extraction
-      const explicitTitle = stream.Title;
-      
-      const parts = [codec];
-      if (channels) parts.push(channels);
-      
-      const techLabel = parts.join(' ');
-      
-      if (includeTitle && explicitTitle) {
-          return `${explicitTitle} (${techLabel})`;
-      }
-      
-      return techLabel;
+    // 2. channel cleaning
+    const channels =
+      stream.ChannelLayout || (stream.Channels ? `${stream.Channels}ch` : "");
+
+    // 3. title/commentary extraction
+    const explicitTitle = stream.Title;
+
+    const parts = [codec];
+    if (channels) parts.push(channels);
+
+    const techLabel = parts.join(" ");
+
+    if (includeTitle && explicitTitle) {
+      return `${explicitTitle} (${techLabel})`;
+    }
+
+    return techLabel;
   };
 
   const hasDtsHd = (source: MediaSourceInfo) => {
@@ -416,51 +445,73 @@ export function MediaActions({
             </Button>
           )}
         </div>
-        
+
         {/* Audio Stream Selector */}
-        {selectedVersion?.MediaStreams && (
-            (() => {
-                const audioStreams = selectedVersion.MediaStreams?.filter(s => s.Type === 'Audio');
-                if (audioStreams && audioStreams.length > 1) {
-                    const currentAudio = audioStreams.find(s => s.Index === selectedAudioStreamIndex);
-                    return (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="overflow-hidden whitespace-nowrap text-ellipsis fill-foreground gap-1.5 px-4 w-full sm:w-auto sm:max-w-[200px] justify-between sm:justify-start">
-                                    <Music className="h-4 w-4 opacity-70" />
-                                    <span className="truncate">
-                                        {currentAudio ? getAudioStreamDisplayName(currentAudio) : 'Audio'}
-                                    </span>
-                                    <ChevronDown className="h-4 w-4 opacity-50 ml-1 flex-shrink-0" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align={isMobile ? "center" : "start"}
-                              className={isMobile ? "w-[calc(100vw-2rem)]" : "min-w-56"}
-                            >
-                                {audioStreams.map(stream => (
-                                    <DropdownMenuItem
-                                        key={stream.Index}
-                                        onSelect={() => setSelectedAudioStreamIndex(stream.Index)}
-                                        className="fill-foreground gap-3 flex justify-between"
-                                    >
-                                        <div className="flex flex-col">
-                                            <span>{stream.DisplayTitle || stream.Language || `Track ${stream.Index}`}</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {stream.Language && <span className="mr-1">[{stream.Language.toUpperCase()}]</span>}
-                                                {getAudioStreamDisplayName(stream, false)}
-                                            </span>
-                                        </div>
-                                        {stream.IsDefault && <Badge variant="secondary" className="text-[0.6rem]">Default</Badge>}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    );
-                }
-                return null;
-            })()
-        )}
+        {selectedVersion?.MediaStreams &&
+          (() => {
+            const audioStreams = selectedVersion.MediaStreams?.filter(
+              (s) => s.Type === "Audio"
+            );
+            if (audioStreams && audioStreams.length > 1) {
+              const currentAudio = audioStreams.find(
+                (s) => s.Index === selectedAudioStreamIndex
+              );
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="overflow-hidden whitespace-nowrap text-ellipsis fill-foreground gap-1.5 px-4 w-full sm:w-auto sm:max-w-[200px] justify-between sm:justify-start"
+                    >
+                      <Music className="h-4 w-4 opacity-70" />
+                      <span className="truncate">
+                        {currentAudio
+                          ? getAudioStreamDisplayName(currentAudio)
+                          : "Audio"}
+                      </span>
+                      <ChevronDown className="h-4 w-4 opacity-50 ml-1 flex-shrink-0" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align={isMobile ? "center" : "start"}
+                    className={isMobile ? "w-[calc(100vw-2rem)]" : "min-w-56"}
+                  >
+                    {audioStreams.map((stream) => (
+                      <DropdownMenuItem
+                        key={stream.Index}
+                        onSelect={() =>
+                          setSelectedAudioStreamIndex(stream.Index)
+                        }
+                        className="fill-foreground gap-3 flex justify-between"
+                      >
+                        <div className="flex flex-col">
+                          <span>
+                            {stream.DisplayTitle ||
+                              stream.Language ||
+                              `Track ${stream.Index}`}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {stream.Language && (
+                              <span className="mr-1">
+                                [{stream.Language.toUpperCase()}]
+                              </span>
+                            )}
+                            {getAudioStreamDisplayName(stream, false)}
+                          </span>
+                        </div>
+                        {stream.IsDefault && (
+                          <Badge variant="secondary" className="text-[0.6rem]">
+                            Default
+                          </Badge>
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            }
+            return null;
+          })()}
 
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <Button
