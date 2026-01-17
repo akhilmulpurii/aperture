@@ -363,6 +363,12 @@ export default function AddLibraryPage() {
     }
   }
 
+  const isWorkInProgress = true;
+
+  if (isWorkInProgress) {
+    return <div>Work in progress</div>;
+  }
+
   return (
     <div className="w-full max-w-2xl mx-auto space-y-8 pb-20">
       <Form {...form}>
