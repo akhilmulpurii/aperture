@@ -40,6 +40,7 @@ import { Checkbox } from "../../../components/ui/checkbox";
 import { fetchLibraryOptionsInfo, addLibrary } from "../../../actions/media";
 import { ReorderableList } from "../../../components/reorderable-list";
 import { LibraryOptions } from "@jellyfin/sdk/lib/generated-client/models/library-options";
+import { Badge } from "../../../components/ui/badge";
 
 const CONTENT_TYPES = [
   { value: "movies", label: "Movies" },
@@ -368,8 +369,14 @@ export default function AddLibraryPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* General Info */}
           <div className="rounded-2xl border border-border/70 bg-background/70 p-6 shadow-sm space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
               General Info
+              <Badge
+                variant="outline"
+                className="text-xs text-muted-foreground bg-background/50 p-2"
+              >
+                Beta Feature - may not work as expected
+              </Badge>
             </h3>
             <FormField
               control={form.control}
