@@ -2,6 +2,7 @@ import {
   fetchResumeItems,
   fetchLibraryItems,
   fetchLiveTVItems,
+  fetchNextUpItems,
 } from "../../actions/media";
 import { getAuthData, getUserLibraries } from "../../actions/utils";
 import { AuthErrorHandler } from "../../components/auth-error-handler";
@@ -14,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/loading-spinner";
 
 import { HeroSection } from "../../components/hero/hero-section";
+import { JellyfinItem } from "../../types/jellyfin";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ export default function Home() {
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [user, setUser] = useState<any | null>(null);
   const [resumeItems, setResumeItems] = useState<any[]>([]);
+  const [nextupItems, setNextupItems] = useState<JellyfinItem[]>([]);
   const [libraries, setLibraries] = useState<
     {
       library: any;
@@ -39,12 +42,15 @@ export default function Home() {
         setUser(authData.user);
 
         // Fetch resume items and libraries in parallel
-        const [resumeItemsResult, userLibraries] = await Promise.all([
+        const [resumeItemsResult, nextupItemsResult, userLibraries] = await Promise.all([
           fetchResumeItems(),
+          fetchNextUpItems(),
           getUserLibraries(),
         ]);
 
-        setResumeItems(resumeItemsResult);
+      setResumeItems(resumeItemsResult);
+      setNextupItems(nextupItemsResult.filter(item => !resumeItemsResult
+        .some(resumeItem => resumeItem.Id === item.Id)));
 
         // Fetch items for each library in parallel
         const libraryData = await Promise.all(
@@ -106,6 +112,16 @@ export default function Home() {
           <MediaSection
             sectionName="Continue Watching"
             mediaItems={resumeItems}
+            serverUrl={serverUrl}
+            continueWatching
+            hideViewAll
+          />
+        )}
+
+        {nextupItems.length > 0 && (
+          <MediaSection
+            sectionName="Next Up"
+            mediaItems={nextupItems}
             serverUrl={serverUrl}
             continueWatching
             hideViewAll

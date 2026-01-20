@@ -8,6 +8,7 @@ import { getItemsApi } from "@jellyfin/sdk/lib/utils/api/items-api";
 import { getLiveTvApi } from "@jellyfin/sdk/lib/utils/api/live-tv-api";
 import { getLibraryApi } from "@jellyfin/sdk/lib/utils/api/library-api";
 import { getGenresApi } from "@jellyfin/sdk/lib/utils/api/genres-api";
+import {getTvShowsApi} from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
 import { createJellyfinInstance } from "../lib/utils";
 import { JellyfinUserWithToken } from "../types/jellyfin";
 import { StoreAuthData } from "./store/store-auth-data";
@@ -339,6 +340,34 @@ export async function fetchResumeItems() {
     return [];
   }
 }
+
+export async function fetchNextUpItems() {
+    try {
+        const { serverUrl, user } = await getAuthData();
+        if (!user.AccessToken) throw new Error("No access token found");
+
+        const jellyfinInstance = createJellyfinInstance();
+        const api = jellyfinInstance.createApi(serverUrl);
+        api.accessToken = user.AccessToken;
+
+        const tvShowsApi = getTvShowsApi(api);
+        const { data } = await tvShowsApi.getNextUp({
+            userId: user.Id,
+            fields: [
+                ItemFields.CanDelete,
+                ItemFields.PrimaryImageAspectRatio,
+                ItemFields.Overview,
+            ],
+            enableImages: true
+        });
+
+        return data.Items || [];
+    } catch (error) {
+        console.error("Failed to fetch next up episodes:", error);
+        return [];
+    }
+}
+
 
 // Progress tracking functions
 export async function reportPlaybackStart(
