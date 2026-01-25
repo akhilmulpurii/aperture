@@ -1,10 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { BaseItemDto, MediaSourceInfo } from "@jellyfin/sdk/lib/generated-client/models";
+import { BaseItemDto, MediaSourceInfo, SubtitlePlaybackMode } from "@jellyfin/sdk/lib/generated-client/models";
 import { 
     fetchMediaDetails, 
     reportPlaybackStart, 
     reportPlaybackProgress, 
-    reportPlaybackStopped, 
+    reportPlaybackStopped,
+    getAuthData,
     getStreamUrl,
     getDirectStreamUrl,
     getSubtitleTracks,
@@ -161,6 +162,8 @@ export function usePlaybackManager(): PlaybackContextValue {
             mediaSource = itemToPlay!.MediaSources[0];
         }
 
+        const { user } = await getAuthData();
+
         // Fetch Sidecar Subtitles (VTT)
         try {
              if (mediaSource?.Id && itemToPlay!.Id) {
@@ -174,6 +177,15 @@ export function usePlaybackManager(): PlaybackContextValue {
                      if (defaultSub) {
                          targetIndex = defaultSub.index;
                          options.subtitleStreamIndex = targetIndex;
+                     }else if(user && user.Configuration && user.Configuration.SubtitleMode &&
+                         user.Configuration.SubtitleLanguagePreference &&
+                         user.Configuration.SubtitleMode === SubtitlePlaybackMode.Always){
+                         const subtitlePreferance =
+                             subs.find(s => s.language === user.Configuration!.SubtitleLanguagePreference);
+                         if (subtitlePreferance) {
+                             targetIndex = subtitlePreferance.index;
+                             options.subtitleStreamIndex = targetIndex;
+                         }
                      }
                  }
                  
