@@ -42,7 +42,7 @@
   },
   "productName": "Apertúre",
   "mainBinaryName": "aperture",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "identifier": "com.samura.client",
   "plugins": {},
   "app": {
