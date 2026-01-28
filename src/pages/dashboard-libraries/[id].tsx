@@ -110,8 +110,7 @@ export default function EditLibraryPage() {
       onSubmit={onSubmit}
       onCancel={() => navigate("/dashboard/libraries")}
       submitLabel="Save Changes"
-      disableCollectionType
-      disableLibraryName
+      hideGeneralInfoSection
     />
   );
 }
