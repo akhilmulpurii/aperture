@@ -1134,3 +1134,36 @@ export async function addLibrary(
     throw error;
   }
 }
+
+export async function updateLibraryOptions(
+  id: string,
+  libraryOptions: LibraryOptions
+): Promise<void> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
+
+    const libraryStructureApi = new LibraryStructureApi(api.configuration);
+
+    await libraryStructureApi.updateLibraryOptions({
+      updateLibraryOptionsDto: {
+        Id: id,
+        LibraryOptions: libraryOptions,
+      },
+    } as any);
+  } catch (error) {
+    console.error("Failed to update library options:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again."
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+    throw error;
+  }
+}
