@@ -43,7 +43,6 @@ export function LibraryForm({
     control: form.control,
     name: "CollectionType",
   });
-
   const enableEmbeddedTitles = useWatch({
     control: form.control,
     name: "MovieOptions.EnableEmbeddedTitles",
