@@ -51,6 +51,7 @@ export { searchItems, searchPeople } from "./search";
 
 // Utility actions
 export {
+  getAuthData,
   getImageUrl,
   getUserImageUrl,
   uploadUserImage,

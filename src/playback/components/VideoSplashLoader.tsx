@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { BaseItemDto, BaseItemKind } from "@jellyfin/sdk/lib/generated-client/models";
 import { getImageUrl } from '../../actions';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
@@ -18,9 +18,12 @@ export const VideoSplashLoader: React.FC<VideoSplashLoaderProps> = ({ item, isVi
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        if (item?.Id) {
-             getImageUrl(item.Id, "Backdrop").then(setBackdropUrl);
-             getImageUrl(item.Id, "Logo").then(setLogoUrl);
+        const itemId =
+            [BaseItemKind.Series, BaseItemKind.Season, BaseItemKind.Episode].includes(item?.Type as any)
+                ? item?.SeriesId : item?.Id;
+        if (itemId) {
+             getImageUrl(itemId, "Backdrop").then(setBackdropUrl);
+             getImageUrl(itemId, "Logo").then(setLogoUrl);
         }
     }, [item?.Id]);
 
