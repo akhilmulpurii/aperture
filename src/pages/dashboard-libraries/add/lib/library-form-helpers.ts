@@ -16,22 +16,22 @@ type FetcherItem = {
   Enabled: boolean;
 };
 
+const normalizeStringArray = (
+  values?: Array<string | null | undefined> | null
+) => (values ?? []).map((value) => value?.trim()).filter(Boolean) as string[];
+
 const buildFetcherItems = (
   availableItems?: FetcherSource[],
-  enabledNames?: Array<string | null | undefined>,
-  orderNames?: Array<string | null | undefined>
+  enabledNames?: Array<string | null | undefined> | null,
+  orderNames?: Array<string | null | undefined> | null
 ) => {
   const availableNames = (availableItems ?? [])
     .map((item) => item?.Name?.trim())
     .filter(Boolean) as string[];
 
-  const enabledSet = new Set(
-    (enabledNames ?? []).map((name) => name?.trim()).filter(Boolean) as string[]
-  );
+  const enabledSet = new Set(normalizeStringArray(enabledNames));
 
-  const order = (orderNames ?? [])
-    .map((name) => name?.trim())
-    .filter(Boolean) as string[];
+  const order = normalizeStringArray(orderNames);
 
   const orderedNames = order.length ? order : availableNames;
   const seen = new Set<string>();
@@ -61,17 +61,13 @@ const buildFetcherItems = (
 
 const buildFetcherItemsFromDisabled = (
   availableItems?: FetcherSource[],
-  disabledNames?: Array<string | null | undefined>,
-  orderNames?: Array<string | null | undefined>
+  disabledNames?: Array<string | null | undefined> | null,
+  orderNames?: Array<string | null | undefined> | null
 ) => {
   const availableNames = (availableItems ?? [])
     .map((item) => item?.Name?.trim())
     .filter(Boolean) as string[];
-  const disabledSet = new Set(
-    (disabledNames ?? [])
-      .map((name) => name?.trim())
-      .filter(Boolean) as string[]
-  );
+  const disabledSet = new Set(normalizeStringArray(disabledNames));
   const enabledNames = availableNames.filter((name) => !disabledSet.has(name));
   return buildFetcherItems(availableItems, enabledNames, orderNames);
 };
@@ -209,10 +205,11 @@ export const buildFormValuesFromLibrary = (
     .toString()
     .toLowerCase();
 
-  const paths =
-    library.Locations?.filter(Boolean) ||
-    libraryOptions.PathInfos?.map((info) => info.Path).filter(Boolean) ||
-    [];
+  const paths = (
+    library.Locations ??
+    libraryOptions.PathInfos?.map((info) => info.Path) ??
+    []
+  ).filter(Boolean) as string[];
 
   const getAvailableType = (type: string) =>
     availableOptions.TypeOptions?.find((option) => option.Type === type);
@@ -353,9 +350,10 @@ export const buildFormValuesFromLibrary = (
     },
     SubtitleDownloads: {
       ...base.SubtitleDownloads,
-      DownloadLanguages:
+      DownloadLanguages: normalizeStringArray(
         libraryOptions.SubtitleDownloadLanguages ??
-        base.SubtitleDownloads.DownloadLanguages,
+          base.SubtitleDownloads.DownloadLanguages
+      ),
       SubtitleFetchers: buildFetcherItemsFromDisabled(
         availableOptions.SubtitleFetchers,
         libraryOptions.DisabledSubtitleFetchers,
