@@ -47,6 +47,29 @@ const CONTENT_TYPES = [
   { value: "tvshows", label: "Shows" },
 ];
 
+const mapFetcherList = (
+  items?: Array<{ Name?: string | null; DefaultEnabled?: boolean | null }>,
+) =>
+  (items ?? [])
+    .filter((item) => item?.Name && item.Name.trim().length > 0)
+    .map((item) => {
+      const name = item!.Name!.trim();
+      return {
+        Name: name,
+        Enabled: item?.DefaultEnabled ?? false,
+        id: name,
+      };
+    });
+
+const toEnabledNames = (items: Array<{ Name: string; Enabled: boolean }>) =>
+  items
+    .filter((item) => item.Enabled)
+    .map((item) => item.Name.trim())
+    .filter(Boolean);
+
+const toAllNames = (items: Array<{ Name: string }>) =>
+  items.map((item) => item.Name.trim()).filter(Boolean);
+
 export default function AddLibraryPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const [cultures, setCultures] = useState<CultureDto[]>([]);
@@ -115,40 +138,28 @@ export default function AddLibraryPage() {
         if (typeOptions?.MetadataFetchers) {
           form.setValue(
             "MetadataFetchers",
-            typeOptions.MetadataFetchers.map((f) => ({
-              Name: f.Name || "",
-              Enabled: f.DefaultEnabled || false,
-              id: f.Name || Math.random().toString(),
-            }))
+            mapFetcherList(typeOptions.MetadataFetchers),
           );
         }
 
         if (collectionType === "tvshows") {
           const seasonOptions = result.TypeOptions?.find(
-            (t) => t.Type === "Season"
+            (t) => t.Type === "Season",
           );
           if (seasonOptions?.MetadataFetchers) {
             form.setValue(
               "SeasonMetadataFetchers",
-              seasonOptions.MetadataFetchers.map((f) => ({
-                Name: f.Name || "",
-                Enabled: f.DefaultEnabled || false,
-                id: f.Name || Math.random().toString(),
-              }))
+              mapFetcherList(seasonOptions.MetadataFetchers),
             );
           }
 
           const episodeOptions = result.TypeOptions?.find(
-            (t) => t.Type === "Episode"
+            (t) => t.Type === "Episode",
           );
           if (episodeOptions?.MetadataFetchers) {
             form.setValue(
               "EpisodeMetadataFetchers",
-              episodeOptions.MetadataFetchers.map((f) => ({
-                Name: f.Name || "",
-                Enabled: f.DefaultEnabled || false,
-                id: f.Name || Math.random().toString(),
-              }))
+              mapFetcherList(episodeOptions.MetadataFetchers),
             );
           }
         }
@@ -156,40 +167,28 @@ export default function AddLibraryPage() {
         if (typeOptions?.ImageFetchers) {
           form.setValue(
             "ImageFetchers",
-            typeOptions.ImageFetchers.map((f) => ({
-              Name: f.Name || "",
-              Enabled: f.DefaultEnabled || false,
-              id: f.Name || Math.random().toString(),
-            }))
+            mapFetcherList(typeOptions.ImageFetchers),
           );
         }
 
         if (collectionType === "tvshows") {
           const seasonOptions = result.TypeOptions?.find(
-            (t) => t.Type === "Season"
+            (t) => t.Type === "Season",
           );
           if (seasonOptions?.ImageFetchers) {
             form.setValue(
               "SeasonImageFetchers",
-              seasonOptions.ImageFetchers.map((f) => ({
-                Name: f.Name || "",
-                Enabled: f.DefaultEnabled || false,
-                id: f.Name || Math.random().toString(),
-              }))
+              mapFetcherList(seasonOptions.ImageFetchers),
             );
           }
 
           const episodeOptions = result.TypeOptions?.find(
-            (t) => t.Type === "Episode"
+            (t) => t.Type === "Episode",
           );
           if (episodeOptions?.ImageFetchers) {
             form.setValue(
               "EpisodeImageFetchers",
-              episodeOptions.ImageFetchers.map((f) => ({
-                Name: f.Name || "",
-                Enabled: f.DefaultEnabled || false,
-                id: f.Name || Math.random().toString(),
-              }))
+              mapFetcherList(episodeOptions.ImageFetchers),
             );
           }
         }
@@ -197,22 +196,14 @@ export default function AddLibraryPage() {
         if (result.MetadataSavers) {
           form.setValue(
             "MetadataSavers",
-            result.MetadataSavers.map((f) => ({
-              Name: f.Name || "",
-              Enabled: f.DefaultEnabled || false,
-              id: f.Name || Math.random().toString(),
-            }))
+            mapFetcherList(result.MetadataSavers),
           );
         }
 
         if (result.SubtitleFetchers) {
           form.setValue(
             "SubtitleDownloads.SubtitleFetchers",
-            result.SubtitleFetchers.map((f) => ({
-              Name: f.Name || "",
-              Enabled: f.DefaultEnabled || false,
-              id: f.Name || Math.random().toString(),
-            }))
+            mapFetcherList(result.SubtitleFetchers),
           );
         }
         // @ts-ignore
@@ -220,11 +211,7 @@ export default function AddLibraryPage() {
         if (MediaSegmentProviders.length) {
           form.setValue(
             "MediaSegmentProviders",
-            MediaSegmentProviders.map((f): any => ({
-              Name: f?.Name || "",
-              Enabled: f?.DefaultEnabled || false,
-              id: f?.Name || Math.random().toString(),
-            }))
+            mapFetcherList(MediaSegmentProviders),
           );
         }
       } catch (error) {
@@ -245,41 +232,29 @@ export default function AddLibraryPage() {
 
       typeOptions.push({
         Type: data.CollectionType === "movies" ? "Movie" : "Series",
-        MetadataFetchers: data.MetadataFetchers.filter((f) => f.Enabled).map(
-          (f) => f.Name
-        ),
-        MetadataFetcherOrder: data.MetadataFetchers.map((f) => f.Name),
-        ImageFetchers: data.ImageFetchers.filter((f) => f.Enabled).map(
-          (f) => f.Name
-        ),
-        ImageFetcherOrder: data.ImageFetchers.map((f) => f.Name),
+        MetadataFetchers: toEnabledNames(data.MetadataFetchers),
+        MetadataFetcherOrder: toEnabledNames(data.MetadataFetchers),
+        ImageFetchers: toEnabledNames(data.ImageFetchers),
+        ImageFetcherOrder: toEnabledNames(data.ImageFetchers),
         ImageOptions: [],
       });
 
       if (data.CollectionType === "tvshows") {
         typeOptions.push({
           Type: "Season",
-          MetadataFetchers: data.SeasonMetadataFetchers.filter(
-            (f) => f.Enabled
-          ).map((f) => f.Name),
-          MetadataFetcherOrder: data.SeasonMetadataFetchers.map((f) => f.Name),
-          ImageFetchers: data.SeasonImageFetchers.filter((f) => f.Enabled).map(
-            (f) => f.Name
-          ),
-          ImageFetcherOrder: data.SeasonImageFetchers.map((f) => f.Name),
+          MetadataFetchers: toEnabledNames(data.SeasonMetadataFetchers),
+          MetadataFetcherOrder: toEnabledNames(data.SeasonMetadataFetchers),
+          ImageFetchers: toEnabledNames(data.SeasonImageFetchers),
+          ImageFetcherOrder: toEnabledNames(data.SeasonImageFetchers),
           ImageOptions: [],
         });
 
         typeOptions.push({
           Type: "Episode",
-          MetadataFetchers: data.EpisodeMetadataFetchers.filter(
-            (f) => f.Enabled
-          ).map((f) => f.Name),
-          MetadataFetcherOrder: data.EpisodeMetadataFetchers.map((f) => f.Name),
-          ImageFetchers: data.EpisodeImageFetchers.filter((f) => f.Enabled).map(
-            (f) => f.Name
-          ),
-          ImageFetcherOrder: data.EpisodeImageFetchers.map((f) => f.Name),
+          MetadataFetchers: toEnabledNames(data.EpisodeMetadataFetchers),
+          MetadataFetcherOrder: toEnabledNames(data.EpisodeMetadataFetchers),
+          ImageFetchers: toEnabledNames(data.EpisodeImageFetchers),
+          ImageFetcherOrder: toEnabledNames(data.EpisodeImageFetchers),
           ImageOptions: [],
         });
       }
@@ -302,7 +277,7 @@ export default function AddLibraryPage() {
         EnableAutomaticSeriesGrouping:
           data.MovieOptions.EnableAutomaticSeriesGrouping,
         AutomaticRefreshIntervalDays: Number(
-          data.MovieOptions.AutomaticRefreshIntervalDays
+          data.MovieOptions.AutomaticRefreshIntervalDays,
         ),
         SaveLocalMetadata: data.SaveLocalMetadata,
         EnableChapterImageExtraction:
@@ -324,24 +299,24 @@ export default function AddLibraryPage() {
           data.SubtitleDownloads.SkipSubtitlesIfEmbeddedSubtitlesPresent,
         SaveSubtitlesWithMedia: data.SubtitleDownloads.SaveSubtitlesWithMedia,
 
-        MetadataSavers: data.MetadataSavers.filter((s) => s.Enabled).map(
-          (s) => s.Name
-        ),
+        MetadataSavers: toEnabledNames(data.MetadataSavers),
         DisabledLocalMetadataReaders: [],
         LocalMetadataReaderOrder: [],
 
         DisabledSubtitleFetchers:
-          data.SubtitleDownloads.SubtitleFetchers.filter((s) => !s.Enabled).map(
-            (s) => s.Name
-          ),
-        SubtitleFetcherOrder: data.SubtitleDownloads.SubtitleFetchers.map(
-          (s) => s.Name
+          data.SubtitleDownloads.SubtitleFetchers.filter((s) => !s.Enabled)
+            .map((s) => s.Name.trim())
+            .filter(Boolean),
+        SubtitleFetcherOrder: toAllNames(
+          data.SubtitleDownloads.SubtitleFetchers,
         ),
 
         DisabledMediaSegmentProviders: data.MediaSegmentProviders.filter(
-          (s) => !s.Enabled
-        ).map((s) => s.Name),
-        MediaSegmentProvideOrder: data.MediaSegmentProviders.map((s) => s.Name),
+          (s) => !s.Enabled,
+        )
+          .map((s) => s.Name.trim())
+          .filter(Boolean),
+        MediaSegmentProvideOrder: toAllNames(data.MediaSegmentProviders),
 
         TypeOptions: typeOptions,
       };
@@ -350,7 +325,7 @@ export default function AddLibraryPage() {
         data.Name,
         data.CollectionType,
         data.Paths,
-        libraryOptions
+        libraryOptions,
       );
 
       toast.success("Library added successfully");
@@ -363,14 +338,8 @@ export default function AddLibraryPage() {
     }
   }
 
-  const isWorkInProgress = true;
-
-  if (isWorkInProgress) {
-    return <div>Work in progress</div>;
-  }
-
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-8 pb-20">
+    <div className="w-full max-w-3xl space-y-8 pb-20">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* General Info */}
@@ -1175,7 +1144,7 @@ export default function AddLibraryPage() {
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(
-                                    culture.TwoLetterISOLanguageName || ""
+                                    culture.TwoLetterISOLanguageName || "",
                                   )}
                                   onCheckedChange={(checked) => {
                                     return checked
@@ -1187,8 +1156,8 @@ export default function AddLibraryPage() {
                                           field.value?.filter(
                                             (value) =>
                                               value !==
-                                              culture.TwoLetterISOLanguageName
-                                          )
+                                              culture.TwoLetterISOLanguageName,
+                                          ),
                                         );
                                   }}
                                 />

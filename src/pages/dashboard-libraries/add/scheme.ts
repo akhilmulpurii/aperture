@@ -1,14 +1,25 @@
 import { z } from "zod";
 
+const optionalSelectValue = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.string().optional()
+);
+
 export const addLibraryFormSchema = z.object({
   CollectionType: z.string().min(1, "Please select a content type."),
-  Name: z.string().min(1, "Display name is required"),
-  Paths: z.array(z.string()).min(1, "At least one folder path is required"),
+  Name: z.string().trim().min(1, "Display name is required"),
+  Paths: z
+    .array(z.string().trim().min(1, "Folder path is required"))
+    .min(1, "At least one folder path is required")
+    .refine((paths) => {
+      const normalized = paths.map((path) => path.trim());
+      return new Set(normalized).size === normalized.length;
+    }, "Folder paths must be unique"),
   LibrarySettings: z.object({
     Enabled: z.boolean().default(true),
     EnableRealtimeMonitor: z.boolean().default(true),
-    PreferredMetadataLanguage: z.string().optional(),
-    MetadataCountryCode: z.string().optional(),
+    PreferredMetadataLanguage: optionalSelectValue,
+    MetadataCountryCode: optionalSelectValue,
     // TV Show specific
     SeasonZeroDisplayName: z.string().default("Specials"),
   }),
