@@ -1,20 +1,42 @@
-import { motion } from "framer-motion";
+import { AuthErrorHandler } from "../../components/auth-error-handler";
+import { AuroraBackground } from "../../components/aurora-background";
+import { SearchBar } from "../../components/search-component";
+import { useEffect, useState } from "react";
+import { getAuthData } from "../../actions";
+import { useNavigate } from "react-router-dom";
 
 export default function DiscoverPage() {
+  const [authError, setAuthError] = useState<any | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        await getAuthData();
+      } catch (error: any) {
+        console.error("Failed to load data:", error);
+
+        if (error.isAuthError) {
+          setAuthError(error);
+          navigate("/login", { replace: true });
+        }
+      }
+    }
+
+    fetchData();
+  }, [navigate]);
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="container mx-auto px-4 pt-24 pb-12"
-    >
-      <h1 className="mb-6 font-poppins text-3xl font-bold">Discover</h1>
-      <div className="grid gap-6">
-        <p className="text-muted-foreground">
-          Explore new content from Overseerr/Jellyseerr.
-        </p>
-        {/* We will implement the actual discover content here later */}
+    <AuthErrorHandler error={authError}>
+      <div className="relative px-4 py-6 max-w-full overflow-hidden">
+        <AuroraBackground />
+
+        <div className="relative z-[99] mb-8">
+          <div className="mb-6">
+            <SearchBar />
+          </div>
+        </div>
       </div>
-    </motion.div>
+    </AuthErrorHandler>
   );
 }
