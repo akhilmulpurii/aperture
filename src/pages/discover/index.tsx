@@ -14,6 +14,7 @@ import {
   getSeerrPopularMovies,
   getSeerrPopularTv,
   getSeerrRecentRequests,
+  getSeerrUser,
 } from "../../actions/seerr";
 import { SeerrMediaItem, SeerrRequestItem } from "../../types/seerr";
 
@@ -26,6 +27,7 @@ export default function DiscoverPage() {
   const [popularMovies, setPopularMovies] = useState<SeerrMediaItem[]>([]);
   const [popularTv, setPopularTv] = useState<SeerrMediaItem[]>([]);
   const [recentRequests, setRecentRequests] = useState<SeerrRequestItem[]>([]);
+  const [canManageRequests, setCanManageRequests] = useState(false);
 
   const navigate = useNavigate();
 
@@ -71,6 +73,20 @@ export default function DiscoverPage() {
           if (popularTvResult?.results) {
             setPopularTv(popularTvResult.results);
           }
+
+          // Fetch user permissions
+          const user = await getSeerrUser();
+          if (user) {
+            // Check for ADMIN (2) or MANAGE_REQUESTS (32)
+            // Using bitwise check
+            const permissions = user.permissions || 0;
+
+            if ((permissions & 2) !== 0) {
+              setCanManageRequests(true);
+            } else {
+              setCanManageRequests(false);
+            }
+          }
         }
       } catch (error: any) {
         console.error("Failed to load data:", error);
@@ -109,6 +125,7 @@ export default function DiscoverPage() {
               popularMovies={popularMovies}
               popularTv={popularTv}
               recentRequests={recentRequests}
+              canManageRequests={canManageRequests}
             />
           )}
         </div>

@@ -8,11 +8,13 @@ import { SeerrRequestItem } from "../types/seerr";
 interface SeerrRequestSectionProps {
   sectionName: string;
   items: SeerrRequestItem[];
+  canManageRequests?: boolean;
 }
 
 export function SeerrRequestSection({
   sectionName,
   items,
+  canManageRequests,
 }: SeerrRequestSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -72,7 +74,10 @@ export function SeerrRequestSection({
         <div className="flex gap-4 w-max h-fit" ref={scrollRef}>
           {items.map((item) => (
             <div key={item.id} className="flex-shrink-0">
-              <SeerrRequestCard item={item} />
+              <SeerrRequestCard
+                item={item}
+                canManageRequests={canManageRequests}
+              />
             </div>
           ))}
         </div>

@@ -3,15 +3,22 @@ import { Link } from "react-router-dom";
 import { OptimizedImage } from "./optimized-image";
 import { SeerrRequestItem } from "../types/seerr";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Check, Clock, AlertCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface SeerrRequestCardProps {
   item: SeerrRequestItem;
+  canManageRequests?: boolean;
 }
 
-export function SeerrRequestCard({ item }: SeerrRequestCardProps) {
+export function SeerrRequestCard({
+  item,
+  canManageRequests,
+}: SeerrRequestCardProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [localStatus, setLocalStatus] = useState(item.status);
 
   const mediaVal = (item.mediaMetadata || item.media) as any;
   const mediaInfo = item.media;
@@ -37,7 +44,41 @@ export function SeerrRequestCard({ item }: SeerrRequestCardProps) {
     return "#";
   }, [item, mediaInfo]);
 
-  const getStatusBadge = () => {
+  const handleApprove = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (actionLoading) return;
+    setActionLoading(true);
+    try {
+      // Dynamic import to avoid cycles or just assume function availability
+      const { approveSeerrRequest } = await import("../actions/seerr");
+      await approveSeerrRequest(item.id);
+      setLocalStatus(2); // 2 = APPROVED
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDecline = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (actionLoading) return;
+    setActionLoading(true);
+    try {
+      const { declineSeerrRequest } = await import("../actions/seerr");
+      await declineSeerrRequest(item.id);
+      setLocalStatus(3); // 3 = DECLINED
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const getStatusElement = () => {
+    // Media Status (Availability)
     if (mediaInfo?.status === 5) {
       return (
         <Badge variant="default" className="bg-green-500 hover:bg-green-600">
@@ -55,24 +96,53 @@ export function SeerrRequestCard({ item }: SeerrRequestCardProps) {
         </Badge>
       );
     }
-    if (mediaInfo?.status === 3) {
-      return (
-        <Badge variant="secondary" className="bg-orange-500 text-white">
-          Requested
+
+    // Request Status
+    if (localStatus === 1) {
+      const pendingBadge = (
+        <Badge variant="outline" className="text-yellow-500 border-yellow-500">
+          Pending
         </Badge>
       );
-    }
 
-    switch (item.status) {
-      case 1:
+      if (canManageRequests) {
         return (
-          <Badge
-            variant="outline"
-            className="text-yellow-500 border-yellow-500"
-          >
-            Pending
-          </Badge>
+          <div className="flex items-center gap-2">
+            {pendingBadge}
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                onClick={handleApprove}
+                disabled={actionLoading}
+                title="Approve"
+              >
+                <div className="flex items-center justify-center rounded-full border border-current p-0.5">
+                  <Check className="h-3 w-3" />
+                </div>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                onClick={handleDecline}
+                disabled={actionLoading}
+                title="Decline"
+              >
+                <div className="flex items-center justify-center rounded-full border border-current p-0.5">
+                  <div className="h-3 w-3 flex items-center justify-center font-bold leading-none">
+                    ✕
+                  </div>
+                </div>
+              </Button>
+            </div>
+          </div>
         );
+      }
+      return pendingBadge;
+    }
+    switch (localStatus) {
       case 2:
         return (
           <Badge variant="outline" className="text-blue-400 border-blue-400">
@@ -116,7 +186,7 @@ export function SeerrRequestCard({ item }: SeerrRequestCardProps) {
           <span className="text-xs text-muted-foreground font-medium">
             {year}
           </span>
-          {getStatusBadge()}
+          {getStatusElement()}
         </div>
 
         <h3

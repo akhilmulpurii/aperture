@@ -296,6 +296,34 @@ export async function getSeerrRecentRequests(): Promise<{
   return null;
 }
 
+export async function getSeerrUser(): Promise<
+  import("../types/seerr").User | null
+> {
+  const response = await seerrFetch<import("../types/seerr").User>(
+    "/api/v1/auth/me",
+    { method: "GET" },
+  );
+
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
+
+export async function approveSeerrRequest(requestId: number): Promise<boolean> {
+  const response = await seerrFetch(`/api/v1/request/${requestId}/approve`, {
+    method: "POST",
+  });
+  return response.success;
+}
+
+export async function declineSeerrRequest(requestId: number): Promise<boolean> {
+  const response = await seerrFetch(`/api/v1/request/${requestId}/decline`, {
+    method: "POST",
+  });
+  return response.success;
+}
+
 export async function testSeerrConnection(
   config?: SeerrAuthData,
 ): Promise<{ success: boolean; message?: string }> {

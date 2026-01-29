@@ -8,6 +8,7 @@ interface DiscoverWidgetsProps {
   trending: SeerrMediaItem[];
   popularMovies: SeerrMediaItem[];
   popularTv: SeerrMediaItem[];
+  canManageRequests?: boolean;
 }
 
 export function DiscoverWidgets({
@@ -16,6 +17,7 @@ export function DiscoverWidgets({
   trending,
   popularMovies,
   popularTv,
+  canManageRequests,
 }: DiscoverWidgetsProps) {
   return (
     <div className="space-y-8">
@@ -27,6 +29,7 @@ export function DiscoverWidgets({
         <SeerrRequestSection
           sectionName="Recent Requests"
           items={recentRequests}
+          canManageRequests={canManageRequests}
         />
       )}
 
