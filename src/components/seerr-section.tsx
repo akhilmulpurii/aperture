@@ -8,9 +8,14 @@ import { SeerrMediaItem } from "../types/seerr";
 interface SeerrSectionProps {
   sectionName: string;
   items: SeerrMediaItem[];
+  canManageRequests?: boolean;
 }
 
-export function SeerrSection({ sectionName, items }: SeerrSectionProps) {
+export function SeerrSection({
+  sectionName,
+  items,
+  canManageRequests,
+}: SeerrSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +77,7 @@ export function SeerrSection({ sectionName, items }: SeerrSectionProps) {
               key={`${item.mediaType}-${item.tmdbId || item.id}`}
               className="flex-shrink-0"
             >
-              <SeerrCard item={item} />
+              <SeerrCard item={item} canManageRequests={canManageRequests} />
             </div>
           ))}
         </div>

@@ -4,19 +4,23 @@ import { OptimizedImage } from "./optimized-image";
 import { SeerrMediaItem } from "../types/seerr";
 import { Badge } from "./ui/badge";
 import { Check, Clock } from "lucide-react";
+import { SeerrRequestModal } from "./seerr-request-modal";
 
 interface SeerrCardProps {
   item: SeerrMediaItem;
   width?: string;
   aspectRatio?: string;
+  canManageRequests?: boolean;
 }
 
 export const SeerrCard = React.memo(function SeerrCard({
   item,
   width = "w-36",
   aspectRatio = "aspect-[2/3]",
+  canManageRequests,
 }: SeerrCardProps) {
   const [_, setImageLoaded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const title = item.title || item.name || "Unknown Title";
   const date = item.releaseDate || item.firstAirDate;
@@ -75,54 +79,76 @@ export const SeerrCard = React.memo(function SeerrCard({
     return "#";
   }, [item]);
 
-  return (
-    <div
-      className={`cursor-pointer group overflow-hidden transition select-none ${width}`}
-    >
-      <div
-        className={`relative w-full border rounded-md overflow-hidden active:scale-[0.98] transition bg-muted ${aspectRatio}`}
-      >
-        <Link to={linkHref} draggable={false} className="block w-full h-full">
-          <div className="absolute top-2 left-2 z-20">
-            <Badge
-              variant="outline"
-              className="bg-black/60 text-white border-white/20 backdrop-blur-md text-[10px] font-bold px-2 py-0.5 h-6 rounded-md uppercase tracking-wide"
-            >
-              {item.mediaType === "tv" ? "TV" : "Movie"}
-            </Badge>
-          </div>
-          {getStatusBadge()}
+  const handleClick = (e: React.MouseEvent) => {
+    if (linkHref === "#") {
+      e.preventDefault();
+      setIsModalOpen(true);
+    }
+  };
 
-          {posterUrl ? (
-            <OptimizedImage
-              src={posterUrl}
-              alt={title}
-              className="w-full h-full object-cover transition-opacity duration-300 shadow-lg group-hover:shadow-md rounded-md"
-              onLoad={handleImageLoad}
-              draggable={false}
+  return (
+    <>
+      <div
+        className={`cursor-pointer group overflow-hidden transition select-none ${width}`}
+      >
+        <div
+          className={`relative w-full border rounded-md overflow-hidden active:scale-[0.98] transition bg-muted ${aspectRatio}`}
+        >
+          <Link
+            to={linkHref}
+            onClick={handleClick}
+            draggable={false}
+            className="block w-full h-full"
+          >
+            <div className="absolute top-2 left-2 z-20">
+              <Badge
+                variant="outline"
+                className="bg-black/60 text-white border-white/20 backdrop-blur-md text-[10px] font-bold px-2 py-0.5 h-6 rounded-md uppercase tracking-wide"
+              >
+                {item.mediaType === "tv" ? "TV" : "Movie"}
+              </Badge>
+            </div>
+            {getStatusBadge()}
+
+            {posterUrl ? (
+              <OptimizedImage
+                src={posterUrl}
+                alt={title}
+                className="w-full h-full object-cover transition-opacity duration-300 shadow-lg group-hover:shadow-md rounded-md"
+                onLoad={handleImageLoad}
+                draggable={false}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-card text-muted-foreground p-2 text-center text-xs">
+                {title}
+              </div>
+            )}
+
+            <div
+              className={`absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 pointer-events-none rounded-md`}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-card text-muted-foreground p-2 text-center text-xs">
+          </Link>
+        </div>
+
+        <Link to={linkHref} onClick={handleClick} draggable={false}>
+          <div className="px-1">
+            <div className="mt-2.5 text-sm font-medium text-foreground truncate group-hover:underline">
               {title}
             </div>
-          )}
-
-          <div
-            className={`absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 pointer-events-none rounded-md`}
-          />
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {year || (item.mediaType === "tv" ? "Series" : "Movie")}
+            </div>
+          </div>
         </Link>
       </div>
 
-      <Link to={linkHref} draggable={false}>
-        <div className="px-1">
-          <div className="mt-2.5 text-sm font-medium text-foreground truncate group-hover:underline">
-            {title}
-          </div>
-          <div className="text-xs text-muted-foreground mt-0.5">
-            {year || (item.mediaType === "tv" ? "Series" : "Movie")}
-          </div>
-        </div>
-      </Link>
-    </div>
+      <SeerrRequestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        tmdbId={(item.tmdbId || item.id) ?? 0}
+        mediaType={item.mediaType || "movie"}
+        isAdmin={canManageRequests}
+      />
+    </>
   );
 });

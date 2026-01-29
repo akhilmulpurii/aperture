@@ -22,7 +22,11 @@ export function DiscoverWidgets({
   return (
     <div className="space-y-8">
       {recentlyAdded.length > 0 && (
-        <SeerrSection sectionName="Recently Added" items={recentlyAdded} />
+        <SeerrSection
+          sectionName="Recently Added"
+          items={recentlyAdded}
+          canManageRequests={canManageRequests}
+        />
       )}
 
       {recentRequests.length > 0 && (
@@ -34,15 +38,27 @@ export function DiscoverWidgets({
       )}
 
       {trending.length > 0 && (
-        <SeerrSection sectionName="Trending" items={trending} />
+        <SeerrSection
+          sectionName="Trending"
+          items={trending}
+          canManageRequests={canManageRequests}
+        />
       )}
 
       {popularMovies.length > 0 && (
-        <SeerrSection sectionName="Popular Movies" items={popularMovies} />
+        <SeerrSection
+          sectionName="Popular Movies"
+          items={popularMovies}
+          canManageRequests={canManageRequests}
+        />
       )}
 
       {popularTv.length > 0 && (
-        <SeerrSection sectionName="Popular TV Shows" items={popularTv} />
+        <SeerrSection
+          sectionName="Popular TV Shows"
+          items={popularTv}
+          canManageRequests={canManageRequests}
+        />
       )}
     </div>
   );

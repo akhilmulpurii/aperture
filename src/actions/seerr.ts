@@ -397,3 +397,74 @@ export async function searchSeerrItems(
   console.error("Failed to search seerr items:", response.message);
   return [];
 }
+
+export async function getSeerrMediaDetails(
+  type: "movie" | "tv",
+  tmdbId: number,
+): Promise<any | null> {
+  const response = await seerrFetch<any>(`/api/v1/${type}/${tmdbId}`, {
+    method: "GET",
+  });
+
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
+
+export async function getRadarrSettings(): Promise<any[] | null> {
+  const response = await seerrFetch<any[]>("/api/v1/settings/radarr", {
+    method: "GET",
+  });
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
+
+export async function getRadarrProfiles(
+  radarrId: number,
+): Promise<any[] | null> {
+  const response = await seerrFetch<any[]>(
+    `/api/v1/settings/radarr/${radarrId}/profiles`,
+    { method: "GET" },
+  );
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
+
+export async function getSonarrSettings(): Promise<any[] | null> {
+  const response = await seerrFetch<any[]>("/api/v1/settings/sonarr", {
+    method: "GET",
+  });
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
+
+export async function getSonarrProfiles(
+  sonarrId: number,
+): Promise<any[] | null> {
+  const response = await seerrFetch<any[]>(
+    `/api/v1/settings/sonarr/${sonarrId}/profiles`,
+    { method: "GET" },
+  );
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
+
+export async function submitSeerrRequest(payload: any): Promise<boolean> {
+  const response = await seerrFetch("/api/v1/request", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  return response.success;
+}
