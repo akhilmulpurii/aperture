@@ -1,32 +1,21 @@
 import { SeerrSection } from "../../components/seerr-section";
 import { SeerrRequestSection } from "../../components/seerr-request-section";
-import { SeerrMediaItem, SeerrRequestItem } from "../../types/seerr";
+import { useSeerr } from "../../contexts/seerr-context";
 
-interface DiscoverWidgetsProps {
-  recentlyAdded: SeerrMediaItem[];
-  recentRequests: SeerrRequestItem[];
-  trending: SeerrMediaItem[];
-  popularMovies: SeerrMediaItem[];
-  popularTv: SeerrMediaItem[];
-  canManageRequests?: boolean;
-}
+export function DiscoverWidgets() {
+  const {
+    recentlyAdded,
+    recentRequests,
+    trending,
+    popularMovies,
+    popularTv,
+    canManageRequests,
+  } = useSeerr();
 
-export function DiscoverWidgets({
-  recentlyAdded,
-  recentRequests,
-  trending,
-  popularMovies,
-  popularTv,
-  canManageRequests,
-}: DiscoverWidgetsProps) {
   return (
     <div className="space-y-8">
       {recentlyAdded.length > 0 && (
-        <SeerrSection
-          sectionName="Recently Added"
-          items={recentlyAdded}
-          canManageRequests={canManageRequests}
-        />
+        <SeerrSection sectionName="Recently Added" items={recentlyAdded} />
       )}
 
       {recentRequests.length > 0 && (
@@ -38,27 +27,15 @@ export function DiscoverWidgets({
       )}
 
       {trending.length > 0 && (
-        <SeerrSection
-          sectionName="Trending"
-          items={trending}
-          canManageRequests={canManageRequests}
-        />
+        <SeerrSection sectionName="Trending" items={trending} />
       )}
 
       {popularMovies.length > 0 && (
-        <SeerrSection
-          sectionName="Popular Movies"
-          items={popularMovies}
-          canManageRequests={canManageRequests}
-        />
+        <SeerrSection sectionName="Popular Movies" items={popularMovies} />
       )}
 
       {popularTv.length > 0 && (
-        <SeerrSection
-          sectionName="Popular TV Shows"
-          items={popularTv}
-          canManageRequests={canManageRequests}
-        />
+        <SeerrSection sectionName="Popular TV Shows" items={popularTv} />
       )}
     </div>
   );

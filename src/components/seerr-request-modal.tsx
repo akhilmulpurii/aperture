@@ -27,13 +27,13 @@ import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { OptimizedImage } from "./optimized-image";
+import { useSeerr } from "../contexts/seerr-context";
 
 interface SeerrRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   tmdbId: number;
   mediaType: "movie" | "tv";
-  isAdmin?: boolean;
 }
 
 export function SeerrRequestModal({
@@ -41,8 +41,8 @@ export function SeerrRequestModal({
   onClose,
   tmdbId,
   mediaType,
-  isAdmin,
 }: SeerrRequestModalProps) {
+  const { canManageRequests: isAdmin, addRequest } = useSeerr();
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState<any>(null);
   const [servers, setServers] = useState<any[]>([]);
@@ -103,10 +103,6 @@ export function SeerrRequestModal({
     if (isNaN(serverId)) return;
 
     if (mediaType === "movie") {
-      // Seerr doesn't give root folders in settings directly,
-      // usually we need to test connection or use a specific endpoint?
-      // Actually getRadarrProfiles returns profiles.
-      // For root folders, we might need another call, but let's stick to profiles involved primarily as requested.
       getRadarrProfiles(serverId).then((data) => {
         if (data) setProfiles(data);
       });
@@ -136,11 +132,21 @@ export function SeerrRequestModal({
       if (selectedRootFolder) payload.rootFolder = selectedRootFolder;
     }
 
-    const success = await submitSeerrRequest(payload);
+    const requestData = await submitSeerrRequest(payload);
     setSubmitting(false);
 
-    if (success) {
+    if (requestData) {
       toast.success("Request submitted successfully!");
+
+      const hydratedRequest = {
+        ...requestData,
+        mediaMetadata: {
+          ...details,
+          mediaType,
+        },
+      };
+
+      addRequest(hydratedRequest);
       onClose();
     } else {
       toast.error("Failed to submit request.");

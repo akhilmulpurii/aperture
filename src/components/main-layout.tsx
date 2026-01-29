@@ -4,6 +4,7 @@ import { LayoutContent } from "../components/layout-content";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { PlaybackProvider } from "../playback/context/PlaybackProvider";
+import { SeerrProvider } from "../contexts/seerr-context";
 
 export default function MainLayout() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -21,10 +22,12 @@ export default function MainLayout() {
   return (
     <JotaiProvider>
       <PlaybackProvider>
-        <FullscreenDetector />
-        <LayoutContent>
-          <Outlet />
-        </LayoutContent>
+        <SeerrProvider>
+          <FullscreenDetector />
+          <LayoutContent>
+            <Outlet />
+          </LayoutContent>
+        </SeerrProvider>
       </PlaybackProvider>
     </JotaiProvider>
   );

@@ -10,14 +10,12 @@ interface SeerrCardProps {
   item: SeerrMediaItem;
   width?: string;
   aspectRatio?: string;
-  canManageRequests?: boolean;
 }
 
 export const SeerrCard = React.memo(function SeerrCard({
   item,
   width = "w-36",
   aspectRatio = "aspect-[2/3]",
-  canManageRequests,
 }: SeerrCardProps) {
   const [_, setImageLoaded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -147,7 +145,6 @@ export const SeerrCard = React.memo(function SeerrCard({
         onClose={() => setIsModalOpen(false)}
         tmdbId={(item.tmdbId || item.id) ?? 0}
         mediaType={item.mediaType || "movie"}
-        isAdmin={canManageRequests}
       />
     </>
   );

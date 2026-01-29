@@ -1,104 +1,13 @@
 import { AuthErrorHandler } from "../../components/auth-error-handler";
 import { AuroraBackground } from "../../components/aurora-background";
 import { SearchBar } from "../../components/search-component";
-import { useEffect, useState } from "react";
-import { getAuthData } from "../../actions";
-import { useNavigate } from "react-router-dom";
-import { StoreSeerrData } from "../../actions/store/store-seerr-data";
+import { useSeerr } from "../../contexts/seerr-context";
 import { Loader2 } from "lucide-react";
 import { NotConnected } from "../../components/discover/not-connected";
 import { DiscoverWidgets } from "./discover-widgets";
-import {
-  getSeerrRecentlyAddedItems,
-  getSeerrTrendingItems,
-  getSeerrPopularMovies,
-  getSeerrPopularTv,
-  getSeerrRecentRequests,
-  getSeerrUser,
-} from "../../actions/seerr";
-import { SeerrMediaItem, SeerrRequestItem } from "../../types/seerr";
 
 export default function DiscoverPage() {
-  const [authError, setAuthError] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isSeerrConnected, setIsSeerrConnected] = useState(false);
-  const [recentlyAdded, setRecentlyAdded] = useState<SeerrMediaItem[]>([]);
-  const [trending, setTrending] = useState<SeerrMediaItem[]>([]);
-  const [popularMovies, setPopularMovies] = useState<SeerrMediaItem[]>([]);
-  const [popularTv, setPopularTv] = useState<SeerrMediaItem[]>([]);
-  const [recentRequests, setRecentRequests] = useState<SeerrRequestItem[]>([]);
-  const [canManageRequests, setCanManageRequests] = useState(false);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        await getAuthData();
-        const seerrData = await StoreSeerrData.get();
-        if (
-          seerrData &&
-          seerrData.serverUrl &&
-          (seerrData.apiKey || (seerrData.username && seerrData.password))
-        ) {
-          setIsSeerrConnected(true);
-
-          // Fetch widget data in parallel
-          const [
-            recentResult,
-            trendingResult,
-            popularMoviesResult,
-            popularTvResult,
-            recentRequestsResult,
-          ] = await Promise.all([
-            getSeerrRecentlyAddedItems(),
-            getSeerrTrendingItems(),
-            getSeerrPopularMovies(),
-            getSeerrPopularTv(),
-            getSeerrRecentRequests(),
-          ]);
-
-          if (recentResult?.results) {
-            setRecentlyAdded(recentResult.results);
-          }
-          if (recentRequestsResult?.results) {
-            setRecentRequests(recentRequestsResult.results);
-          }
-          if (trendingResult?.results) {
-            setTrending(trendingResult.results);
-          }
-          if (popularMoviesResult?.results) {
-            setPopularMovies(popularMoviesResult.results);
-          }
-          if (popularTvResult?.results) {
-            setPopularTv(popularTvResult.results);
-          }
-
-          const user = await getSeerrUser();
-          if (user) {
-            const permissions = user.permissions || 0;
-
-            if ((permissions & 2) !== 0) {
-              setCanManageRequests(true);
-            } else {
-              setCanManageRequests(false);
-            }
-          }
-        }
-      } catch (error: any) {
-        console.error("Failed to load data:", error);
-
-        if (error.isAuthError) {
-          setAuthError(error);
-          navigate("/login", { replace: true });
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [navigate]);
+  const { loading, isSeerrConnected, authError } = useSeerr();
 
   return (
     <AuthErrorHandler error={authError}>
@@ -116,14 +25,7 @@ export default function DiscoverPage() {
           ) : !isSeerrConnected ? (
             <NotConnected />
           ) : (
-            <DiscoverWidgets
-              recentlyAdded={recentlyAdded}
-              trending={trending}
-              popularMovies={popularMovies}
-              popularTv={popularTv}
-              recentRequests={recentRequests}
-              canManageRequests={canManageRequests}
-            />
+            <DiscoverWidgets />
           )}
         </div>
       </div>

@@ -458,7 +458,7 @@ export async function getSonarrProfiles(
   return null;
 }
 
-export async function submitSeerrRequest(payload: any): Promise<boolean> {
+export async function submitSeerrRequest(payload: any): Promise<any | null> {
   const response = await seerrFetch("/api/v1/request", {
     method: "POST",
     headers: {
@@ -466,5 +466,10 @@ export async function submitSeerrRequest(payload: any): Promise<boolean> {
     },
     body: JSON.stringify(payload),
   });
-  return response.success;
+
+  if (response.success && response.data) {
+    return response.data;
+  }
+
+  return null;
 }
