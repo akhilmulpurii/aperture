@@ -17,6 +17,7 @@ import { useIsMobile } from "../hooks/use-mobile";
 import { searchSeerrItems } from "../actions/seerr";
 import { StoreSeerrData } from "../actions/store/store-seerr-data";
 import { toast } from "sonner";
+import { SeerrRequestModal } from "./seerr-request-modal";
 
 interface SearchBarProps {
   className?: string;
@@ -171,6 +172,11 @@ export function SearchBar({ className = "" }: SearchBarProps) {
     };
   }, []);
 
+  const [selectedSeerrItem, setSelectedSeerrItem] = useState<{
+    id: number;
+    mediaType: "movie" | "tv";
+  } | null>(null);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -191,9 +197,9 @@ export function SearchBar({ className = "" }: SearchBarProps) {
     setShowSuggestions(false);
 
     if (isSeerr) {
-      toast.info("Seerr Detail pages are Work in Progress", {
-        description:
-          "Creating detail pages for discovered items is coming soon.",
+      setSelectedSeerrItem({
+        id: item.id,
+        mediaType: item.mediaType || "movie",
       });
       return;
     }
@@ -332,6 +338,15 @@ export function SearchBar({ className = "" }: SearchBarProps) {
               </div>
             )}
         </div>
+      )}
+
+      {selectedSeerrItem && (
+        <SeerrRequestModal
+          isOpen={!!selectedSeerrItem}
+          onClose={() => setSelectedSeerrItem(null)}
+          tmdbId={selectedSeerrItem.id}
+          mediaType={selectedSeerrItem.mediaType}
+        />
       )}
     </div>
   );
