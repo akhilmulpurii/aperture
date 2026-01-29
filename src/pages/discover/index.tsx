@@ -12,6 +12,7 @@ import {
   getSeerrRecentlyAddedItems,
   getSeerrTrendingItems,
   getSeerrPopularMovies,
+  getSeerrPopularTv,
 } from "../../actions/seerr";
 import { SeerrMediaItem } from "../../types/seerr";
 
@@ -22,6 +23,7 @@ export default function DiscoverPage() {
   const [recentlyAdded, setRecentlyAdded] = useState<SeerrMediaItem[]>([]);
   const [trending, setTrending] = useState<SeerrMediaItem[]>([]);
   const [popularMovies, setPopularMovies] = useState<SeerrMediaItem[]>([]);
+  const [popularTv, setPopularTv] = useState<SeerrMediaItem[]>([]);
 
   const navigate = useNavigate();
 
@@ -38,12 +40,17 @@ export default function DiscoverPage() {
           setIsSeerrConnected(true);
 
           // Fetch widget data in parallel
-          const [recentResult, trendingResult, popularResult] =
-            await Promise.all([
-              getSeerrRecentlyAddedItems(),
-              getSeerrTrendingItems(),
-              getSeerrPopularMovies(),
-            ]);
+          const [
+            recentResult,
+            trendingResult,
+            popularMoviesResult,
+            popularTvResult,
+          ] = await Promise.all([
+            getSeerrRecentlyAddedItems(),
+            getSeerrTrendingItems(),
+            getSeerrPopularMovies(),
+            getSeerrPopularTv(),
+          ]);
 
           if (recentResult?.results) {
             setRecentlyAdded(recentResult.results);
@@ -51,8 +58,11 @@ export default function DiscoverPage() {
           if (trendingResult?.results) {
             setTrending(trendingResult.results);
           }
-          if (popularResult?.results) {
-            setPopularMovies(popularResult.results);
+          if (popularMoviesResult?.results) {
+            setPopularMovies(popularMoviesResult.results);
+          }
+          if (popularTvResult?.results) {
+            setPopularTv(popularTvResult.results);
           }
         }
       } catch (error: any) {
@@ -90,6 +100,7 @@ export default function DiscoverPage() {
               recentlyAdded={recentlyAdded}
               trending={trending}
               popularMovies={popularMovies}
+              popularTv={popularTv}
             />
           )}
         </div>

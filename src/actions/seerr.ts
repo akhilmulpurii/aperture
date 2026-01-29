@@ -229,6 +229,24 @@ export async function getSeerrPopularMovies(): Promise<{
   return null;
 }
 
+export async function getSeerrPopularTv(): Promise<{
+  results: SeerrMediaItem[];
+  pageInfo?: any;
+} | null> {
+  const response = await seerrFetch<{ results: any[]; pageInfo?: any }>(
+    `/api/v1/discover/tv?page=1`,
+    { method: "GET" },
+  );
+
+  if (response.success && response.data) {
+    const hydratedResults = await hydrateSeerrItems(response.data.results);
+    return { ...response.data, results: hydratedResults };
+  }
+
+  console.error("Failed to fetch popular tv:", response.message);
+  return null;
+}
+
 export async function testSeerrConnection(
   config?: SeerrAuthData,
 ): Promise<{ success: boolean; message?: string }> {
