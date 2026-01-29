@@ -43,6 +43,7 @@ export default function SeerrSection() {
   const [apiKey, setApiKey] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -54,6 +55,15 @@ export default function SeerrSection() {
           setApiKey(data.apiKey || "");
           setUsername(data.username || "");
           setPassword(data.password || "");
+          // Assume connected if data exists, or verify?
+          // For now, let's assume if they have saved data, they connected successfully before.
+          // Ideally we might want to auto-verify on load, but that might be slow.
+          if (
+            data.serverUrl &&
+            (data.apiKey || (data.username && data.password))
+          ) {
+            setIsConnected(true);
+          }
         }
       } catch (error) {
         console.error("Failed to load Seerr settings", error);
@@ -78,6 +88,16 @@ export default function SeerrSection() {
       console.error("Failed to save Seerr settings", error);
       toast.error("Failed to save settings");
     }
+  };
+
+  const handleDisconnect = async () => {
+    await StoreSeerrData.remove();
+    setServerUrl("");
+    setApiKey("");
+    setUsername("");
+    setPassword("");
+    setIsConnected(false);
+    toast.success("Disconnected Seerr Integration");
   };
 
   const handleTestConnection = async () => {
@@ -106,8 +126,10 @@ export default function SeerrSection() {
           id: toastId,
         });
         await handleSave(); // Auto-save on success
+        setIsConnected(true);
       } else {
         toast.error(result.message || "Connection Failed", { id: toastId });
+        setIsConnected(false);
       }
     } catch (error) {
       console.error(error);
@@ -124,6 +146,12 @@ export default function SeerrSection() {
           <CardTitle className="flex items-center gap-2 font-poppins text-lg">
             <Eye className="h-5 w-5" />
             Seerr Integration
+            {isConnected && (
+              <div className="flex items-center gap-1.5 rounded-full bg-green-500/15 px-2 py-0.5 text-[10px] font-medium text-green-500 ring-1 ring-inset ring-green-500/20">
+                <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                Connected
+              </div>
+            )}
           </CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-[11px]">
@@ -156,6 +184,31 @@ export default function SeerrSection() {
               <div className="flex items-center justify-center py-4 text-muted-foreground">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Loading settings...
+              </div>
+            ) : isConnected ? (
+              <div className="space-y-4">
+                <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10">
+                      <Eye className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-foreground">
+                        Integrated with Seerr
+                      </h4>
+                      <p className="text-xs text-muted-foreground break-all">
+                        {serverUrl}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={handleDisconnect}
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : (
               <>
@@ -291,22 +344,19 @@ export default function SeerrSection() {
                   </Tabs>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 pt-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                    onClick={handleTestConnection}
-                  >
-                    Test Connection
-                  </Button>
+                <div className="flex justify-end pt-2">
                   <Button
                     size="sm"
                     className="w-full gap-2 sm:w-auto"
-                    onClick={handleSave}
+                    onClick={handleTestConnection}
+                    disabled={loading}
                   >
-                    <Save className="h-4 w-4" />
-                    Save Changes
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    Connect
                   </Button>
                 </div>
               </>
