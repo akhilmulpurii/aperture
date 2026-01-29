@@ -153,14 +153,20 @@ async function hydrateSeerrItems(results: any[]): Promise<SeerrMediaItem[]> {
   return Promise.all(
     results.map(async (item: any) => {
       if (!item.mediaType) return item as SeerrMediaItem;
-      if (!item.tmdbId) return item as SeerrMediaItem;
 
-      const detailEndpoint = `/api/v1/${item.mediaType}/${item.tmdbId}`;
+      const tmdbId = item.tmdbId || item.id;
+      if (!tmdbId) return item as SeerrMediaItem;
+
+      const detailEndpoint = `/api/v1/${item.mediaType}/${tmdbId}`;
       const detailResponse = await seerrFetch<any>(detailEndpoint);
 
       if (detailResponse.success && detailResponse.data) {
-        return { ...item, ...detailResponse.data } as SeerrMediaItem;
+        let merged = { ...item, ...detailResponse.data };
+        merged.tmdbId = tmdbId;
+
+        return merged as SeerrMediaItem;
       }
+
       return item as SeerrMediaItem;
     }),
   );

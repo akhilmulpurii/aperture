@@ -31,7 +31,7 @@ export const SeerrCard = React.memo(function SeerrCard({
   }, []);
 
   const getStatusBadge = () => {
-    if (item.mediaType === "tv" && item.status === 5) {
+    if (item.mediaType === "tv" && item.mediaInfo?.status === 4) {
       return (
         <div className="absolute top-2 right-2 z-20">
           <Badge
@@ -44,7 +44,11 @@ export const SeerrCard = React.memo(function SeerrCard({
       );
     }
 
-    if (item.jellyfinMediaId || item.status === 4 || item.status === 5) {
+    if (
+      item.mediaInfo?.jellyfinMediaId ||
+      item.mediaInfo?.status === 4 ||
+      item.mediaInfo?.status === 5
+    ) {
       return (
         <div className="absolute top-2 right-2 z-20">
           <Badge
@@ -61,11 +65,11 @@ export const SeerrCard = React.memo(function SeerrCard({
   };
 
   const linkHref = useMemo(() => {
-    if (item.jellyfinMediaId) {
+    if (item.mediaInfo?.jellyfinMediaId) {
       if (item.mediaType === "movie") {
-        return `/movie/${item.jellyfinMediaId}`;
+        return `/movie/${item.mediaInfo.jellyfinMediaId}`;
       } else if (item.mediaType === "tv") {
-        return `/series/${item.jellyfinMediaId}`;
+        return `/series/${item.mediaInfo.jellyfinMediaId}`;
       }
     }
     return "#";
