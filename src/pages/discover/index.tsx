@@ -8,11 +8,20 @@ import { StoreSeerrData } from "../../actions/store/store-seerr-data";
 import { Loader2 } from "lucide-react";
 import { NotConnected } from "../../components/discover/not-connected";
 import { DiscoverWidgets } from "./discover-widgets";
+import {
+  getSeerrRecentlyAddedItems,
+  getSeerrTrendingItems,
+  mapSeerrItemsToBaseItemDto,
+} from "../../actions/seerr";
+import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
 export default function DiscoverPage() {
   const [authError, setAuthError] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSeerrConnected, setIsSeerrConnected] = useState(false);
+  const [recentlyAdded, setRecentlyAdded] = useState<BaseItemDto[]>([]);
+  const [trending, setTrending] = useState<BaseItemDto[]>([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +35,19 @@ export default function DiscoverPage() {
           (seerrData.apiKey || (seerrData.username && seerrData.password))
         ) {
           setIsSeerrConnected(true);
+
+          // Fetch widget data in parallel
+          const [recentResult, trendingResult] = await Promise.all([
+            getSeerrRecentlyAddedItems(),
+            getSeerrTrendingItems(),
+          ]);
+
+          if (recentResult?.results) {
+            setRecentlyAdded(mapSeerrItemsToBaseItemDto(recentResult.results));
+          }
+          if (trendingResult?.results) {
+            setTrending(mapSeerrItemsToBaseItemDto(trendingResult.results));
+          }
         }
       } catch (error: any) {
         console.error("Failed to load data:", error);
@@ -58,7 +80,11 @@ export default function DiscoverPage() {
           ) : !isSeerrConnected ? (
             <NotConnected />
           ) : (
-            <DiscoverWidgets />
+            <DiscoverWidgets
+              recentlyAdded={recentlyAdded}
+              trending={trending}
+              serverUrl={"testurl"}
+            />
           )}
         </div>
       </div>
