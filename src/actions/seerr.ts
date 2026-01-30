@@ -120,6 +120,10 @@ export async function seerrFetch<T>(
       credentials: "include",
     });
 
+    if (response.status === 204) {
+      return { success: true };
+    }
+
     if (response.ok) {
       const json = await response.json();
       return { success: true, data: json };

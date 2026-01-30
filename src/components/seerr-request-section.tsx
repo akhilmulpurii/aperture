@@ -90,11 +90,7 @@ export function SeerrRequestSection({
         <div className="flex gap-4 w-max h-fit" ref={scrollRef}>
           {items.map((item) => (
             <div key={item.id} className="flex-shrink-0">
-              <SeerrRequestCard
-                item={item}
-                canManageRequests={canManageRequests}
-                seerServerUrl={seerServerUrl}
-              />
+              <SeerrRequestCard item={item} />
             </div>
           ))}
         </div>

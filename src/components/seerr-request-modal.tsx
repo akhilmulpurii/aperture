@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
@@ -34,6 +33,7 @@ import {
   AlertCircle,
   HardDrive,
   Trash2,
+  X,
 } from "lucide-react";
 import { OptimizedImage } from "./optimized-image";
 import { useSeerr } from "../contexts/seerr-context";
@@ -58,20 +58,13 @@ export function SeerrRequestModal({
   const [details, setDetails] = useState<any>(null);
   const [servers, setServers] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
-
-  // Note: Root folders support requires additional endpoints not yet in seerr.ts, skipping for now as per instructions to fit "details" theme mostly.
-  // const [rootFolders, setRootFolders] = useState<any[]>([]);
-
   const [selectedServerId, setSelectedServerId] = useState<string>("");
   const [selectedProfileId, setSelectedProfileId] = useState<string>("");
-  // const [selectedRootFolder, setSelectedRootFolder] = useState<string>("");
-
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      // Fetch details
       getSeerrMediaDetails(mediaType, tmdbId)
         .then((data) => {
           setDetails(data);
@@ -79,13 +72,11 @@ export function SeerrRequestModal({
         })
         .catch(() => setLoading(false));
 
-      // If admin, fetch servers (only if we might need to make a request)
       if (isAdmin) {
         if (mediaType === "movie") {
           getRadarrSettings().then((data) => {
             if (data && data.length > 0) {
               setServers(data);
-              // Default to first server
               const firstServer = data[0];
               setSelectedServerId(firstServer.id.toString());
             }
@@ -107,7 +98,6 @@ export function SeerrRequestModal({
     }
   }, [isOpen, tmdbId, mediaType, isAdmin]);
 
-  // Fetch profiles when server changes
   useEffect(() => {
     if (!isAdmin || !selectedServerId) return;
 
@@ -140,7 +130,6 @@ export function SeerrRequestModal({
     if (isAdmin) {
       if (selectedServerId) payload.serverId = parseInt(selectedServerId);
       if (selectedProfileId) payload.profileId = parseInt(selectedProfileId);
-      // if (selectedRootFolder) payload.rootFolder = selectedRootFolder;
     }
 
     const requestData = await submitSeerrRequest(payload);
@@ -159,13 +148,12 @@ export function SeerrRequestModal({
 
       addRequest(hydratedRequest);
 
-      // Update local details to reflect new request status immediately
       setDetails((prev: any) => ({
         ...prev,
         mediaInfo: {
           ...prev.mediaInfo,
-          status: requestData.status, // Basic status update
-          requests: [requestData], // Add to requests array
+          status: requestData.status,
+          requests: [requestData],
         },
       }));
     } else {
@@ -173,9 +161,7 @@ export function SeerrRequestModal({
     }
   };
 
-  const handleDeleteRequest = async () => {
-    // Find request ID from details
-    const requestId = details?.mediaInfo?.requests?.[0]?.id;
+  const handleDeleteRequestById = async (requestId: number) => {
     if (!requestId) return;
 
     if (!confirm("Are you sure you want to cancel this request?")) return;
@@ -187,9 +173,42 @@ export function SeerrRequestModal({
     if (success) {
       toast.success("Request cancelled successfully.");
       removeRequest(requestId);
-      onClose(); // Close modal on delete usually makes sense
+      // Refresh details to update list
+      getSeerrMediaDetails(mediaType, tmdbId).then(setDetails);
     } else {
       toast.error("Failed to cancel request.");
+    }
+  };
+
+  const handleApproveRequest = async (requestId: number) => {
+    if (!requestId) return;
+
+    setSubmitting(true);
+    const { approveSeerrRequest } = await import("../actions/seerr");
+    const success = await approveSeerrRequest(requestId);
+    setSubmitting(false);
+
+    if (success) {
+      toast.success("Request approved.");
+      getSeerrMediaDetails(mediaType, tmdbId).then(setDetails);
+    } else {
+      toast.error("Failed to approve request.");
+    }
+  };
+
+  const handleDeclineRequest = async (requestId: number) => {
+    if (!requestId) return;
+
+    setSubmitting(true);
+    const { declineSeerrRequest } = await import("../actions/seerr");
+    const success = await declineSeerrRequest(requestId);
+    setSubmitting(false);
+
+    if (success) {
+      toast.success("Request declined.");
+      getSeerrMediaDetails(mediaType, tmdbId).then(setDetails);
+    } else {
+      toast.error("Failed to decline request.");
     }
   };
 
@@ -201,17 +220,31 @@ export function SeerrRequestModal({
     ? `https://image.tmdb.org/t/p/w1280${details.backdropPath}`
     : undefined;
 
-  // Determine status
-  // 1 = Pending, 2 = Processing, 3 = Partially Available, 4 = Available, 5 = Available
-  const status = details?.mediaInfo?.status;
-  const requests = details?.mediaInfo?.requests || [];
-  const isRequested = requests.length > 0;
-  const isAvailable = status === 4 || status === 5;
-  const isProcessing = status === 2;
-  const isPending = status === 1; // Or if requests exist but not processing/available
+  // Media Status Logic
+  const mediaInfo = details?.mediaInfo;
+  const requests = mediaInfo?.requests || [];
+  const mediaStatus = mediaInfo?.status;
 
-  // Logic to show "Request" button vs "Already Requested" status
-  const showRequestButton = !isRequested && !isAvailable && !isProcessing;
+  const isAvailable = mediaStatus === 5;
+  const isPartiallyAvailable = mediaStatus === 4;
+  const isPending = mediaStatus === 2 || mediaStatus === 3;
+  const isDeclined = mediaStatus === 1;
+
+  const userExistingRequest = requests.find(
+    (r: any) =>
+      r.requestedBy?.id === details?.userInfo?.id &&
+      (r.status === 1 || r.status === 2 || r.status === 3),
+  );
+
+  const showRequestButton =
+    !isAvailable && !isPartiallyAvailable && !isPending && !userExistingRequest;
+
+  const {
+    mediaStatusTitle,
+    mediaStatusMessage,
+    mediaStatusIcon,
+    mediaStatusColor,
+  } = getMediaStatusDetails(mediaStatus);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -264,17 +297,6 @@ export function SeerrRequestModal({
                     </span>
                   </>
                 )}
-
-                {details?.voteAverage > 0 && (
-                  <>
-                    <span>•</span>
-                    <span className="flex items-center text-yellow-500 gap-1">
-                      <span className="text-foreground font-medium">
-                        {details.voteAverage.toFixed(1)}
-                      </span>
-                    </span>
-                  </>
-                )}
               </div>
             </div>
           </div>
@@ -301,70 +323,102 @@ export function SeerrRequestModal({
                     {g.name}
                   </Badge>
                 ))}
-
-                {details?.voteCount > 0 && (
-                  <Badge variant="outline" className="text-xs">
-                    {details.voteCount} votes
-                  </Badge>
-                )}
-
-                {details?.status && (
-                  <Badge variant="outline" className="text-xs">
-                    {details.status}
-                  </Badge>
-                )}
               </div>
 
-              {/* Request Status Info */}
-              {!showRequestButton && (
-                <div className="bg-muted/50 rounded-lg p-4 border flex items-start gap-3">
-                  {isAvailable ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
-                  ) : isProcessing ? (
-                    <HardDrive className="h-5 w-5 text-blue-500 mt-0.5" />
-                  ) : (
-                    <Clock className="h-5 w-5 text-yellow-500 mt-0.5" />
-                  )}
-
+              {/* Media Status Alert */}
+              {mediaStatusTitle && (
+                <div
+                  className={`rounded-lg p-4 border flex items-start gap-3 ${mediaStatusColor}`}
+                >
+                  {mediaStatusIcon}
                   <div className="flex-1">
-                    <h4 className="font-medium text-sm">
-                      {isAvailable
-                        ? "Available in Library"
-                        : isProcessing
-                          ? "Processing"
-                          : "Requested"}
-                    </h4>
+                    <h4 className="font-medium text-sm">{mediaStatusTitle}</h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {isAvailable &&
-                        "This title is already available on your media server."}
-                      {isProcessing &&
-                        "This title is currently downloading or processing."}
-                      {isPending &&
-                        "This title has been requested and is pending approval or availability."}
+                      {mediaStatusMessage}
                     </p>
                   </div>
-
-                  {/* Delete Action for Pending Requests */}
-                  {!isAvailable &&
-                    !isProcessing &&
-                    (isAdmin ||
-                      details?.mediaInfo?.requests?.[0]?.requestedBy?.id ===
-                        details?.userInfo?.id) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2"
-                        onClick={handleDeleteRequest}
-                        disabled={submitting}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Cancel
-                      </Button>
-                    )}
                 </div>
               )}
 
-              {/* Request Configuration (Only if requesting) */}
+              {/* Requests List */}
+              {requests.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Requests
+                  </h3>
+                  <div className="space-y-2">
+                    {requests.map((req: any) => (
+                      <div
+                        key={req.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-card/50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium">
+                            {req.requestedBy?.email
+                              ?.substring(0, 2)
+                              .toUpperCase() || "??"}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">
+                                {req.requestedBy?.email || "Unknown User"}
+                              </span>
+                              <RequestStatusBadge status={req.status} />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(req.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {isAdmin && req.status === 1 && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-green-500 hover:text-green-600 border-green-500/20 hover:bg-green-500/10"
+                                onClick={() => handleApproveRequest(req.id)}
+                                disabled={submitting}
+                                title="Approve Request"
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-red-500 hover:text-red-600 border-red-500/20 hover:bg-red-500/10"
+                                onClick={() => handleDeclineRequest(req.id)}
+                                disabled={submitting}
+                                title="Decline Request"
+                              >
+                                <AlertCircle className="h-3.5 w-3.5" />
+                              </Button>
+                            </>
+                          )}
+
+                          {(isAdmin ||
+                            (req.requestedBy?.id === details?.userInfo?.id &&
+                              req.status === 1)) && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-muted-foreground hover:text-destructive"
+                              onClick={() => handleDeleteRequestById(req.id)}
+                              disabled={submitting}
+                              title="Delete Request"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {showRequestButton && isAdmin && (
                 <div className="space-y-4 pt-4 border-t">
                   <div className="flex items-center gap-2 mb-2">
@@ -444,4 +498,88 @@ export function SeerrRequestModal({
       </DialogContent>
     </Dialog>
   );
+}
+
+function RequestStatusBadge({ status }: { status: number }) {
+  switch (status) {
+    case 1:
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] px-1.5 h-4 bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+        >
+          Pending
+        </Badge>
+      );
+    case 2:
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] px-1.5 h-4 bg-blue-500/10 text-blue-500 border-blue-500/20"
+        >
+          Approved
+        </Badge>
+      );
+    case 3:
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] px-1.5 h-4 bg-red-500/10 text-red-500 border-red-500/20"
+        >
+          Declined
+        </Badge>
+      );
+    default:
+      return (
+        <Badge variant="outline" className="text-[10px] px-1.5 h-4">
+          Unknown
+        </Badge>
+      );
+  }
+}
+
+function getMediaStatusDetails(mediaStatus: number) {
+  if (mediaStatus === 5) {
+    return {
+      mediaStatusTitle: "Available",
+      mediaStatusMessage: "This title is available on your media server.",
+      mediaStatusIcon: (
+        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+      ),
+      mediaStatusColor: "bg-green-500/10 border-green-500/20",
+    };
+  }
+  if (mediaStatus === 4) {
+    return {
+      mediaStatusTitle: "Partially Available",
+      mediaStatusMessage: "Some parts of this title are available.",
+      mediaStatusIcon: (
+        <CheckCircle2 className="h-5 w-5 text-blue-500 mt-0.5" />
+      ),
+      mediaStatusColor: "bg-blue-500/10 border-blue-500/20",
+    };
+  }
+  if (mediaStatus === 3 || mediaStatus === 2) {
+    return {
+      mediaStatusTitle: "Pending Details",
+      mediaStatusMessage: "Content is downloading or in queue.",
+      mediaStatusIcon: <Clock className="h-5 w-5 text-yellow-500 mt-0.5" />,
+      mediaStatusColor: "bg-yellow-500/10 border-yellow-500/20",
+    };
+  }
+  if (mediaStatus === 1) {
+    return {
+      mediaStatusTitle: "Declined",
+      mediaStatusMessage: "This media request was declined.",
+      mediaStatusIcon: <X className="h-5 w-5 text-red-500 mt-0.5" />,
+      mediaStatusColor: "bg-red-500/10 border-red-500/20",
+    };
+  }
+
+  return {
+    mediaStatusTitle: "",
+    mediaStatusMessage: "",
+    mediaStatusIcon: null,
+    mediaStatusColor: "",
+  };
 }
