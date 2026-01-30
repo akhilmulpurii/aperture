@@ -219,7 +219,7 @@ export function usePlaybackManager(): PlaybackContextValue {
                 updateState({ textTracks: subs });
             }
         } catch (e) {
-          console.error("Failed to load sidecar subtitles", e);
+            console.error("Failed to load sidecar subtitles", e);
         }
 
         // Determine Default Audio Stream
