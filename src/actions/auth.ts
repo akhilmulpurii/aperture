@@ -28,7 +28,7 @@ export interface QuickConnectResult {
 }
 
 function buildAuthorizationHeader(
-  additional?: Record<string, string | undefined>
+  additional?: Record<string, string | undefined>,
 ) {
   const parts = [
     `MediaBrowser Client="${CLIENT_NAME}"`,
@@ -57,7 +57,7 @@ export async function getServerUrl(): Promise<string | null> {
 }
 
 export async function checkServerHealth(
-  url: string
+  url: string,
 ): Promise<{ success: boolean; finalUrl?: string; error?: string }> {
   // Helper function to test a URL
   const testUrl = async (testUrl: string): Promise<boolean> => {
@@ -109,7 +109,7 @@ export async function checkServerHealth(
 
 export async function authenticateUser(
   username: string,
-  password: string
+  password: string,
 ): Promise<boolean> {
   const serverUrl = await getServerUrl();
   if (!serverUrl) {
@@ -132,7 +132,7 @@ export async function authenticateUser(
 
     const { data: result } = await api.authenticateUserByName(
       username,
-      password
+      password,
     );
 
     console.log("Authentication successful, received result:", {
@@ -170,7 +170,7 @@ export async function authenticateUser(
     // If it's a network/connection error
     if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
       console.error(
-        "Network connection error - check if Jellyfin server is running and accessible"
+        "Network connection error - check if Jellyfin server is running and accessible",
       );
       return false;
     }
@@ -235,7 +235,7 @@ export async function authenticateUser(
 }
 
 async function fetchQuickConnectEnabledPublic(
-  serverUrl: string
+  serverUrl: string,
 ): Promise<boolean | null> {
   try {
     const response = await fetch(`${serverUrl}/QuickConnect/Enabled`, {
@@ -265,7 +265,7 @@ async function fetchQuickConnectEnabledPublic(
 }
 
 async function fetchQuickConnectEnabledWithAuth(
-  serverUrl: string
+  serverUrl: string,
 ): Promise<boolean | null> {
   try {
     const authData = await StoreAuthData.get();
@@ -288,14 +288,14 @@ async function fetchQuickConnectEnabledWithAuth(
   } catch (error) {
     console.error(
       "Authenticated Quick Connect availability check failed:",
-      error
+      error,
     );
     return null;
   }
 }
 
 export async function isQuickConnectEnabled(
-  allowAuthenticatedFallback: boolean = false
+  allowAuthenticatedFallback: boolean = false,
 ): Promise<boolean> {
   const serverUrl = await getServerUrl();
   if (!serverUrl) return false;
@@ -306,9 +306,8 @@ export async function isQuickConnectEnabled(
   }
 
   if (allowAuthenticatedFallback) {
-    const authenticatedResult = await fetchQuickConnectEnabledWithAuth(
-      serverUrl
-    );
+    const authenticatedResult =
+      await fetchQuickConnectEnabledWithAuth(serverUrl);
     if (authenticatedResult !== null) {
       return authenticatedResult;
     }
@@ -332,14 +331,14 @@ export async function initiateQuickConnect(): Promise<QuickConnectResult | null>
 
     if (!response.ok) {
       throw new Error(
-        `Quick Connect initiate failed with status ${response.status}`
+        `Quick Connect initiate failed with status ${response.status}`,
       );
     }
 
     const result = (await response.json()) as QuickConnectResult;
     if (!result || !result.Secret || !result.Code) {
       throw new Error(
-        "Quick Connect did not return a valid code. Please try again or use your password."
+        "Quick Connect did not return a valid code. Please try again or use your password.",
       );
     }
 
@@ -351,7 +350,7 @@ export async function initiateQuickConnect(): Promise<QuickConnectResult | null>
 }
 
 export async function getQuickConnectStatus(
-  secret: string
+  secret: string,
 ): Promise<QuickConnectResult | null> {
   const serverUrl = await getServerUrl();
   if (!serverUrl || !secret) return null;
@@ -366,7 +365,7 @@ export async function getQuickConnectStatus(
           Accept: "application/json",
           "X-Emby-Authorization": buildAuthorizationHeader(),
         },
-      }
+      },
     );
 
     if (response.status === 204) {
@@ -378,7 +377,7 @@ export async function getQuickConnectStatus(
         return null;
       }
       throw new Error(
-        `Quick Connect status failed with status ${response.status} ${response.statusText}`
+        `Quick Connect status failed with status ${response.status} ${response.statusText}`,
       );
     }
 
@@ -391,7 +390,7 @@ export async function getQuickConnectStatus(
 }
 
 export async function authenticateWithQuickConnect(
-  secret: string
+  secret: string,
 ): Promise<boolean> {
   const serverUrl = await getServerUrl();
   if (!serverUrl || !secret) return false;
@@ -407,13 +406,13 @@ export async function authenticateWithQuickConnect(
           "X-Emby-Authorization": buildAuthorizationHeader(),
         },
         body: JSON.stringify({ Secret: secret }),
-      }
+      },
     );
 
     if (!response.ok) {
       const errorBody = await response.text();
       throw new Error(
-        `Quick Connect authentication failed (${response.status}): ${errorBody}`
+        `Quick Connect authentication failed (${response.status}): ${errorBody}`,
       );
     }
 
@@ -440,8 +439,14 @@ export async function authenticateWithQuickConnect(
   }
 }
 
+import { StoreSeerrData } from "./store/store-seerr-data";
+
 export function logout(navigate: ReturnType<typeof useNavigate>) {
-  Promise.all([StoreAuthData.remove(), StoreServerURL.remove()]).then(() => {
+  Promise.all([
+    StoreAuthData.remove(),
+    StoreServerURL.remove(),
+    StoreSeerrData.remove(),
+  ]).then(() => {
     navigate("/login");
   });
 }
@@ -460,7 +465,7 @@ export async function changeUserPassword(
   currentPassword?: string,
   newPassword?: string,
   targetUserId?: string,
-  resetPassword?: boolean
+  resetPassword?: boolean,
 ): Promise<void> {
   const authData = await StoreAuthData.get();
 
@@ -503,7 +508,7 @@ export async function changeUserPassword(
       error?.response?.data?.message;
 
     throw new Error(
-      serverMessage || "Unable to update password. Please try again."
+      serverMessage || "Unable to update password. Please try again.",
     );
   }
 }
@@ -549,7 +554,7 @@ export async function authorizeQuickConnectCode(code: string): Promise<void> {
 
     throw new Error(
       serverMessage ||
-        "We couldn't authorize that code. Double-check it and try again."
+        "We couldn't authorize that code. Double-check it and try again.",
     );
   }
 }

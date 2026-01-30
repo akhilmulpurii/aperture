@@ -58,6 +58,7 @@ import {
   CalendarClock,
   Activity,
   Key,
+  Compass,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -185,7 +186,7 @@ export function AppSidebar({
                     {serverUrl &&
                       new URL(serverUrl).hostname.replace(
                         /^(jellyfin\.|www\.)/,
-                        ""
+                        "",
                       )}
                   </span>
                 </div>
@@ -205,6 +206,15 @@ export function AppSidebar({
                   <Link to="/" onClick={() => setOpenMobile(false)}>
                     <Home className="h-4 w-4" />
                     <span>Home</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/discover" onClick={() => setOpenMobile(false)}>
+                    <Compass className="h-4 w-4" />
+                    <span>Discover</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -332,7 +342,7 @@ export function AppSidebar({
                             </SidebarMenuSubItem>
                           );
                         })}
-                        </SidebarMenuSub>
+                      </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>

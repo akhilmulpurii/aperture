@@ -3518,10 +3518,10 @@ baseline-browser-mapping@^2.8.9:
   resolved "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.8.15.tgz"
   integrity sha512-qsJ8/X+UypqxHXN75M7dF88jNK37dLBRW7LeUzCPz+TNs37G8cfWy9nWzS+LS//g600zrt2le9KuXt0rWfDz5Q==
 
-baseline-browser-mapping@^2.9.9:
-  version "2.9.9"
-  resolved "https://registry.yarnpkg.com/baseline-browser-mapping/-/baseline-browser-mapping-2.9.9.tgz#68c17013c33ba9e8264c5f2ae107d506228428ee"
-  integrity sha512-V8fbOCSeOFvlDj7LLChUcqbZrdKD9RU/VR260piF1790vT0mfLSwGc/Qzxv3IqiTukOpNtItePa0HBpMAj7MDg==
+baseline-browser-mapping@^2.9.18:
+  version "2.9.18"
+  resolved "https://registry.yarnpkg.com/baseline-browser-mapping/-/baseline-browser-mapping-2.9.18.tgz#c8281693035a9261b10d662a5379650a6c2d1ff7"
+  integrity sha512-e23vBV1ZLfjb9apvfPk4rHVu2ry6RIr2Wfs+O324okSidrX7pTAnEJPCh/O5BtRlr7QtZI7ktOP3vsqr7Z5XoA==
 
 blurhash@^2.0.5:
   version "2.0.5"

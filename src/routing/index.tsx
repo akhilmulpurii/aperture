@@ -26,25 +26,25 @@ const LibrariesPage = lazy(() => import("../pages/dashboard-libraries"));
 const EditLibraryPage = lazy(() => import("../pages/dashboard-libraries/[id]"));
 const AddLibraryPage = lazy(() => import("../pages/dashboard-libraries/add"));
 const LibrariesDisplayPage = lazy(
-  () => import("../pages/dashboard-libraries/display")
+  () => import("../pages/dashboard-libraries/display"),
 );
 const LibrariesMetadataPage = lazy(
-  () => import("../pages/dashboard-libraries/metadata")
+  () => import("../pages/dashboard-libraries/metadata"),
 );
 const LibrariesNfoSettingsPage = lazy(
-  () => import("../pages/dashboard-libraries/nfo-settings")
+  () => import("../pages/dashboard-libraries/nfo-settings"),
 );
 const PlaybackTranscodingPage = lazy(
-  () => import("../pages/dashboard-playback/transcoding")
+  () => import("../pages/dashboard-playback/transcoding"),
 );
 const PlaybackResumePage = lazy(
-  () => import("../pages/dashboard-playback/resume")
+  () => import("../pages/dashboard-playback/resume"),
 );
 const PlaybackStreamingPage = lazy(
-  () => import("../pages/dashboard-playback/streaming")
+  () => import("../pages/dashboard-playback/streaming"),
 );
 const PlaybackTrickplayPage = lazy(
-  () => import("../pages/dashboard-playback/trickplay")
+  () => import("../pages/dashboard-playback/trickplay"),
 );
 // Main App Routes
 const Main = lazy(() => import("../pages/main"));
@@ -58,6 +58,7 @@ const PersonPage = lazy(() => import("../pages/person/[id]"));
 const SearchPage = lazy(() => import("../pages/search"));
 const SeasonPage = lazy(() => import("../pages/season/[id]"));
 const SeriesPage = lazy(() => import("../pages/series/[id]"));
+const DiscoverPage = lazy(() => import("../pages/discover"));
 // Settings Routes
 const SettingsPage = lazy(() => import("../pages/settings"));
 const PasswordSettingsPage = lazy(() => import("../pages/password"));
@@ -104,6 +105,7 @@ export default function AppRouter() {
               <Route path="keys" element={<DashboardKeysPage />} />
             </Route>
             <Route path="boxset/:id" element={<BoxsetPage />} />
+            <Route path="discover" element={<DiscoverPage />} />
             <Route path="episode/:id" element={<EpisodePage />} />
             <Route path="library/:id" element={<LibraryPage />} />
             <Route path="livetv" element={<LiveTVIndex />} />

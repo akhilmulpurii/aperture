@@ -131,4 +131,5 @@ export type {
   CurrentImage,
   UserWithPolicy,
 } from "./utils";
+export { testSeerrConnection } from "./seerr";
 export type { QuickConnectResult } from "./auth";
