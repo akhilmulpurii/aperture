@@ -58,6 +58,14 @@ import {
   CalendarClock,
   Activity,
   Key,
+  Monitor,
+  Database,
+  FileCode,
+  PlayCircle,
+  Cpu,
+  History,
+  Signal,
+  FastForward,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 
@@ -158,6 +166,43 @@ export function AppSidebar({
     }
   };
 
+  const getDashboardIcon = (name: string) => {
+    switch (name) {
+      case "Overview":
+        return <LayoutDashboard className="h-4 w-4" />;
+      case "General":
+        return <Wrench className="h-4 w-4" />;
+      case "Libraries":
+        return <Library className="h-4 w-4" />;
+      case "Display":
+        return <Monitor className="h-4 w-4" />;
+      case "Metadata":
+        return <Database className="h-4 w-4" />;
+      case "NFO Settings":
+        return <FileCode className="h-4 w-4" />;
+      case "Playback":
+        return <PlayCircle className="h-4 w-4" />;
+      case "Transcoding":
+        return <Cpu className="h-4 w-4" />;
+      case "Resume":
+        return <History className="h-4 w-4" />;
+      case "Streaming":
+        return <Signal className="h-4 w-4" />;
+      case "Trickplay":
+        return <FastForward className="h-4 w-4" />;
+      case "Manage users":
+        return <Users className="h-4 w-4" />;
+      case "Activity":
+        return <Activity className="h-4 w-4" />;
+      case "Scheduled tasks":
+        return <CalendarClock className="h-4 w-4" />;
+      case "API keys":
+        return <Key className="h-4 w-4" />;
+      default:
+        return <LayoutDashboard className="h-4 w-4" />;
+    }
+  };
+
   return (
     <Sidebar
       variant="floating"
@@ -185,7 +230,7 @@ export function AppSidebar({
                     {serverUrl &&
                       new URL(serverUrl).hostname.replace(
                         /^(jellyfin\.|www\.)/,
-                        ""
+                        "",
                       )}
                   </span>
                 </div>
@@ -289,7 +334,7 @@ export function AppSidebar({
                                 <SidebarMenuSubItem>
                                   <CollapsibleTrigger asChild>
                                     <SidebarMenuSubButton>
-                                      <LayoutDashboard className="h-4 w-4" />
+                                      {getDashboardIcon(section.name)}
                                       <span>{section.name}</span>
                                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible-nested:rotate-90" />
                                     </SidebarMenuSubButton>
@@ -305,7 +350,7 @@ export function AppSidebar({
                                                 setOpenMobile(false)
                                               }
                                             >
-                                              <LayoutDashboard className="h-4 w-4" />
+                                              {getDashboardIcon(item.name)}
                                               <span>{item.name}</span>
                                             </Link>
                                           </SidebarMenuSubButton>
@@ -325,14 +370,14 @@ export function AppSidebar({
                                   to={section.url}
                                   onClick={() => setOpenMobile(false)}
                                 >
-                                  <LayoutDashboard className="h-4 w-4" />
+                                  {getDashboardIcon(section.name)}
                                   <span>{section.name}</span>
                                 </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           );
                         })}
-                        </SidebarMenuSub>
+                      </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>
