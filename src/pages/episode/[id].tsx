@@ -12,6 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import LoadingSpinner from "../../components/loading-spinner";
 import { MediaDetail } from "../../components/media-page/MediaDetail";
+import { SeasonEpisodes } from "../../components/season-episodes";
 
 export default function Episode() {
   const { id } = useParams<{ id: string }>();
@@ -141,7 +142,12 @@ export default function Episode() {
           </MediaDetail.Actions>
         </MediaDetail.Content>
       </MediaDetail.Main>
-      
+      {
+        episode.SeasonId && episode.SeriesId &&
+        <div className="relative z-10 pl-6 bg-background/95 dark:bg-background/50 backdrop-blur-xl rounded-2xl m-4 py-2 shadow-2xl">
+          <SeasonEpisodes showId={episode.SeriesId} currentSeasonId={episode.SeasonId} />
+        </div>
+      }
       <MediaDetail.Cast />
     </MediaDetail.Root>
   );
