@@ -365,6 +365,7 @@ export async function getSubtitleTracks(
     language: string;
     src: string;
     default?: boolean;
+    forced?: boolean;
     index: number;
   }>
 > {
@@ -401,6 +402,7 @@ export async function getSubtitleTracks(
         language: stream.Language || "unknown",
         src: src,
         default: stream.IsDefault || false,
+        forced: stream.IsForced || false,
         index: stream.Index ?? -1,
       };
     });

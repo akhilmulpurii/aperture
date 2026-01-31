@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { JellyfinItem, MediaSourceInfo } from "../types/jellyfin";
+import { JellyfinItem, MediaSourceInfo, MediaStream } from "../types/jellyfin";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,9 +24,10 @@ import {
   ArrowLeft,
   Layers,
   ChevronDown,
-  Music,
+  Music, Check
 } from "lucide-react";
 import {
+  getAuthData,
   getDownloadUrl,
   getStreamUrl,
   getSubtitleTracks,
@@ -85,18 +86,29 @@ export function MediaActions({
 
       // Select default audio stream
       if (defaultSource.MediaStreams) {
-        const defaultAudio = defaultSource.MediaStreams.find(
-          (s) => s.Type === "Audio" && s.IsDefault
-        );
-        if (defaultAudio) {
-          setSelectedAudioStreamIndex(defaultAudio.Index);
-        } else {
-          // Fallback to first audio stream
-          const firstAudio = defaultSource.MediaStreams.find(
-            (s) => s.Type === "Audio"
-          );
-          setSelectedAudioStreamIndex(firstAudio?.Index);
-        }
+        let defaultAudio : MediaStream | undefined;
+        getAuthData().then(({user}) => {
+          if(user && user.Configuration){
+            if(!user.Configuration.PlayDefaultAudioTrack && user.Configuration.AudioLanguagePreference)
+              defaultAudio = defaultSource.MediaStreams!.find(
+                (s) => s.Type === "Audio" &&
+                  s.Language === user.Configuration!.AudioLanguagePreference
+              );
+            else
+              defaultAudio = defaultSource!.MediaStreams!.find(
+                (s) => s.Type === "Audio" && s.IsDefault
+              );
+            if(defaultAudio) setSelectedAudioStreamIndex(defaultAudio.Index);
+          }
+        }).finally(() => {
+          if(defaultAudio === undefined){
+            // Fallback to first audio stream
+            const firstAudio = defaultSource!.MediaStreams!.find(
+              (s) => s.Type === "Audio"
+            );
+            setSelectedAudioStreamIndex(firstAudio?.Index);
+          }
+        })
       }
     }
   }, [media]);
@@ -502,6 +514,11 @@ export function MediaActions({
                         {stream.IsDefault && (
                           <Badge variant="secondary" className="text-[0.6rem]">
                             Default
+                          </Badge>
+                        )}
+                        {stream.Index === selectedAudioStreamIndex && (
+                          <Badge variant="secondary">
+                            <Check className="size-[0.6rem]"/>
                           </Badge>
                         )}
                       </DropdownMenuItem>

@@ -166,40 +166,58 @@ export function usePlaybackManager(): PlaybackContextValue {
 
         // Fetch Sidecar Subtitles (VTT)
         try {
-             if (mediaSource?.Id && itemToPlay!.Id) {
-                 const subs = await getSubtitleTracks(itemToPlay!.Id!, mediaSource.Id);
-                 
-                 // Apply selection logic
-                 let targetIndex = options.subtitleStreamIndex; 
-                 
-                 if (targetIndex === undefined) {
-                     const defaultSub = subs.find(s => s.default);
-                     if (defaultSub) {
-                         targetIndex = defaultSub.index;
-                         options.subtitleStreamIndex = targetIndex;
-                     }else if(user && user.Configuration && user.Configuration.SubtitleMode &&
-                         user.Configuration.SubtitleLanguagePreference &&
-                         user.Configuration.SubtitleMode === SubtitlePlaybackMode.Always){
-                         const subtitlePreferance =
-                             subs.find(s => s.language === user.Configuration!.SubtitleLanguagePreference);
-                         if (subtitlePreferance) {
-                             targetIndex = subtitlePreferance.index;
-                             options.subtitleStreamIndex = targetIndex;
-                         }
-                     }
-                 }
-                 
-                 if (targetIndex !== undefined) {
-                     options.textTracks = subs.map(t => ({
-                         ...t,
-                         default: t.index === targetIndex
-                     }));
-                 } else {
-                     options.textTracks = subs;
-                 }
-                 // Store in state so we don't re-fetch during switching
-                 updateState({ textTracks: subs });
-             }
+            if (mediaSource?.Id && itemToPlay!.Id) {
+                const subs = await getSubtitleTracks(itemToPlay!.Id!, mediaSource.Id);
+
+                // Apply selection logic
+                let targetIndex = options.subtitleStreamIndex;
+
+                if (targetIndex === undefined) {
+                    if(user && user.Configuration && user.Configuration.SubtitleMode){
+                        let subtitlePreference: typeof subs[0] | undefined;
+                        switch (user.Configuration.SubtitleMode) {
+                            case SubtitlePlaybackMode.Default:
+                                subtitlePreference = subs.find(s => s.default);
+                                if(subtitlePreference) break; //Fallthrough to forced if default is not found.
+                            case SubtitlePlaybackMode.OnlyForced:
+                                subtitlePreference = subs.find(s => s.forced);
+                                break;
+                            case SubtitlePlaybackMode.Always:
+                                if(user.Configuration.SubtitleLanguagePreference)
+                                    subtitlePreference = subs.find(s =>
+                                        s.language === user.Configuration!.SubtitleLanguagePreference!);
+                                    break;
+                            case SubtitlePlaybackMode.Smart:
+                                const audioLang = mediaSource.MediaStreams
+                                    ?.find(s => s.Type === 'Audio' && s.Index === options.audioStreamIndex)
+                                    ?.Language;
+                                if(audioLang && user.Configuration.SubtitleLanguagePreference
+                                    && audioLang !== user.Configuration.SubtitleLanguagePreference) {
+                                    subtitlePreference = subs.find(s =>
+                                        s.language === user.Configuration!.SubtitleLanguagePreference!);
+                                }
+                                break;
+                            default:
+                                // SubtitlePlaybackMode.None is handled here;
+                        }
+                        if(subtitlePreference) {
+                          targetIndex = subtitlePreference.index;
+                          options.subtitleStreamIndex = targetIndex;
+                        }
+                    }
+                }
+
+                if (targetIndex !== undefined) {
+                    options.textTracks = subs.map(t => ({
+                        ...t,
+                        default: t.index === targetIndex
+                    }));
+                } else {
+                    options.textTracks = subs;
+                }
+                // Store in state so we don't re-fetch during switching
+                updateState({ textTracks: subs });
+            }
         } catch (e) {
             console.error("Failed to load sidecar subtitles", e);
         }
