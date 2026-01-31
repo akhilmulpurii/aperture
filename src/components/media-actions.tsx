@@ -24,7 +24,7 @@ import {
   ArrowLeft,
   Layers,
   ChevronDown,
-  Music,
+  Music, Check
 } from "lucide-react";
 import {
   getAuthData,
@@ -514,6 +514,11 @@ export function MediaActions({
                         {stream.IsDefault && (
                           <Badge variant="secondary" className="text-[0.6rem]">
                             Default
+                          </Badge>
+                        )}
+                        {stream.Index === selectedAudioStreamIndex && (
+                          <Badge variant="secondary">
+                            <Check className="size-[0.6rem]"/>
                           </Badge>
                         )}
                       </DropdownMenuItem>
