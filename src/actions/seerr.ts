@@ -15,11 +15,11 @@ function configureProxy(
   baseUrl: string,
   headers: Record<string, string>,
 ): string {
-  if (!isTauri()) {
-    console.debug("Using Proxy for Seerr API");
-    headers["X-Proxy-Target"] = baseUrl;
-    return import.meta.env.VITE_PROXY_URL || "http://localhost:3001";
-  }
+  // if (!isTauri()) {
+  //   console.debug("Using Proxy for Seerr API");
+  //   headers["X-Proxy-Target"] = baseUrl;
+  //   return import.meta.env.VITE_PROXY_URL || "http://localhost:3001";
+  // }
   return baseUrl;
 }
 
