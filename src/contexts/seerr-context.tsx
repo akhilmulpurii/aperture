@@ -6,14 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getSeerrRecentlyAddedItems,
-  getSeerrTrendingItems,
-  getSeerrPopularMovies,
-  getSeerrPopularTv,
-  getSeerrRecentRequests,
-  getSeerrUser,
-} from "../actions/seerr";
+import { getSeerrDiscovery, getSeerrUser } from "../actions/seerr";
 import { StoreSeerrData } from "../actions/store/store-seerr-data";
 import { SeerrMediaItem, SeerrRequestItem } from "../types/seerr";
 import { getAuthData } from "../actions";
@@ -64,27 +57,20 @@ export function SeerrProvider({ children }: { children: React.ReactNode }) {
         setIsSeerrConnected(true);
         setServerUrl(seerrData.serverUrl);
 
-        const [
-          recentResult,
-          trendingResult,
-          popularMoviesResult,
-          popularTvResult,
-          recentRequestsResult,
-        ] = await Promise.all([
-          getSeerrRecentlyAddedItems(),
-          getSeerrTrendingItems(),
-          getSeerrPopularMovies(),
-          getSeerrPopularTv(),
-          getSeerrRecentRequests(),
-        ]);
+        const discovery = await getSeerrDiscovery();
 
-        if (recentResult?.results) setRecentlyAdded(recentResult.results);
-        if (trendingResult?.results) setTrending(trendingResult.results);
-        if (popularMoviesResult?.results)
-          setPopularMovies(popularMoviesResult.results);
-        if (popularTvResult?.results) setPopularTv(popularTvResult.results);
-        if (recentRequestsResult?.results)
-          setRecentRequests(recentRequestsResult.results);
+        if (discovery) {
+          if (discovery.recent?.results)
+            setRecentlyAdded(discovery.recent.results);
+          if (discovery.trending?.results)
+            setTrending(discovery.trending.results);
+          if (discovery.popularMovies?.results)
+            setPopularMovies(discovery.popularMovies.results);
+          if (discovery.popularTv?.results)
+            setPopularTv(discovery.popularTv.results);
+          if (discovery.recentRequests?.results)
+            setRecentRequests(discovery.recentRequests.results);
+        }
 
         const user = await getSeerrUser();
         if (user) {

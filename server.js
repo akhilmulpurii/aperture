@@ -5,20 +5,29 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-async function mountApiRoutes(app) {
+async function mountApiRoutes(app, vite) {
   const apiDir = path.resolve(__dirname, "./src/api");
-  const files = await fs.readdir(apiDir);
+  try {
+    const files = await fs.readdir(apiDir);
 
-  for (const file of files) {
-    if (!file.endsWith(".ts") && !file.endsWith(".js")) continue;
+    for (const file of files) {
+      if (!file.endsWith(".ts") && !file.endsWith(".js")) continue;
 
-    const routePath = `/api/${file.replace(/\.(ts|js)$/, "")}`;
-    const module = await import(path.join(apiDir, file));
-    const router = module.default;
+      const routePath = `/api/${file.replace(/\.(ts|js)$/, "")}`;
+      let module;
+      if (vite) {
+        module = await vite.ssrLoadModule(path.join("/src/api", file));
+      } else {
+        module = await import(path.join(apiDir, file));
+      }
+      const router = module.default;
 
-    if (!router) continue;
-    app.use(routePath, router);
-    console.log(`Mounted API route: ${routePath}`);
+      if (!router) continue;
+      app.use(routePath, router);
+      console.log(`Mounted API route: ${routePath}`);
+    }
+  } catch (e) {
+    console.error("Failed to mount API routes:", e);
   }
 }
 
@@ -35,8 +44,6 @@ const templateHtml = isProduction
 // Create http server
 const app = express();
 
-await mountApiRoutes(app);
-
 // Add Vite or respective production middlewares
 /** @type {import('vite').ViteDevServer | undefined} */
 let vite;
@@ -48,11 +55,20 @@ if (!isProduction) {
     base,
   });
   app.use(vite.middlewares);
+
+  // Debug: Log all API requests
+  app.use("/api", (req, res, next) => {
+    console.log(`[Server] ${req.method} ${req.originalUrl}`);
+    next();
+  });
+
+  await mountApiRoutes(app, vite);
 } else {
   const compression = (await import("compression")).default;
   const sirv = (await import("sirv")).default;
   app.use(compression());
   app.use(base, sirv("./dist/client", { extensions: [] }));
+  await mountApiRoutes(app);
 }
 
 // Serve HTML
