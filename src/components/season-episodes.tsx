@@ -22,7 +22,7 @@ import { Button } from "../components/ui/button";
 import { formatRuntime } from "../lib/utils";
 import { useAuth } from "../hooks/useAuth";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

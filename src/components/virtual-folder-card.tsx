@@ -24,7 +24,7 @@ import { Input } from "./ui/input";
 import { MoreHorizontal } from "lucide-react";
 import { renameVirtualFolder } from "../actions/media";
 import { Card, CardContent } from "./ui/card";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function VirtualFolderCard({
   library,

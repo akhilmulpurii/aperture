@@ -7,7 +7,7 @@ import { Badge } from "../ui/badge";
 import { useEffect, useState } from "react";
 import { decode } from "blurhash";
 import { OptimizedImage } from "../optimized-image";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface HeroSlideProps {
   item: BaseItemDto;

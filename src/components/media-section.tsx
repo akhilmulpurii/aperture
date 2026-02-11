@@ -7,7 +7,7 @@ import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { LiveChannelCard } from "./live-channel-card";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface MediaSectionProps {
   sectionName: string;

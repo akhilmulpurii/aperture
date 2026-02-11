@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { clearAuthData } from "../actions/media";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface AuthErrorHandlerProps {
   error?: any;

@@ -6,7 +6,7 @@ import { LoginForm } from "../components/login-form";
 import { ThemePreferenceStep } from "./theme-preference-step";
 import { useAtom } from "jotai";
 import { themeSelectionAtom } from "../lib/atoms";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 type OnboardingStep = "server" | "login" | "theme";
 

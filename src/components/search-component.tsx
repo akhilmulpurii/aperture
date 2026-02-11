@@ -14,7 +14,7 @@ import { TextShimmer } from "./motion-primitives/text-shimmer";
 import { useAuth } from "../hooks/useAuth";
 import { SidebarTrigger } from "../components/ui/sidebar";
 import { useIsMobile } from "../hooks/use-mobile";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface SearchBarProps {
   className?: string;

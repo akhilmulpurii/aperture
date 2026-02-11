@@ -10,7 +10,7 @@ import { dashboardLoadingAtom } from "../lib/atoms";
 import { StoreAuthData } from "../actions/store/store-auth-data";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
   children,

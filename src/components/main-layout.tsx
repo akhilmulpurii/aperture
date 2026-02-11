@@ -5,7 +5,7 @@ import { LayoutContent } from "../components/layout-content";
 import { useAuth } from "../hooks/useAuth";
 import { PlaybackProvider } from "../playback/context/PlaybackProvider";
 import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function MainLayout({
   children,
