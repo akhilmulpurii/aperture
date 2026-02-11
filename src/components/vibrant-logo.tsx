@@ -1,3 +1,4 @@
+"use client";
 import { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Vibrant } from "node-vibrant/browser";
 
@@ -13,7 +14,6 @@ interface VibrantLogoProps {
 export function VibrantLogo({
   src,
   alt,
-  movieName,
   className = "max-h-20 md:max-h-24 w-auto object-contain",
   width = 300,
   height = 96,

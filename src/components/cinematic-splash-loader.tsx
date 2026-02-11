@@ -1,8 +1,7 @@
+"use client";
 import React from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "../lib/utils";
-import logoImg from "../assets/logo/icon.png";
-import backdropImg from "../assets/logo/backdrop.png";
 
 interface CinematicSplashLoaderProps {
   backdropUrl?: string;
@@ -14,8 +13,8 @@ interface CinematicSplashLoaderProps {
 }
 
 export const CinematicSplashLoader: React.FC<CinematicSplashLoaderProps> = ({
-  backdropUrl = backdropImg,
-  logoUrl = logoImg,
+  backdropUrl = "/assets/logo/backdrop.png",
+  logoUrl = "/assets/logo/icon.png",
   title = "Aperture",
   tagline = "Loading...",
 
@@ -24,8 +23,8 @@ export const CinematicSplashLoader: React.FC<CinematicSplashLoaderProps> = ({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center overflow-hidden font-sans",
-        className
+        "fixed inset-0 z-99999 bg-black flex flex-col items-center justify-center overflow-hidden font-sans",
+        className,
       )}
     >
       <div className="absolute inset-0 z-0">
@@ -36,9 +35,9 @@ export const CinematicSplashLoader: React.FC<CinematicSplashLoaderProps> = ({
             className="w-full h-full object-cover opacity-40 blur-sm scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-black via-gray-900 to-black opacity-50" />
+          <div className="w-full h-full bg-linear-to-br from-black via-gray-900 to-black opacity-50" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent" />
         <div className="absolute inset-0 bg-radial-gradient from-transparent to-black" />
       </div>
 
@@ -62,7 +61,7 @@ export const CinematicSplashLoader: React.FC<CinematicSplashLoaderProps> = ({
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-3">
             <Loader2 className="w-5 h-5 text-white/70 animate-spin" />
-            <span className="h-4 w-[1px] bg-white/20" />
+            <span className="h-4 w-px bg-white/20" />
             <p className="text-sm font-medium text-white/70 tracking-[0.2em] uppercase">
               {tagline}
             </p>

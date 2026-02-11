@@ -1,5 +1,5 @@
-
-import React, { useCallback } from "react";
+"use client";
+import { useCallback } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -32,7 +32,10 @@ export function HeroCarousel({ items, serverUrl }: HeroCarouselProps) {
       <div className="overflow-hidden rounded-xl" ref={emblaRef}>
         <div className="flex">
           {items.map((item) => (
-            <div className="flex-[0_0_100%] min-w-0 relative px-1" key={item.Id}>
+            <div
+              className="flex-[0_0_100%] min-w-0 relative px-1"
+              key={item.Id}
+            >
               <HeroSlide item={item} serverUrl={serverUrl} />
             </div>
           ))}

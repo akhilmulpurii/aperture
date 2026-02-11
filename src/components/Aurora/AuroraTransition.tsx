@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
 
@@ -160,7 +161,7 @@ export default function AuroraTransition(props: AuroraTransitionProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = "transparent";
 
-    let program: Program | undefined;
+    let program: Program | undefined = undefined;
 
     function resize() {
       if (!ctn) return;
@@ -222,7 +223,7 @@ export default function AuroraTransition(props: AuroraTransitionProps) {
           (hex: string) => {
             const c = new Color(hex);
             return [c.r, c.g, c.b];
-          }
+          },
         );
 
         program.uniforms.uColorStopsTo.value = stopsTo.map((hex: string) => {
@@ -245,7 +246,7 @@ export default function AuroraTransition(props: AuroraTransitionProps) {
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [amplitude]);
+  }, [amplitude, blend, colorStopsFrom, colorStopsTo, transition]);
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }

@@ -1,3 +1,4 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -27,7 +28,7 @@ export default function ParentalControlTab({ user }: { user?: UserDto }) {
     fetchParentalRatings()
       .then(setRatings)
       .finally(() => setDashboardLoading(false));
-  }, []);
+  }, [setDashboardLoading]);
 
   const form = useForm<ParentalControlFormValues>({
     resolver: zodResolver(parentalControlFormSchema) as any,
@@ -53,7 +54,7 @@ export default function ParentalControlTab({ user }: { user?: UserDto }) {
         });
       }
     }
-  }, [user?.Id, form]);
+  }, [user, form]);
 
   async function onSubmit(data: ParentalControlFormValues) {
     if (!user?.Id || !user.Policy) return;
@@ -84,7 +85,7 @@ export default function ParentalControlTab({ user }: { user?: UserDto }) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 w-full pb-10"
       >
-        <RatingSection ratings={ratings} isLoadingRatings={dashboardLoading} />
+        <RatingSection ratings={ratings} />
         <UnratedItemsSection />
         <TagsSection />
 

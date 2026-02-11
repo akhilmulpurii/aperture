@@ -84,16 +84,30 @@ export function ThemePreferenceStep({
   const [selectedTheme, setSelectedTheme] = useAtom(themeSelectionAtom);
   const activeVariant =
     THEME_VARIANTS.variants.find(
-      (variant) => variant.name === selectedTheme.variant
+      (variant) => variant.name === selectedTheme.variant,
     ) ?? THEME_VARIANTS.variants[0];
 
   const floatingOrbs = useMemo(() => {
-    const palette = activeVariant?.gradient ?? ["#f97316", "#7c3aed", "#22d3ee"];
+    const palette = activeVariant?.gradient ?? [
+      "#f97316",
+      "#7c3aed",
+      "#22d3ee",
+    ];
     const [primary, secondary, tertiary] = palette;
     return [
       { size: 260, x: "12%", y: "18%", color: hexToRgba(primary, 0.35) },
-      { size: 320, x: "70%", y: "8%", color: hexToRgba(secondary ?? primary, 0.3) },
-      { size: 200, x: "58%", y: "72%", color: hexToRgba(tertiary ?? secondary ?? primary, 0.35) },
+      {
+        size: 320,
+        x: "70%",
+        y: "8%",
+        color: hexToRgba(secondary ?? primary, 0.3),
+      },
+      {
+        size: 200,
+        x: "58%",
+        y: "72%",
+        color: hexToRgba(tertiary ?? secondary ?? primary, 0.35),
+      },
     ];
   }, [activeVariant]);
 
@@ -112,11 +126,15 @@ export function ThemePreferenceStep({
       });
       setTheme(themeId);
     },
-    [selectedTheme, setSelectedTheme, setTheme]
+    [selectedTheme, setSelectedTheme, setTheme],
   );
 
   const screenBackground = useMemo(() => {
-    const palette = activeVariant?.gradient ?? ["#f97316", "#7c3aed", "#22d3ee"];
+    const palette = activeVariant?.gradient ?? [
+      "#f97316",
+      "#7c3aed",
+      "#22d3ee",
+    ];
     const [primary, secondary, tertiary] = palette;
     return `
       radial-gradient(circle at 20% 15%, ${hexToRgba(primary, 0.4)}, transparent 55%),
@@ -141,7 +159,7 @@ export function ThemePreferenceStep({
         animate={{ background: baseGlow }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-black/40 to-black" />
       {floatingOrbs.map((orb, index) => (
         <motion.span
           key={index}
@@ -190,7 +208,8 @@ export function ThemePreferenceStep({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25, duration: 0.5 }}
             >
-              Every palette remixes the UI live. You&apos;re currently basking in{" "}
+              Every palette remixes the UI live. You&apos;re currently basking
+              in{" "}
               <span className="font-semibold text-primary">
                 {selectedTheme.variant}
               </span>{" "}
@@ -231,7 +250,7 @@ export function ThemePreferenceStep({
                   "group relative flex h-full flex-col gap-2 rounded-3xl border border-white/10 bg-white/5 p-4 text-left backdrop-blur transition-all",
                   isSelected
                     ? "border-primary/70 shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
-                    : "hover:border-white/30"
+                    : "hover:border-white/30",
                 )}
               >
                 <AnimatePresence>
@@ -259,16 +278,14 @@ export function ThemePreferenceStep({
                   <span
                     className={cn(
                       "text-xs font-medium uppercase tracking-widest",
-                      isSelected ? "text-primary" : "text-white/50"
+                      isSelected ? "text-primary" : "text-white/50",
                     )}
                   >
                     {isSelected ? "Selected" : "Preview"}
                   </span>
                 </div>
                 {variant.description ? (
-                  <p className="text-sm text-white/60">
-                    {variant.description}
-                  </p>
+                  <p className="text-sm text-white/60">{variant.description}</p>
                 ) : null}
                 <div className="pointer-events-none absolute inset-0 rounded-3xl border border-white/10 opacity-0 blur-xl transition group-hover:opacity-60" />
               </motion.button>
@@ -300,8 +317,8 @@ export function ThemePreferenceStep({
             </Button>
           </div>
           <p className="text-sm text-white/60">
-            You can always tweak your palette later inside Settings →
-            Dashboard Themes.
+            You can always tweak your palette later inside Settings → Dashboard
+            Themes.
           </p>
         </motion.div>
       </div>

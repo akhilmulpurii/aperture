@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { isAuthenticated, getServerUrl } from "../actions";
 import { ServerSetup } from "../components/server-setup";
@@ -5,13 +6,13 @@ import { LoginForm } from "../components/login-form";
 import { ThemePreferenceStep } from "./theme-preference-step";
 import { useAtom } from "jotai";
 import { themeSelectionAtom } from "../lib/atoms";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 type OnboardingStep = "server" | "login" | "theme";
 
 export function OnboardingFlow() {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("server");
-  const navigate = useNavigate();
+  const router = useRouter();
   const [selectedTheme] = useAtom(themeSelectionAtom);
 
   console.log("OnboardingFlow rendered, currentStep:", currentStep);
@@ -25,7 +26,7 @@ export function OnboardingFlow() {
 
       // Check if user is already authenticated
       if (authenticated && serverUrl) {
-        navigate("/");
+        router.push("/");
         return;
       } else if (serverUrl && !authenticated) {
         setCurrentStep("login");
@@ -35,7 +36,7 @@ export function OnboardingFlow() {
     };
 
     checkAuthStatus();
-  }, [navigate]);
+  }, [router]);
 
   const handleServerSetup = () => {
     setCurrentStep("login");
@@ -43,14 +44,14 @@ export function OnboardingFlow() {
 
   const handleLoginSuccess = () => {
     if (selectedTheme.variant && selectedTheme.variant !== "Auto") {
-      navigate("/", { replace: true });
+      router.push("/");
     } else {
       setCurrentStep("theme");
     }
   };
 
   const handleThemeComplete = () => {
-    navigate("/", { replace: true });
+    router.push("/");
   };
 
   const handleBackToServer = () => {

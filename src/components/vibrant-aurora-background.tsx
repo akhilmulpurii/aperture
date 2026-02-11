@@ -1,3 +1,4 @@
+"use client";
 import { useEffect } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import { Vibrant } from "node-vibrant/browser";
@@ -76,7 +77,7 @@ export function VibrantAuroraBackground({
     };
 
     extractColors();
-  }, [posterUrl]);
+  }, [posterUrl, updateColors]);
 
   return (
     <AuroraBackground

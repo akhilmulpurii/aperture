@@ -1,12 +1,5 @@
 import { cn } from "../../lib/utils";
-import {
-  CheckCircle,
-  Clock,
-  Star,
-  TrendingUp,
-  Video,
-  Globe,
-} from "lucide-react";
+import { CheckCircle, TrendingUp, Video, Globe } from "lucide-react";
 import { Progress } from "../../components/ui/progress";
 
 export interface BentoItem {
@@ -76,7 +69,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
             "hover:-translate-y-0.5 hover:shadow-md will-change-transform",
             item.colSpan || "col-span-1",
             item.colSpan === 2 ? "md:col-span-2" : "",
-            item.hasPersistentHover && "shadow-md -translate-y-0.5"
+            item.hasPersistentHover && "shadow-md -translate-y-0.5",
           )}
         >
           <div
@@ -86,7 +79,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
                 : "opacity-0 group-hover:opacity-100"
             } transition-opacity duration-300`}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:4px_4px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[4px_4px]" />
           </div>
 
           <div className="relative flex flex-col space-y-3">
@@ -98,7 +91,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
                 className={cn(
                   "text-xs font-medium px-2 py-1 rounded-lg backdrop-blur-sm",
                   "bg-secondary/60 text-secondary-foreground",
-                  "transition-colors duration-300 group-hover:bg-secondary"
+                  "transition-colors duration-300 group-hover:bg-secondary",
                 )}
               >
                 {item.status || "Active"}
@@ -120,7 +113,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
             {item.progress !== undefined && (
               <div className="flex items-center gap-3 mt-3">
                 <Progress value={item.progress} className="flex-1 h-2" />
-                <span className="text-xs font-medium text-muted-foreground font-mono min-w-[40px]">
+                <span className="text-xs font-medium text-muted-foreground font-mono min-w-10">
                   {item.progress.toFixed(1)}%
                 </span>
               </div>
@@ -143,7 +136,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
           </div>
 
           <div
-            className={`absolute inset-0 -z-10 rounded-xl p-px bg-gradient-to-br from-transparent via-border/30 to-transparent ${
+            className={`absolute inset-0 -z-10 rounded-xl p-px bg-linear-to-br from-transparent via-border/30 to-transparent ${
               item.hasPersistentHover
                 ? "opacity-100"
                 : "opacity-0 group-hover:opacity-100"

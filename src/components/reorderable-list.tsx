@@ -1,3 +1,4 @@
+"use client";
 import {
   DndContext,
   closestCenter,
@@ -35,7 +36,7 @@ export function ReorderableList({ items, onChange }: ReorderableListProps) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -51,7 +52,7 @@ export function ReorderableList({ items, onChange }: ReorderableListProps) {
 
   const handleToggle = (id: string, checked: boolean) => {
     const newItems = items.map((item) =>
-      item.id === id ? { ...item, Enabled: checked } : item
+      item.id === id ? { ...item, Enabled: checked } : item,
     );
     onChange(newItems);
   };
@@ -107,7 +108,7 @@ function SortableItem({
       style={style}
       className={cn(
         "flex items-center gap-3 rounded-md border bg-card p-3 shadow-sm",
-        isDragging && "opacity-50"
+        isDragging && "opacity-50",
       )}
     >
       <div

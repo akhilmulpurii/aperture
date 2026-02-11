@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useEffect } from "react";
 import { BaseItemPerson } from "@jellyfin/sdk/lib/generated-client/models/base-item-person";
 import { ScrollArea, ScrollBar } from "../components/ui/scroll-area";
@@ -11,7 +12,7 @@ interface CastScrollAreaProps {
   mediaId: string;
 }
 
-export function CastScrollArea({ people, mediaId }: CastScrollAreaProps) {
+export function CastScrollArea({ people }: CastScrollAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
 

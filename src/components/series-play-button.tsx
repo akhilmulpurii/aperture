@@ -1,10 +1,10 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { JellyfinItem } from "../types/jellyfin";
 import { Button } from "../components/ui/button";
 import { Play, Loader2 } from "lucide-react";
-import { getNextEpisodeForSeries } from "../actions/tv-shows";
+import { getNextEpisodeForSeries } from "../actions";
 import { usePlayback } from "../hooks/usePlayback";
-import { Skeleton } from "./ui/skeleton";
 
 interface SeriesPlayButtonProps {
   series: JellyfinItem;
@@ -80,7 +80,7 @@ export function SeriesPlayButton({
   console.log("UserData:", nextEpisode.UserData);
   console.log(
     "PlaybackPositionTicks:",
-    nextEpisode.UserData?.PlaybackPositionTicks
+    nextEpisode.UserData?.PlaybackPositionTicks,
   );
   console.log("Played:", nextEpisode.UserData?.Played);
 

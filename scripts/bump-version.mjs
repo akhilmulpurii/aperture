@@ -26,8 +26,13 @@ const bumpTable = {
 function bumpVersion(current, bumpLevel) {
   const parts = current.split(".").map((part) => Number.parseInt(part, 10));
 
-  if (parts.length !== 3 || parts.some((part) => Number.isNaN(part) || part < 0)) {
-    throw new Error(`Invalid semver string "${current}". Expecting format MAJOR.MINOR.PATCH.`);
+  if (
+    parts.length !== 3 ||
+    parts.some((part) => Number.isNaN(part) || part < 0)
+  ) {
+    throw new Error(
+      `Invalid semver string "${current}". Expecting format MAJOR.MINOR.PATCH.`,
+    );
   }
 
   const [major, minor, patch] = parts;
@@ -53,31 +58,6 @@ function writeJson(filePath, updater) {
   writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
 }
 
-function replaceVersionLine(filePath, matcher, replacerDescription, replacer) {
-  const content = readFileSync(filePath, "utf8");
-  const updated = content.replace(matcher, replacer);
-
-  if (content === updated) {
-    throw new Error(
-      `Failed to update ${replacerDescription} in ${filePath}. Pattern not found.`,
-    );
-  }
-
-  writeFileSync(filePath, updated);
-}
-
-function updateCargoLockVersion(filePath, packageName, newVersion) {
-  const pattern =
-    new RegExp(`(\\[\\[package\\]\\][\\s\\S]+?name = "${packageName}"[\\s\\S]+?version = ")` +
-      `[^"]+(")`);
-  replaceVersionLine(
-    filePath,
-    pattern,
-    `package "${packageName}" version`,
-    (_match, prefix, suffix) => `${prefix}${newVersion}${suffix}`,
-  );
-}
-
 const packageJsonPath = resolve(repoRoot, "package.json");
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 const currentVersion = packageJson.version;
@@ -86,21 +66,3 @@ const newVersion = bumpVersion(currentVersion, level);
 writeJson(packageJsonPath, (data) => {
   data.version = newVersion;
 });
-
-const tauriConfigPath = resolve(repoRoot, "src-tauri", "tauri.conf.json");
-writeJson(tauriConfigPath, (data) => {
-  data.version = newVersion;
-});
-
-const cargoTomlPath = resolve(repoRoot, "src-tauri", "Cargo.toml");
-replaceVersionLine(
-  cargoTomlPath,
-  /^version\s*=\s*".*?"$/m,
-  "Cargo.toml package version",
-  () => `version = "${newVersion}"`,
-);
-
-const cargoLockPath = resolve(repoRoot, "src-tauri", "Cargo.lock");
-updateCargoLockVersion(cargoLockPath, "app", newVersion);
-
-console.log(newVersion);

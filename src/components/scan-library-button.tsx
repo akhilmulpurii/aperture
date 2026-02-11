@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { TextShimmer } from "../components/motion-primitives/text-shimmer";

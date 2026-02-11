@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { Skeleton } from "../components/ui/skeleton";
+"use client";
+import React from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { Play } from "lucide-react";
 import { usePlayback } from "../hooks/usePlayback";
-import { Link } from "react-router-dom";
 import { OptimizedImage } from "./optimized-image";
+import Link from "next/link";
 
 export function EpisodeCard({
   item,
@@ -51,7 +51,7 @@ export function EpisodeCard({
   return (
     <div className="cursor-pointer group overflow-hidden transition select-none w-64">
       <div className="relative w-full border rounded-md overflow-hidden active:scale-[0.98] transition aspect-video">
-        <Link to={linkHref} draggable={false} className="block w-full h-full">
+        <Link href={linkHref} draggable={false} className="block w-full h-full">
           {serverUrl ? (
             <OptimizedImage
               src={imageUrl}
@@ -102,7 +102,7 @@ export function EpisodeCard({
           </div>
         )}
       </div>
-      <Link to={linkHref} draggable={false}>
+      <Link href={linkHref} draggable={false}>
         <div className="px-1">
           <div className="mt-2.5 text-sm font-medium text-foreground line-clamp-2 group-hover:underline">
             {item.Name}

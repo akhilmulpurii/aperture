@@ -13,7 +13,7 @@ export function useThemeMedia(itemId?: string | null) {
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
- 
+
   const { playbackState } = usePlaybackContext();
   const isPlayerActive = !!playbackState.currentItem;
 
@@ -171,7 +171,7 @@ export function useThemeMedia(itemId?: string | null) {
     const video = videoRef.current;
     if (!video) return;
     if (isPlaying && videoReady && !videoFinished) {
-      video.play().catch(err => {
+      video.play().catch((err) => {
         console.warn("Manual theme play failed:", err);
         setIsPlaying(false);
       });
@@ -184,7 +184,7 @@ export function useThemeMedia(itemId?: string | null) {
   // so that when we return, we wait for readiness again.
   useEffect(() => {
     if (isPlayerActive) {
-        setVideoReady(false);
+      setVideoReady(false);
     }
   }, [isPlayerActive]);
 
@@ -215,11 +215,11 @@ export function useThemeMedia(itemId?: string | null) {
   }, [videoFinished]);
 
   const toggleMute = useCallback(() => {
-    setIsMuted(prev => !prev);
+    setIsMuted((prev) => !prev);
   }, []);
 
   const togglePlay = useCallback(() => {
-    setIsPlaying(prev => !prev);
+    setIsPlaying((prev) => !prev);
   }, []);
 
   const stopThemeMedia = useCallback(() => {
@@ -239,7 +239,8 @@ export function useThemeMedia(itemId?: string | null) {
     }
   }, []);
 
-  const showThemeVideo = !isPlayerActive && Boolean(themeVideoUrl) && videoReady && !videoFinished;
+  const showThemeVideo =
+    !isPlayerActive && Boolean(themeVideoUrl) && videoReady && !videoFinished;
   const shouldShowBackdropImage =
     isPlayerActive || !themeVideoUrl || !videoReady || videoFinished;
 

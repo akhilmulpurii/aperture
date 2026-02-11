@@ -11,7 +11,7 @@ import { LibraryStructureApi } from "@jellyfin/sdk/lib/generated-client/api/libr
 import { getGenresApi } from "@jellyfin/sdk/lib/utils/api/genres-api";
 import { VirtualFolderInfo } from "@jellyfin/sdk/lib/generated-client/models/virtual-folder-info";
 import { LibraryOptionsResultDto } from "@jellyfin/sdk/lib/generated-client/models/library-options-result-dto";
-import {getTvShowsApi} from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
+import { getTvShowsApi } from "@jellyfin/sdk/lib/utils/api/tv-shows-api";
 import { createJellyfinInstance } from "../lib/utils";
 import { JellyfinUserWithToken } from "../types/jellyfin";
 import { StoreAuthData } from "./store/store-auth-data";
@@ -72,7 +72,7 @@ export async function clearAuthData() {
 
 export async function fetchMovies(
   limit: number = 20,
-  genreIds?: string[]
+  genreIds?: string[],
 ): Promise<JellyfinItem[]> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -103,7 +103,7 @@ export async function fetchMovies(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -113,7 +113,7 @@ export async function fetchMovies(
   }
 }
 export async function fetchMovieByCollection(
-  collectionId: string
+  collectionId: string,
 ): Promise<JellyfinItem[]> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -143,7 +143,7 @@ export async function fetchMovieByCollection(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -155,7 +155,7 @@ export async function fetchMovieByCollection(
 
 export async function fetchTVShows(
   limit: number = 20,
-  genreIds?: string[]
+  genreIds?: string[],
 ): Promise<JellyfinItem[]> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -186,7 +186,7 @@ export async function fetchTVShows(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -197,7 +197,7 @@ export async function fetchTVShows(
 }
 
 export async function fetchMediaDetails(
-  mediaItemId: string
+  mediaItemId: string,
 ): Promise<JellyfinItem | null> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -232,7 +232,7 @@ export async function fetchMediaDetails(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -243,7 +243,7 @@ export async function fetchMediaDetails(
 }
 
 export async function fetchPersonDetails(
-  personId: string
+  personId: string,
 ): Promise<JellyfinItem | null> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -265,7 +265,7 @@ export async function fetchPersonDetails(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -276,7 +276,7 @@ export async function fetchPersonDetails(
 }
 
 export async function fetchPersonFilmography(
-  personId: string
+  personId: string,
 ): Promise<JellyfinItem[]> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -307,7 +307,7 @@ export async function fetchPersonFilmography(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -346,38 +346,37 @@ export async function fetchResumeItems() {
 }
 
 export async function fetchNextUpItems() {
-    try {
-        const { serverUrl, user } = await getAuthData();
-        if (!user.AccessToken) throw new Error("No access token found");
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
 
-        const jellyfinInstance = createJellyfinInstance();
-        const api = jellyfinInstance.createApi(serverUrl);
-        api.accessToken = user.AccessToken;
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
 
-        const tvShowsApi = getTvShowsApi(api);
-        const { data } = await tvShowsApi.getNextUp({
-            userId: user.Id,
-            fields: [
-                ItemFields.CanDelete,
-                ItemFields.PrimaryImageAspectRatio,
-                ItemFields.Overview,
-            ],
-            enableImages: true
-        });
+    const tvShowsApi = getTvShowsApi(api);
+    const { data } = await tvShowsApi.getNextUp({
+      userId: user.Id,
+      fields: [
+        ItemFields.CanDelete,
+        ItemFields.PrimaryImageAspectRatio,
+        ItemFields.Overview,
+      ],
+      enableImages: true,
+    });
 
-        return data.Items || [];
-    } catch (error) {
-        console.error("Failed to fetch next up episodes:", error);
-        return [];
-    }
+    return data.Items || [];
+  } catch (error) {
+    console.error("Failed to fetch next up episodes:", error);
+    return [];
+  }
 }
-
 
 // Progress tracking functions
 export async function reportPlaybackStart(
   itemId: string,
   mediaSourceId: string,
-  playSessionId: string
+  playSessionId: string,
 ): Promise<boolean> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -415,7 +414,7 @@ export async function reportPlaybackProgress(
   mediaSourceId: string,
   playSessionId: string,
   positionTicks: number,
-  isPaused: boolean = false
+  isPaused: boolean = false,
 ): Promise<boolean> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -452,7 +451,7 @@ export async function reportPlaybackStopped(
   itemId: string,
   mediaSourceId: string,
   playSessionId: string,
-  positionTicks: number
+  positionTicks: number,
 ): Promise<boolean> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -487,7 +486,7 @@ export async function reportPlaybackStopped(
 export async function fetchLibraryItems(
   libraryId: string,
   limit: number = 50,
-  startIndex: number = 0
+  startIndex: number = 0,
 ): Promise<{ items: JellyfinItem[]; totalRecordCount: number }> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -528,7 +527,7 @@ export async function fetchLibraryItems(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -538,7 +537,7 @@ export async function fetchLibraryItems(
   }
 }
 export async function fetchLiveTVItems(
-  isFavorite: boolean | undefined = undefined
+  isFavorite: boolean | undefined = undefined,
 ): Promise<{
   items: JellyfinItem[];
   totalRecordCount: number;
@@ -576,7 +575,7 @@ export async function fetchLiveTVItems(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -608,7 +607,7 @@ export async function fetchSimilarItems(itemId: string, limit: number = 12) {
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -619,7 +618,7 @@ export async function fetchSimilarItems(itemId: string, limit: number = 12) {
 }
 
 export async function fetchIntroOutro(
-  itemId: string
+  itemId: string,
 ): Promise<MediaSegmentsResponse | null> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -637,7 +636,7 @@ export async function fetchIntroOutro(
           "Content-Type": "application/json",
           Authorization: `MediaBrowser Token="${user.AccessToken}"`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -652,7 +651,7 @@ export async function fetchIntroOutro(
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -666,14 +665,14 @@ export async function fetchTrickplayTileImageUrl(
   itemId: string,
   width: number,
   index: number,
-  mediaSourceId?: string
+  mediaSourceId?: string,
 ): Promise<string | null> {
   try {
     const { serverUrl, user } = await getAuthData();
     if (!user.AccessToken) throw new Error("No access token found");
 
     const url = new URL(
-      `${serverUrl}/Videos/${itemId}/Trickplay/${width}/${index}.jpg`
+      `${serverUrl}/Videos/${itemId}/Trickplay/${width}/${index}.jpg`,
     );
 
     if (mediaSourceId) {
@@ -704,7 +703,7 @@ export async function fetchTrickplayTileImageUrl(
 
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -742,7 +741,7 @@ export async function scanLibrary(libraryId?: string): Promise<void> {
 
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -771,7 +770,7 @@ export async function fetchGenres() {
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -801,7 +800,7 @@ export async function fetchGenre(genreName: string) {
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -912,7 +911,7 @@ export async function fetchHeroItems(): Promise<JellyfinItem[]> {
 
     // Deduplicate by Id
     const uniqueItems = Array.from(
-      new Map(allItems.map((item) => [item.Id, item])).values()
+      new Map(allItems.map((item) => [item.Id, item])).values(),
     );
 
     // Smart Shuffle / Priority Sort
@@ -938,7 +937,7 @@ export async function fetchHeroItems(): Promise<JellyfinItem[]> {
     console.error("Failed to fetch hero items:", error);
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -961,7 +960,7 @@ export async function markFavorite(itemId: string): Promise<boolean> {
           Authorization: `MediaBrowser Token="${user.AccessToken}"`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     return response.ok;
@@ -983,7 +982,7 @@ export async function unmarkFavorite(itemId: string): Promise<boolean> {
         headers: {
           Authorization: `MediaBrowser Token="${user.AccessToken}"`,
         },
-      }
+      },
     );
 
     return response.ok;
@@ -1011,7 +1010,7 @@ export async function fetchVirtualFolders(): Promise<VirtualFolderInfo[]> {
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -1023,7 +1022,7 @@ export async function fetchVirtualFolders(): Promise<VirtualFolderInfo[]> {
 
 export async function removeVirtualFolder(
   name: string,
-  refreshLibrary: boolean = false
+  refreshLibrary: boolean = false,
 ): Promise<void> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -1039,7 +1038,7 @@ export async function removeVirtualFolder(
     console.error("Failed to remove virtual folder:", error);
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -1051,7 +1050,7 @@ export async function removeVirtualFolder(
 export async function renameVirtualFolder(
   name: string,
   newName: string,
-  refreshLibrary: boolean = false
+  refreshLibrary: boolean = false,
 ): Promise<void> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -1071,7 +1070,7 @@ export async function renameVirtualFolder(
     console.error("Failed to rename virtual folder:", error);
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -1082,7 +1081,7 @@ export async function renameVirtualFolder(
 
 export async function fetchLibraryOptionsInfo(
   contentType: string = "movies",
-  isNewLibrary: boolean = false
+  isNewLibrary: boolean = false,
 ): Promise<LibraryOptionsResultDto> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -1096,7 +1095,7 @@ export async function fetchLibraryOptionsInfo(
           Authorization: `MediaBrowser Token="${user.AccessToken}"`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -1108,7 +1107,7 @@ export async function fetchLibraryOptionsInfo(
     console.error("Failed to fetch library options:", error);
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -1128,7 +1127,7 @@ export async function addLibrary(
   name: string,
   collectionType: string,
   paths: string[],
-  libraryOptions: LibraryOptions
+  libraryOptions: LibraryOptions,
 ): Promise<void> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -1155,7 +1154,7 @@ export async function addLibrary(
     console.error("Failed to add library:", error);
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
@@ -1166,7 +1165,7 @@ export async function addLibrary(
 
 export async function updateLibraryOptions(
   id: string,
-  libraryOptions: LibraryOptions
+  libraryOptions: LibraryOptions,
 ): Promise<void> {
   try {
     const { serverUrl, user } = await getAuthData();
@@ -1188,11 +1187,186 @@ export async function updateLibraryOptions(
     console.error("Failed to update library options:", error);
     if (isAuthError(error)) {
       const authError = new Error(
-        "Authentication expired. Please sign in again."
+        "Authentication expired. Please sign in again.",
       );
       (authError as any).isAuthError = true;
       throw authError;
     }
     throw error;
+  }
+}
+
+export async function fetchSeasons(tvShowId: string): Promise<JellyfinItem[]> {
+  try {
+    const { serverUrl, user } = await getAuthData();
+    if (!user.AccessToken) throw new Error("No access token found");
+
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
+    api.accessToken = user.AccessToken;
+    const itemsApi = getItemsApi(api);
+    const { data } = await itemsApi.getItems({
+      userId: user.Id,
+      parentId: tvShowId,
+      includeItemTypes: [BaseItemKind.Season],
+      recursive: false,
+      sortBy: [ItemSortBy.SortName],
+      sortOrder: [SortOrder.Ascending],
+    });
+    return data.Items || [];
+  } catch (error) {
+    console.error("Failed to fetch seasons:", error);
+    return [];
+  }
+}
+
+export async function fetchEpisodes(seasonId: string): Promise<JellyfinItem[]> {
+  const { serverUrl, user } = await getAuthData();
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  api.accessToken = user.AccessToken;
+
+  try {
+    const itemsApi = getItemsApi(api);
+    const { data } = await itemsApi.getItems({
+      userId: user.Id,
+      parentId: seasonId,
+      includeItemTypes: [BaseItemKind.Episode],
+      recursive: false,
+      sortBy: [ItemSortBy.SortName],
+      sortOrder: [SortOrder.Ascending],
+      fields: [
+        ItemFields.CanDelete,
+        ItemFields.PrimaryImageAspectRatio,
+        ItemFields.Overview,
+        ItemFields.MediaSources,
+      ],
+    });
+    return data.Items || [];
+  } catch (error) {
+    console.error("Failed to fetch episodes:", error);
+    return [];
+  }
+}
+
+export async function fetchTVShowDetails(
+  tvShowId: string,
+): Promise<JellyfinItem | null> {
+  const { serverUrl, user } = await getAuthData();
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  api.accessToken = user.AccessToken;
+
+  try {
+    const userLibraryApi = new UserLibraryApi(api.configuration);
+    const { data } = await userLibraryApi.getItem({
+      userId: user.Id,
+      itemId: tvShowId,
+    });
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch TV show details:", error);
+    return null;
+  }
+}
+
+export async function fetchEpisodeDetails(
+  episodeId: string,
+): Promise<JellyfinItem | null> {
+  const { serverUrl, user } = await getAuthData();
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  api.accessToken = user.AccessToken;
+
+  try {
+    const itemsApi = getItemsApi(api);
+    const { data } = await itemsApi.getItems({
+      userId: user.Id,
+      ids: [episodeId],
+      fields: [
+        ItemFields.MediaSources,
+        ItemFields.MediaStreams,
+        ItemFields.CanDownload,
+        ItemFields.PrimaryImageAspectRatio,
+        ItemFields.Overview,
+        ItemFields.Taglines,
+        ItemFields.Genres,
+        ItemFields.People,
+        ItemFields.Studios,
+      ],
+    });
+    return data.Items?.[0] ?? null;
+  } catch (error) {
+    console.error("Failed to fetch episode details:", error);
+    return null;
+  }
+}
+
+export async function getNextEpisodeForSeries(
+  seriesId: string,
+): Promise<JellyfinItem | null> {
+  const { serverUrl, user } = await getAuthData();
+  if (!user.AccessToken) throw new Error("No access token found");
+
+  const jellyfinInstance = createJellyfinInstance();
+  const api = jellyfinInstance.createApi(serverUrl);
+  api.accessToken = user.AccessToken;
+
+  try {
+    const itemsApi = getItemsApi(api);
+
+    // Get all episodes for the series with user data
+    const { data } = await itemsApi.getItems({
+      userId: user.Id,
+      parentId: seriesId,
+      includeItemTypes: [BaseItemKind.Episode],
+      recursive: true,
+      sortBy: [ItemSortBy.ParentIndexNumber, ItemSortBy.IndexNumber],
+      sortOrder: [SortOrder.Ascending, SortOrder.Ascending],
+      fields: [
+        ItemFields.CanDelete,
+        ItemFields.PrimaryImageAspectRatio,
+        ItemFields.Overview,
+        ItemFields.MediaSources,
+      ],
+    });
+
+    if (!data.Items || data.Items.length === 0) {
+      return null;
+    }
+
+    // First, look for episodes with resume positions (partially watched)
+    const resumableEpisodes = data.Items.filter(
+      (episode) =>
+        episode.UserData?.PlaybackPositionTicks &&
+        episode.UserData.PlaybackPositionTicks > 0 &&
+        !episode.UserData.Played,
+    );
+
+    if (resumableEpisodes.length > 0) {
+      // Return the most recently partially watched episode
+      return resumableEpisodes[0];
+    }
+
+    // If no resumable episodes, find the first unwatched episode
+    const unwatchedEpisodes = data.Items.filter(
+      (episode) => !episode.UserData?.Played,
+    );
+
+    if (unwatchedEpisodes.length > 0) {
+      return unwatchedEpisodes[0];
+    }
+
+    // If all episodes are watched, return the first episode for rewatching
+    return data.Items[0] || null;
+  } catch (error) {
+    console.error("Failed to get next episode for series:", error);
+    return null;
   }
 }

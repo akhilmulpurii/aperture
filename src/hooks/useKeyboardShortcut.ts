@@ -12,7 +12,7 @@ interface UseKeyboardShortcutOptions {
 
 export const useKeyboardShortcut = (
   options: UseKeyboardShortcutOptions,
-  callback: () => void
+  callback: () => void,
 ) => {
   const {
     key,
@@ -62,7 +62,7 @@ export const useKeyboardShortcut = (
       preventDefault,
       allowInInputFields,
       callback,
-    ]
+    ],
   );
 
   useEffect(() => {

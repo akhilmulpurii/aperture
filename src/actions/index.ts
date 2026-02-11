@@ -30,21 +30,18 @@ export {
   fetchLiveTVItems,
   fetchSimilarItems,
   fetchMovieByCollection,
+  fetchSeasons,
+  fetchEpisodes,
+  fetchTVShowDetails,
+  fetchEpisodeDetails,
   scanLibrary,
   markFavorite,
   unmarkFavorite,
   fetchVirtualFolders,
   removeVirtualFolder,
   renameVirtualFolder,
+  getNextEpisodeForSeries,
 } from "./media";
-
-// TV show actions
-export {
-  fetchSeasons,
-  fetchEpisodes,
-  fetchTVShowDetails,
-  fetchEpisodeDetails,
-} from "./tv-shows";
 
 // Search actions
 export { searchItems, searchPeople } from "./search";
@@ -89,7 +86,6 @@ export {
   createUser,
   deleteUser,
 } from "./utils";
-export { discoverLocalServer } from "./discovery";
 export {
   fetchDashboardGeneralData,
   updateDashboardConfiguration,
@@ -131,4 +127,5 @@ export type {
   CurrentImage,
   UserWithPolicy,
 } from "./utils";
+export { testSeerrConnection } from "./seerr";
 export type { QuickConnectResult } from "./auth";

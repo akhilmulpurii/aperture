@@ -1,3 +1,4 @@
+"use client";
 import React, {
   useState,
   useEffect,
@@ -67,7 +68,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
   const [quickConnectSession, setQuickConnectSession] =
     useState<QuickConnectSession | null>(null);
   const [quickConnectError, setQuickConnectError] = useState<string | null>(
-    null
+    null,
   );
   const [quickConnectLoading, setQuickConnectLoading] = useState(false);
 
@@ -147,7 +148,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
         });
       } else {
         setQuickConnectSession((previous) =>
-          previous ? { ...previous, secret: nextSecret } : previous
+          previous ? { ...previous, secret: nextSecret } : previous,
         );
       }
 
@@ -162,7 +163,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
         }
 
         setQuickConnectError(
-          "Quick Connect was approved, but we couldn't finish signing you in. Please try again or use your password."
+          "Quick Connect was approved, but we couldn't finish signing you in. Please try again or use your password.",
         );
       }
     } catch (pollError) {
@@ -172,7 +173,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
       setQuickConnectError(
         pollError instanceof Error
           ? pollError.message
-          : "We couldn't check the Quick Connect status. Please try again."
+          : "We couldn't check the Quick Connect status. Please try again.",
       );
     }
   }, [onSuccess, stopQuickConnectPolling]);
@@ -192,7 +193,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
 
       if (!session || !session.Secret || !session.Code) {
         throw new Error(
-          "Quick Connect did not return a valid code. Please try again."
+          "Quick Connect did not return a valid code. Please try again.",
         );
       }
 
@@ -212,7 +213,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
       setQuickConnectError(
         initError instanceof Error
           ? initError.message
-          : "Unable to start Quick Connect. Please try again or use your password."
+          : "Unable to start Quick Connect. Please try again or use your password.",
       );
       setQuickConnectSession(null);
       stopQuickConnectPolling();
@@ -238,7 +239,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
     }
 
     startQuickConnect().catch((error) =>
-      console.error("Quick Connect start error:", error)
+      console.error("Quick Connect start error:", error),
     );
   }, [
     authMethod,
@@ -483,8 +484,8 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
                             startQuickConnect().catch((error) =>
                               console.error(
                                 "Quick Connect refresh error:",
-                                error
-                              )
+                                error,
+                              ),
                             )
                           }
                           disabled={quickConnectLoading}

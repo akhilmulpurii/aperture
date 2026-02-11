@@ -1,16 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
-import {
-  Eye,
-  Download,
-  X,
-  Copy,
-  Search,
-  ChevronDown,
-  Loader2,
-} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Download, Copy, Search, ChevronDown } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import {
   Dialog,
@@ -24,7 +16,7 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 import { Input } from "../../components/ui/input";
 import { Badge } from "../../components/ui/badge";
 import { Switch } from "../../components/ui/switch";
-import { fetchLogContent, JellyfinLog } from "../../actions/utils";
+import { fetchLogContent } from "../../actions/utils";
 import { toast } from "sonner";
 import { LogFile } from "@jellyfin/sdk/lib/generated-client/models";
 import { TextShimmer } from "../motion-primitives/text-shimmer";
@@ -56,6 +48,50 @@ export function LogViewerDialog({
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? onOpenChange : setInternalOpen;
+
+  const loadLogContent = useCallback(
+    async (isInitial = false) => {
+      if (isInitial) {
+        setIsLoading(true);
+        setIsInitialLoad(true);
+      }
+      console.log("Loading log content for:", log.Name);
+      try {
+        const content = await fetchLogContent(log.Name!);
+        console.log("Log content loaded:", content);
+        setLogContent(content);
+        if (isInitial) {
+          setIsInitialLoad(false);
+        }
+      } catch (error) {
+        console.error("Failed to load log content:", error);
+        toast.error("Failed to load log content");
+      } finally {
+        if (isInitial) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [log.Name],
+  );
+
+  const handleScroll = useCallback(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
+      if (scrollContainer) {
+        const isAtBottom =
+          scrollContainer.scrollTop + scrollContainer.clientHeight >=
+          scrollContainer.scrollHeight - 10;
+
+        if (!isAtBottom && isAutoScrolling) {
+          setIsAutoScrolling(false);
+          setShowScrollButton(true);
+        }
+      }
+    }
+  }, [isAutoScrolling]);
 
   // Handle loading content when dialog opens
   useEffect(() => {
@@ -90,7 +126,7 @@ export function LogViewerDialog({
         refreshIntervalRef.current = null;
       }
     };
-  }, [open, logContent, isLiveMode]);
+  }, [open, logContent, isLiveMode, loadLogContent]);
 
   // Auto-scroll to bottom when content changes and auto-scrolling is enabled
   useEffect(() => {
@@ -103,7 +139,7 @@ export function LogViewerDialog({
   useEffect(() => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
+        "[data-radix-scroll-area-viewport]",
       );
       if (scrollContainer) {
         scrollContainer.addEventListener("scroll", handleScroll);
@@ -112,35 +148,12 @@ export function LogViewerDialog({
         };
       }
     }
-  }, [scrollAreaRef.current, isAutoScrolling]);
+  }, [isAutoScrolling, handleScroll]);
 
   const handleOpenChange = (newOpen: boolean) => {
     console.log("Dialog open state changed via handleOpenChange:", newOpen);
     if (setOpen) {
       setOpen(newOpen);
-    }
-  };
-
-  const loadLogContent = async (isInitial = false) => {
-    if (isInitial) {
-      setIsLoading(true);
-      setIsInitialLoad(true);
-    }
-    console.log("Loading log content for:", log.Name);
-    try {
-      const content = await fetchLogContent(log.Name!);
-      console.log("Log content loaded:", content);
-      setLogContent(content);
-      if (isInitial) {
-        setIsInitialLoad(false);
-      }
-    } catch (error) {
-      console.error("Failed to load log content:", error);
-      toast.error("Failed to load log content");
-    } finally {
-      if (isInitial) {
-        setIsLoading(false);
-      }
     }
   };
 
@@ -162,7 +175,7 @@ export function LogViewerDialog({
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
+        "[data-radix-scroll-area-viewport]",
       );
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
@@ -176,31 +189,13 @@ export function LogViewerDialog({
     scrollToBottom();
   };
 
-  const handleScroll = () => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      );
-      if (scrollContainer) {
-        const isAtBottom =
-          scrollContainer.scrollTop + scrollContainer.clientHeight >=
-          scrollContainer.scrollHeight - 10;
-
-        if (!isAtBottom && isAutoScrolling) {
-          setIsAutoScrolling(false);
-          setShowScrollButton(true);
-        }
-      }
-    }
-  };
-
   const highlightSearchTerm = (text: string) => {
     if (!searchTerm) return text;
 
     const regex = new RegExp(`(${searchTerm})`, "gi");
     return text.replace(
       regex,
-      "<mark class='bg-primary dark:bg-primary/50 text-white'>$1</mark>"
+      "<mark class='bg-primary dark:bg-primary/50 text-white'>$1</mark>",
     );
   };
 
@@ -297,7 +292,7 @@ export function LogViewerDialog({
           )}
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0 mt-2">
+        <div className="flex items-center gap-2 shrink-0 mt-2">
           <div className="flex-1 relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { JellyfinUserWithToken } from "../types/jellyfin";
 import { StoreServerURL } from "../actions/store/store-server-url";
 import { StoreAuthData } from "../actions/store/store-auth-data";
@@ -58,7 +58,9 @@ export function useAuth(): AuthState {
         isAuthenticated,
         isLoading: false,
       });
-    } catch (error) {}
+    } catch {
+      console.error("Failed to refresh auth data");
+    }
   }, []);
 
   // Initialize auth state on mount

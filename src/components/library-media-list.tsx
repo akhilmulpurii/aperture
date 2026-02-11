@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+"use client";
+import { useState, useMemo } from "react";
 import { MediaCard } from "../components/media-card";
 import {
   BaseItemDto,
@@ -18,7 +19,6 @@ import {
 } from "../components/ui/tooltip";
 import {
   ChevronDown,
-  ArrowUpDown,
   Search,
   Type,
   Dice6,
@@ -137,17 +137,17 @@ export function LibraryMediaList({
   const [sortField, setSortField] = useState<string>(initialSortField);
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [rerollTrigger, setRerollTrigger] = useState<number>(0);
+  const [randomSeed, setRandomSeed] = useState<number>(() => Math.random());
 
   // Function to trigger a reroll for random sorting
   const handleReroll = () => {
-    setRerollTrigger((prev) => prev + 1);
+    setRandomSeed(Math.random());
   };
 
   const filteredAndSortedItems = useMemo(() => {
     // First filter by search query
     const filtered = mediaItems.filter((item) =>
-      (item.Name || "").toLowerCase().includes(searchQuery.toLowerCase())
+      (item.Name || "").toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     // Then sort the filtered results
@@ -157,7 +157,13 @@ export function LibraryMediaList({
     return [...filtered].sort((a, b) => {
       // Special case for random sorting
       if (sortField === "Random") {
-        return Math.random() - 0.5;
+        const idHashA = (a.Id || "")
+          .split("")
+          .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const idHashB = (b.Id || "")
+          .split("")
+          .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return Math.sin(randomSeed * idHashA) - Math.sin(randomSeed * idHashB);
       }
 
       const valueA = selectedField.getSortValue(a);
@@ -174,7 +180,7 @@ export function LibraryMediaList({
 
       return sortOrder === "desc" ? -comparison : comparison;
     });
-  }, [mediaItems, sortField, sortOrder, searchQuery, rerollTrigger]);
+  }, [mediaItems, sortField, sortOrder, searchQuery, randomSeed]);
 
   const selectedFieldLabel =
     sortFields.find((field) => field.value === sortField)?.label || "Name";
@@ -276,7 +282,7 @@ export function LibraryMediaList({
             />
           ) : (
             <LiveChannelCard key={item.Id} item={item} serverUrl={serverUrl} />
-          )
+          ),
         )}
       </div>
 

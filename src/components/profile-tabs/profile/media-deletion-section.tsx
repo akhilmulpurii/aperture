@@ -1,10 +1,6 @@
+"use client";
 import { useFormContext, useWatch } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "../../ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "../../ui/form";
 import { Checkbox } from "../../ui/checkbox";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { ProfileFormValues } from "./schema";
@@ -92,8 +88,8 @@ export function MediaDeletionSection({
                                 } else {
                                   field.onChange(
                                     currentValue.filter(
-                                      (value: string) => value !== libraryId
-                                    )
+                                      (value: string) => value !== libraryId,
+                                    ),
                                   );
                                 }
                               }}

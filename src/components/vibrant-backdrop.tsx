@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { Vibrant } from "node-vibrant/browser";
 import { OptimizedImage } from "./optimized-image";

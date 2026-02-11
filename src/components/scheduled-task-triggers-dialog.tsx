@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import type {
   TaskInfo,
@@ -6,12 +7,7 @@ import type {
 import { toast } from "sonner";
 import { updateTaskTriggers } from "../actions";
 import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import {
   Select,
@@ -143,9 +139,7 @@ export const ScheduledTaskTriggersDialog = ({
       nextTrigger.DayOfWeek = newDayOfWeek as TaskTriggerInfo["DayOfWeek"];
     }
 
-    if (
-      needsTimeOfDay
-    ) {
+    if (needsTimeOfDay) {
       if (newTimeOfDay) {
         const timeTicks = timeStringToTicks(newTimeOfDay);
         if (timeTicks !== null) {
@@ -296,10 +290,7 @@ export const ScheduledTaskTriggersDialog = ({
                   <label className="text-xs font-medium text-muted-foreground">
                     Day of week
                   </label>
-                  <Select
-                    value={newDayOfWeek}
-                    onValueChange={setNewDayOfWeek}
-                  >
+                  <Select value={newDayOfWeek} onValueChange={setNewDayOfWeek}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Pick a day" />
                     </SelectTrigger>

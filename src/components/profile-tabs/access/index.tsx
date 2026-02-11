@@ -1,3 +1,4 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -35,7 +36,7 @@ export default function AccessTab({ user }: { user?: UserDto }) {
         setDevices(devices);
       })
       .finally(() => setDashboardLoading(false));
-  }, []);
+  }, [setDashboardLoading]);
 
   const form = useForm<AccessFormValues>({
     resolver: zodResolver(accessFormSchema) as any,
@@ -59,7 +60,7 @@ export default function AccessTab({ user }: { user?: UserDto }) {
         });
       }
     }
-  }, [user?.Id, form]);
+  }, [user, form]);
 
   async function onSubmit(data: AccessFormValues) {
     if (!user?.Id || !user.Policy) return;

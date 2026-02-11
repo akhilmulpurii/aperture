@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect, useMemo } from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { Antenna, Play } from "lucide-react";
 import { usePlayback } from "../hooks/usePlayback";
 
 import { decode } from "blurhash";
-import { Link } from "react-router-dom";
 import { OptimizedImage } from "./optimized-image";
+import Link from "next/link";
 
 export function LiveChannelCard({
   item,
@@ -17,11 +18,11 @@ export function LiveChannelCard({
   const { play } = usePlayback();
 
   // WIP - Link logic for TV channels
-  let linkHref = "/livetv/" + item.Id;
+  const linkHref = "/livetv/" + item.Id;
 
   // Determine image type based on continueWatching
 
-  let imageItemId = item.Id;
+  const imageItemId = item.Id;
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
@@ -32,11 +33,16 @@ export function LiveChannelCard({
     : null;
 
   // Get blur hash
-  const imageTag =
-    item.Type === "Episode"
-      ? item.ParentThumbImageTag
-      : item.ImageTags?.["Primary"]!;
-  const blurHash = item.ImageBlurHashes?.["Primary"]?.[imageTag!] || "";
+  const blurHash = useMemo(() => {
+    let imageTag: string | null | undefined = null;
+    if (item.Type === "Episode") {
+      imageTag = item.ParentThumbImageTag;
+    }
+    imageTag = item.ImageTags?.["Primary"];
+
+    const bh = item.ImageBlurHashes?.["Primary"]?.[imageTag!] || "";
+    return bh;
+  }, [item]);
 
   // Decode blur hash
   useEffect(() => {
@@ -57,7 +63,7 @@ export function LiveChannelCard({
         console.error("Error decoding blur hash:", error);
       }
     }
-  }, [blurHash, blurDataUrl]);
+  }, [blurHash, blurDataUrl, imageUrl]);
 
   const handlePlayClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,7 +86,7 @@ export function LiveChannelCard({
       <div
         className={`relative w-full border rounded-md overflow-hidden active:scale-[0.98] transition aspect-square`}
       >
-        <Link to={linkHref} draggable={false} className="block w-full h-full">
+        <Link href={linkHref} draggable={false} className="block w-full h-full">
           {serverUrl ? (
             <>
               {/* Blur hash placeholder */}
@@ -101,7 +107,7 @@ export function LiveChannelCard({
                   src={imageUrl}
                   alt={item.Name || ""}
                   className={`w-full h-full object-cover transition-opacity duration-300 shadow-lg group-hover:shadow-md rounded-md opacity-100`}
-                  onLoad={(e) => {
+                  onLoad={() => {
                     setImageLoaded(true);
                   }}
                   draggable={false}
@@ -136,7 +142,7 @@ export function LiveChannelCard({
         )}
       </div>
 
-      <Link to={linkHref} draggable={false}>
+      <Link href={linkHref} draggable={false}>
         <div className="px-1">
           <div className="mt-2.5 text-sm font-medium text-foreground truncate group-hover:underline">
             {item.Name}

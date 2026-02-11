@@ -1,4 +1,5 @@
-import React, { createContext, useContext, ReactNode } from "react";
+"use client";
+import { createContext, useContext, ReactNode } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { JellyfinUserWithToken } from "../types/jellyfin";
 

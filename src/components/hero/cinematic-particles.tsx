@@ -1,9 +1,11 @@
-
+"use client";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export function CinematicParticles() {
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number }[]>([]);
+  const [particles, setParticles] = useState<
+    { id: number; x: number; y: number; size: number; duration: number }[]
+  >([]);
 
   useEffect(() => {
     // Generate initial dust specks

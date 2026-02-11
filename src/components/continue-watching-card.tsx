@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { usePlayback } from "../hooks/usePlayback";
@@ -44,6 +45,7 @@ export function ContinueWatchingCard({
         {serverUrl ? (
           <img
             src={imageUrl}
+            alt="Continue Watching Card"
             className="w-full h-full object-cover transition duration-200 shadow-lg hover:brightness-85 rounded-md border group-hover:shadow-md active:scale-[0.98]"
             onError={(e) => {
               e.currentTarget.style.display = "none";

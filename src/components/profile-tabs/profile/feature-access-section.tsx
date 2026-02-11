@@ -1,10 +1,6 @@
+"use client";
 import { useFormContext } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "../../ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "../../ui/form";
 import { Checkbox } from "../../ui/checkbox";
 import { ProfileFormValues } from "./schema";
 
@@ -26,7 +22,9 @@ export function FeatureAccessSection() {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel className="font-normal">Allow Live TV access</FormLabel>
+              <FormLabel className="font-normal">
+                Allow Live TV access
+              </FormLabel>
             </FormItem>
           )}
         />

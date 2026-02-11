@@ -1,6 +1,7 @@
+"use client";
 import { useEffect } from "react";
 import { clearAuthData } from "../actions/media";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 interface AuthErrorHandlerProps {
   error?: any;
@@ -8,7 +9,7 @@ interface AuthErrorHandlerProps {
 }
 
 export function AuthErrorHandler({ error, children }: AuthErrorHandlerProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     async function handleAuthError() {
@@ -20,12 +21,12 @@ export function AuthErrorHandler({ error, children }: AuthErrorHandlerProps) {
           console.error("Failed to clear auth data:", clearError);
         }
         // Redirect to login page
-        navigate("/auth/login");
+        router.push("/auth/login");
       }
     }
 
     handleAuthError();
-  }, [error, navigate]);
+  }, [error, router]);
 
   // If it's an auth error, don't render children and show loading state
   if (error && (error as any).isAuthError) {

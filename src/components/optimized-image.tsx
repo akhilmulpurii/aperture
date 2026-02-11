@@ -1,3 +1,4 @@
+"use client";
 import { useState, SyntheticEvent, ImgHTMLAttributes, useEffect } from "react";
 import { cn } from "../lib/utils";
 
@@ -11,7 +12,6 @@ export function OptimizedImage({
   alt,
   onLoad,
   onError,
-  fallbackSrc = "/placeholder.png", // We don't have a real one yet, but better than broken
   ...props
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -36,9 +36,14 @@ export function OptimizedImage({
   if (hasError) {
     // Return a fallback div if image failed
     return (
-        <div className={cn("flex items-center justify-center bg-gray-800 text-white/50 text-xs", className)}>
-            <span>Error</span>
-        </div>
+      <div
+        className={cn(
+          "flex items-center justify-center bg-gray-800 text-white/50 text-xs",
+          className,
+        )}
+      >
+        <span>Error</span>
+      </div>
     );
   }
 
@@ -50,7 +55,7 @@ export function OptimizedImage({
       className={cn(
         "transition-opacity duration-500",
         isLoaded ? "opacity-100" : "opacity-0",
-        className
+        className,
       )}
       onLoad={handleLoad}
       onError={handleError}

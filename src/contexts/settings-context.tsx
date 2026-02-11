@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 export interface BitrateOption {
@@ -5,7 +6,6 @@ export interface BitrateOption {
   label: string;
   bitrate: number;
 }
-
 
 export const BITRATE_OPTIONS: BitrateOption[] = [
   { value: "auto", label: "Auto", bitrate: 0 },
@@ -28,7 +28,7 @@ interface SettingsContextType {
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
@@ -46,9 +46,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       setVideoBitrateState(savedBitrate);
     }
 
-
     const savedThemeBackdrops = localStorage.getItem(
-      "aperture-enable-theme-backdrops"
+      "aperture-enable-theme-backdrops",
     );
     if (savedThemeBackdrops !== null) {
       setEnableThemeBackdropsState(savedThemeBackdrops === "true");
@@ -65,7 +64,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     setVideoBitrateState(bitrate);
     localStorage.setItem("aperture-video-bitrate", bitrate);
   };
-
 
   const setEnableThemeBackdrops = (enable: boolean) => {
     setEnableThemeBackdropsState(enable);

@@ -28,7 +28,7 @@ export const initialGeneralFormState: GeneralFormState = {
 
 export function dashboardGeneralReducer(
   state: GeneralFormState,
-  action: GeneralFormAction
+  action: GeneralFormAction,
 ): GeneralFormState {
   switch (action.type) {
     case "init": {

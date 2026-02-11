@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+"use client";
+import { useState, useEffect } from "react";
 import { JellyfinItem, MediaSourceInfo, MediaStream } from "../types/jellyfin";
 import {
   DropdownMenu,
@@ -21,25 +22,18 @@ import {
   Info,
   Download,
   Play,
-  ArrowLeft,
   Layers,
   ChevronDown,
-  Music, Check
+  Music,
+  Check,
 } from "lucide-react";
 import {
   getAuthData,
   getDownloadUrl,
-  getStreamUrl,
-  getSubtitleTracks,
   getUserWithPolicy,
   getUser,
 } from "../actions";
-import {
-  getMediaDetailsFromName,
-  cutOffText,
-  formatPlaybackPosition,
-  formatRuntime,
-} from "../lib/utils";
+import { getMediaDetailsFromName, formatRuntime } from "../lib/utils";
 import { usePlayback } from "../hooks/usePlayback";
 import { useIsMobile } from "../hooks/use-mobile";
 import { DolbyDigital, DolbyTrueHd, DolbyVision, DtsHd } from "./icons/codecs";
@@ -86,29 +80,35 @@ export function MediaActions({
 
       // Select default audio stream
       if (defaultSource.MediaStreams) {
-        let defaultAudio : MediaStream | undefined;
-        getAuthData().then(({user}) => {
-          if(user && user.Configuration){
-            if(!user.Configuration.PlayDefaultAudioTrack && user.Configuration.AudioLanguagePreference)
-              defaultAudio = defaultSource.MediaStreams!.find(
-                (s) => s.Type === "Audio" &&
-                  s.Language === user.Configuration!.AudioLanguagePreference
+        let defaultAudio: MediaStream | undefined;
+        getAuthData()
+          .then(({ user }) => {
+            if (user && user.Configuration) {
+              if (
+                !user.Configuration.PlayDefaultAudioTrack &&
+                user.Configuration.AudioLanguagePreference
+              )
+                defaultAudio = defaultSource.MediaStreams!.find(
+                  (s) =>
+                    s.Type === "Audio" &&
+                    s.Language === user.Configuration!.AudioLanguagePreference,
+                );
+              else
+                defaultAudio = defaultSource!.MediaStreams!.find(
+                  (s) => s.Type === "Audio" && s.IsDefault,
+                );
+              if (defaultAudio) setSelectedAudioStreamIndex(defaultAudio.Index);
+            }
+          })
+          .finally(() => {
+            if (defaultAudio === undefined) {
+              // Fallback to first audio stream
+              const firstAudio = defaultSource!.MediaStreams!.find(
+                (s) => s.Type === "Audio",
               );
-            else
-              defaultAudio = defaultSource!.MediaStreams!.find(
-                (s) => s.Type === "Audio" && s.IsDefault
-              );
-            if(defaultAudio) setSelectedAudioStreamIndex(defaultAudio.Index);
-          }
-        }).finally(() => {
-          if(defaultAudio === undefined){
-            // Fallback to first audio stream
-            const firstAudio = defaultSource!.MediaStreams!.find(
-              (s) => s.Type === "Audio"
-            );
-            setSelectedAudioStreamIndex(firstAudio?.Index);
-          }
-        })
+              setSelectedAudioStreamIndex(firstAudio?.Index);
+            }
+          });
       }
     }
   }, [media]);
@@ -117,13 +117,13 @@ export function MediaActions({
   useEffect(() => {
     if (selectedVersion?.MediaStreams) {
       const defaultAudio = selectedVersion.MediaStreams.find(
-        (s) => s.Type === "Audio" && s.IsDefault
+        (s) => s.Type === "Audio" && s.IsDefault,
       );
       if (defaultAudio) {
         setSelectedAudioStreamIndex(defaultAudio.Index);
       } else {
         const firstAudio = selectedVersion.MediaStreams.find(
-          (s) => s.Type === "Audio"
+          (s) => s.Type === "Audio",
         );
         setSelectedAudioStreamIndex(firstAudio?.Index);
       }
@@ -138,7 +138,7 @@ export function MediaActions({
         if (currentUser?.Id && media?.Id) {
           const userWithPolicy = await getUserWithPolicy(
             currentUser.Id,
-            media.Id
+            media.Id,
           );
           if (userWithPolicy?.Policy) {
             setUserPolicy(userWithPolicy.Policy);
@@ -200,7 +200,7 @@ export function MediaActions({
     // If we can't parse details from the name, try to use DisplayTitle from video stream
     if (detailsFromName === "Unknown" && source.MediaStreams) {
       const videoStream = source.MediaStreams.find(
-        (stream) => stream.Type === "Video"
+        (stream) => stream.Type === "Video",
       );
       if (videoStream?.DisplayTitle) {
         return getMediaDetailsFromName(videoStream.DisplayTitle);
@@ -268,16 +268,12 @@ export function MediaActions({
       return false;
     }
 
-    const audioStreams = source.MediaStreams.filter(
-      (stream) => stream.Type === "Audio"
-    );
-
     const result = source.MediaStreams.some(
       (stream) =>
         stream.Type === "Audio" &&
         (stream.Codec?.toLowerCase().includes("ac3") ||
           stream.Codec?.toLowerCase().includes("dolby") ||
-          stream.DisplayTitle?.toLowerCase().includes("dolby"))
+          stream.DisplayTitle?.toLowerCase().includes("dolby")),
     );
 
     return result;
@@ -289,15 +285,11 @@ export function MediaActions({
       return false;
     }
 
-    const audioStreams = source.MediaStreams.filter(
-      (stream) => stream.Type === "Audio"
-    );
-
     const result = source.MediaStreams.some(
       (stream) =>
         stream.Type === "Audio" &&
         (stream.Codec?.toLowerCase().includes("truehd") ||
-          stream.DisplayTitle?.toLowerCase().includes("truehd"))
+          stream.DisplayTitle?.toLowerCase().includes("truehd")),
     );
 
     return result;
@@ -309,16 +301,12 @@ export function MediaActions({
       return false;
     }
 
-    const videoStreams = source.MediaStreams.filter(
-      (stream) => stream.Type === "Video"
-    );
-
     const result = source.MediaStreams.some(
       (stream) =>
         stream.Type === "Video" &&
         (stream.VideoRange?.toLowerCase().includes("dovi") ||
           stream.DisplayTitle?.toLowerCase().includes("dolby vision") ||
-          stream.Profile?.toLowerCase().includes("dolby"))
+          stream.Profile?.toLowerCase().includes("dolby")),
     );
 
     return result;
@@ -369,15 +357,11 @@ export function MediaActions({
       return false;
     }
 
-    const audioStreams = source.MediaStreams.filter(
-      (stream) => stream.Type === "Audio"
-    );
-
     const result = source.MediaStreams.some(
       (stream) =>
         stream.Type === "Audio" &&
         (stream.Codec?.toLowerCase().includes("dts-hd") ||
-          stream.DisplayTitle?.toLowerCase().includes("dts-hd"))
+          stream.DisplayTitle?.toLowerCase().includes("dts-hd")),
     );
     return result;
   };
@@ -422,7 +406,7 @@ export function MediaActions({
                   className="overflow-hidden whitespace-nowrap text-ellipsis fill-foreground gap-1.5 px-4 w-full sm:w-auto justify-between sm:justify-start"
                 >
                   {renderSourceLabel(selectedVersion)}
-                  <ChevronDown className="h-4 w-4 opacity-50 ml-1 flex-shrink-0" />
+                  <ChevronDown className="h-4 w-4 opacity-50 ml-1 shrink-0" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -462,18 +446,18 @@ export function MediaActions({
         {selectedVersion?.MediaStreams &&
           (() => {
             const audioStreams = selectedVersion.MediaStreams?.filter(
-              (s) => s.Type === "Audio"
+              (s) => s.Type === "Audio",
             );
             if (audioStreams && audioStreams.length > 1) {
               const currentAudio = audioStreams.find(
-                (s) => s.Index === selectedAudioStreamIndex
+                (s) => s.Index === selectedAudioStreamIndex,
               );
               return (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="overflow-hidden whitespace-nowrap text-ellipsis fill-foreground gap-1.5 px-4 w-full sm:w-auto sm:max-w-[200px] justify-between sm:justify-start"
+                      className="overflow-hidden whitespace-nowrap text-ellipsis fill-foreground gap-1.5 px-4 w-full sm:w-auto sm:max-w-50 justify-between sm:justify-start"
                     >
                       <Music className="h-4 w-4 opacity-70" />
                       <span className="truncate">
@@ -481,7 +465,7 @@ export function MediaActions({
                           ? getAudioStreamDisplayName(currentAudio)
                           : "Audio"}
                       </span>
-                      <ChevronDown className="h-4 w-4 opacity-50 ml-1 flex-shrink-0" />
+                      <ChevronDown className="h-4 w-4 opacity-50 ml-1 shrink-0" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -518,7 +502,7 @@ export function MediaActions({
                         )}
                         {stream.Index === selectedAudioStreamIndex && (
                           <Badge variant="secondary">
-                            <Check className="size-[0.6rem]"/>
+                            <Check className="size-[0.6rem]" />
                           </Badge>
                         )}
                       </DropdownMenuItem>
@@ -552,7 +536,7 @@ export function MediaActions({
                 <span className="ml-2 text-sm sm:hidden">Info</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl dark:bg-background/30 backdrop-blur-md z-[9999999999]">
+            <DialogContent className="max-w-2xl dark:bg-background/30 backdrop-blur-md z-9999999999">
               <DialogHeader>
                 <DialogTitle>Media Info</DialogTitle>
               </DialogHeader>

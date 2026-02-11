@@ -1,5 +1,5 @@
+"use client";
 import { motion } from "framer-motion";
-
 export default function DisplayEndTime({ time }: { time: string }) {
   if (!time || time === "Invalid Date") return;
   return (

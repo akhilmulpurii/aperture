@@ -351,27 +351,27 @@ const TextAnimateBase = ({
         item: variants,
       }
     : animation
-    ? {
-        container: {
-          ...defaultItemAnimationVariants[animation].container,
-          show: {
-            ...defaultItemAnimationVariants[animation].container.show,
-            transition: {
-              delayChildren: delay,
-              staggerChildren: duration / segments.length,
+      ? {
+          container: {
+            ...defaultItemAnimationVariants[animation].container,
+            show: {
+              ...defaultItemAnimationVariants[animation].container.show,
+              transition: {
+                delayChildren: delay,
+                staggerChildren: duration / segments.length,
+              },
+            },
+            exit: {
+              ...defaultItemAnimationVariants[animation].container.exit,
+              transition: {
+                staggerChildren: duration / segments.length,
+                staggerDirection: -1,
+              },
             },
           },
-          exit: {
-            ...defaultItemAnimationVariants[animation].container.exit,
-            transition: {
-              staggerChildren: duration / segments.length,
-              staggerDirection: -1,
-            },
-          },
-        },
-        item: defaultItemAnimationVariants[animation].item,
-      }
-    : { container: defaultContainerVariants, item: defaultItemVariants };
+          item: defaultItemAnimationVariants[animation].item,
+        }
+      : { container: defaultContainerVariants, item: defaultItemVariants };
 
   return (
     <AnimatePresence mode="popLayout">
@@ -393,7 +393,7 @@ const TextAnimateBase = ({
             className={cn(
               by === "line" ? "block" : "inline-block whitespace-pre",
               by === "character" && "",
-              segmentClassName
+              segmentClassName,
             )}
           >
             {segment}

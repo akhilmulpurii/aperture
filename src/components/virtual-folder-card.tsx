@@ -1,5 +1,5 @@
+"use client";
 import { VirtualFolderInfo } from "@jellyfin/sdk/lib/generated-client/models";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSetAtom } from "jotai";
 import { dashboardLoadingAtom } from "../lib/atoms";
@@ -24,6 +24,7 @@ import { Input } from "./ui/input";
 import { MoreHorizontal } from "lucide-react";
 import { renameVirtualFolder } from "../actions/media";
 import { Card, CardContent } from "./ui/card";
+import { useRouter } from "next/navigation";
 
 export default function VirtualFolderCard({
   library,
@@ -38,7 +39,7 @@ export default function VirtualFolderCard({
   onRemove: () => void;
   onRenameSuccess: () => void;
 }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [newName, setNewName] = useState(library.Name || "");
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
@@ -122,7 +123,7 @@ export default function VirtualFolderCard({
 
         <div
           className="absolute inset-0 z-10 cursor-pointer"
-          onClick={() => navigate(`/dashboard/libraries/${library.ItemId}`)}
+          onClick={() => router.push(`/dashboard/libraries/${library.ItemId}`)}
         />
 
         <CardContent className="p-6 flex flex-col items-center text-center gap-4 h-full">

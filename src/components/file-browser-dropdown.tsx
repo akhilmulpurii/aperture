@@ -1,3 +1,4 @@
+"use client";
 import { useMemo, useState } from "react";
 import { File, Folder, Search, ArrowUp, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -67,11 +68,7 @@ export function FileBrowserDropdown({
       const defaultPath = defaultBrowser?.Path ?? "";
       if (defaultPath) {
         setCurrentPath(defaultPath);
-        const contents = await fetchDirectoryContents(
-          defaultPath,
-          false,
-          true
-        );
+        const contents = await fetchDirectoryContents(defaultPath, false, true);
         setEntries(contents);
       } else {
         setCurrentPath("");
@@ -110,11 +107,7 @@ export function FileBrowserDropdown({
         setCurrentPath("");
         setEntries(drives);
       } else {
-        const contents = await fetchDirectoryContents(
-          parentPath,
-          false,
-          true
-        );
+        const contents = await fetchDirectoryContents(parentPath, false, true);
         setCurrentPath(parentPath);
         setEntries(contents);
       }
@@ -134,23 +127,17 @@ export function FileBrowserDropdown({
           aria-label={ariaLabel}
           className={cn(
             "rounded-md p-1 text-muted-foreground transition hover:text-foreground",
-            className
+            className,
           )}
         >
           <Search className="h-4 w-4" />
         </button>
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-72 p-3"
-        sideOffset={6}
-      >
+      <PopoverContent align="end" className="w-72 p-3" sideOffset={6}>
         <div className="flex items-center justify-between gap-2">
           <div>
             <p className="text-sm font-semibold">Select path</p>
-            <p className="text-xs text-muted-foreground">
-              Dummy file system
-            </p>
+            <p className="text-xs text-muted-foreground">Dummy file system</p>
           </div>
         </div>
 
@@ -165,9 +152,7 @@ export function FileBrowserDropdown({
               Loading folders...
             </div>
           ) : errorMessage ? (
-            <div className="px-2 py-3 text-xs text-red-500">
-              {errorMessage}
-            </div>
+            <div className="px-2 py-3 text-xs text-red-500">{errorMessage}</div>
           ) : sortedEntries.length === 0 ? (
             <div className="px-2 py-3 text-xs text-muted-foreground">
               This folder is empty.

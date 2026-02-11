@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { decode } from "blurhash";

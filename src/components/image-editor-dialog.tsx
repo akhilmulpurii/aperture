@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -76,20 +77,23 @@ export function ImageEditorDialog({
   const [downloading, setDownloading] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortBy>("resolution");
 
-  const loadImages = async (type: ImageType) => {
-    if (images[type].length > 0) return; // Already loaded
+  const loadImages = useCallback(
+    async (type: ImageType) => {
+      if (images[type].length > 0) return; // Already loaded
 
-    setLoading((prev) => ({ ...prev, [type]: true }));
-    try {
-      const response = await fetchRemoteImages(itemId, type, 0, 30, false);
-      setImages((prev) => ({ ...prev, [type]: response.Images }));
-    } catch (error) {
-      console.error(`Failed to fetch ${type} images:`, error);
-      toast.error(`Failed to fetch ${type.toLowerCase()} images`);
-    } finally {
-      setLoading((prev) => ({ ...prev, [type]: false }));
-    }
-  };
+      setLoading((prev) => ({ ...prev, [type]: true }));
+      try {
+        const response = await fetchRemoteImages(itemId, type, 0, 30, false);
+        setImages((prev) => ({ ...prev, [type]: response.Images }));
+      } catch (error) {
+        console.error(`Failed to fetch ${type} images:`, error);
+        toast.error(`Failed to fetch ${type.toLowerCase()} images`);
+      } finally {
+        setLoading((prev) => ({ ...prev, [type]: false }));
+      }
+    },
+    [itemId, images],
+  );
 
   const handleDownloadImage = async (image: RemoteImage) => {
     const downloadKey = `${image.Type}-${image.Url}`;
@@ -100,7 +104,7 @@ export function ImageEditorDialog({
         itemId,
         image.Type as ImageType,
         image.Url,
-        image.ProviderName
+        image.ProviderName,
       );
       toast.success(`${image.Type} image downloaded successfully`, {
         onAutoClose() {
@@ -123,7 +127,7 @@ export function ImageEditorDialog({
     if (isOpen) {
       loadImages(selectedType);
     }
-  }, [isOpen, selectedType]);
+  }, [isOpen, loadImages, selectedType]);
 
   const formatFileSize = (width: number, height: number) => {
     return `${width} × ${height}`;
@@ -191,10 +195,10 @@ export function ImageEditorDialog({
               value={sortBy}
               onValueChange={(value) => setSortBy(value as SortBy)}
             >
-              <SelectTrigger className="w-[180px] ml-4">
+              <SelectTrigger className="w-45 ml-4">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
-              <SelectContent className="z-[100000]">
+              <SelectContent className="z-100000">
                 <SelectItem value="resolution">Resolution</SelectItem>
                 <SelectItem value="rating">Rating</SelectItem>
                 <SelectItem value="votes">Votes</SelectItem>
@@ -231,7 +235,7 @@ export function ImageEditorDialog({
                         >
                           <div
                             className={`relative ${getSkeletonAspectRatio(
-                              key
+                              key,
                             )} p-3`}
                           >
                             <Skeleton className="w-full h-full rounded-lg" />
@@ -294,7 +298,7 @@ export function ImageEditorDialog({
                         >
                           <div
                             className={`relative ${getAspectRatio(
-                              key
+                              key,
                             )} rounded-lg overflow-hidden`}
                           >
                             <img

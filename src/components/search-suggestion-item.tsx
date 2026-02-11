@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { getImageUrl } from "../actions";
+"use client";
+import { useEffect, useState } from "react";
 import { Film, PlayCircle, Tv, Calendar, Star, User } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
@@ -28,19 +28,24 @@ interface Item {
 interface SearchSuggestionItemProps {
   item: Item;
   onClick: () => void;
-  formatRuntime: (runTimeTicks?: number) => string | null;
+  formatRuntime?: (runTimeTicks?: number) => string | null;
+  isSeerr?: boolean;
 }
 
 export function SearchSuggestionItem({
   item,
   onClick,
-  formatRuntime,
+  isSeerr,
 }: SearchSuggestionItemProps) {
   const { serverUrl } = useAuth();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
 
-  const imageUrl = `${serverUrl}/Items/${item.Id}/Images/Primary`;
+  const imageUrl = isSeerr
+    ? item.ImageTags?.Primary
+      ? `https://image.tmdb.org/t/p/w200${item.ImageTags.Primary}`
+      : undefined
+    : `${serverUrl}/Items/${item.Id}/Images/Primary`;
 
   // Get blur hash
   const imageTag = item.ImageTags?.Primary;
@@ -76,7 +81,7 @@ export function SearchSuggestionItem({
     >
       {/* Image/Avatar */}
       {item.Type === "Person" ? (
-        <div className="relative size-[43px] flex-shrink-0 rounded-full overflow-hidden">
+        <div className="relative size-10.75 shrink-0 rounded-full overflow-hidden">
           {/* Blur hash placeholder for avatar */}
           {blurDataUrl && !imageLoaded && (
             <div
@@ -89,7 +94,7 @@ export function SearchSuggestionItem({
               }}
             />
           )}
-          <Avatar className="size-[43px] flex-shrink-0 border">
+          <Avatar className="size-10.75 shrink-0 border">
             <AvatarImage
               src={imageUrl}
               alt={item.Name}
@@ -109,7 +114,7 @@ export function SearchSuggestionItem({
         </div>
       ) : (
         <div
-          className={`aspect-[2/3] h-16 bg-muted rounded overflow-hidden flex-shrink-0 relative`}
+          className={`aspect-2/3 h-16 bg-muted rounded overflow-hidden shrink-0 relative`}
         >
           {imageUrl ? (
             <>
@@ -208,9 +213,7 @@ export function SearchSuggestionItem({
                 )}
               {/* Show name of parent show if available */}
               {item.SeriesName && (
-                <span className="truncate max-w-[120px]">
-                  {item.SeriesName}
-                </span>
+                <span className="truncate max-w-30">{item.SeriesName}</span>
               )}
             </div>
           )}
