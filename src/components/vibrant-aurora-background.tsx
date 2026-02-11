@@ -77,7 +77,7 @@ export function VibrantAuroraBackground({
     };
 
     extractColors();
-  }, [posterUrl]);
+  }, [posterUrl, updateColors]);
 
   return (
     <AuroraBackground
