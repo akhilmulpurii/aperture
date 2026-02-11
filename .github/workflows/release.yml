@@ -150,13 +150,34 @@ jobs:
             --generate-notes \
             "${files[@]}"
 
-      - name: GitHub Releases to Discord
-        uses: SethCohen/github-releases-to-discord@v1
-        with:
-          webhook_url: ${{ secrets.WEBHOOK_URL }}
-          color: "2105893"
-          username: "Release Changelog"
-          avatar_url: "https://cdn.discordapp.com/avatars/487431320314576937/bd64361e4ba6313d561d54e78c9e7171.png"
-          content: "||@everyone||"
-          footer_title: "Changelog"
-          reduce_headings: true
+      - name: Notify Discord
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          # Fetch release info
+          # We need to wait a moment for the release to propagate or just retry? 
+          # Usually immediate read is fine.
+          RELEASE_JSON=$(gh release view "$TAG" --json name,url,body)
+
+          # Prepare Payload using jq
+          # Truncate body to 4096 chars to fit Discord limit
+          PAYLOAD=$(echo "$RELEASE_JSON" | jq -c --arg avatar "https://cdn.discordapp.com/avatars/487431320314576937/bd64361e4ba6313d561d54e78c9e7171.png" \
+            '{
+              username: "Release Changelog",
+              avatar_url: $avatar,
+              content: "||@everyone||",
+              embeds: [{
+                title: .name,
+                url: .url,
+                color: 2105893,
+                description: (.body | if length > 4090 then .[0:4090] + "..." else . end),
+                footer: { text: "Changelog" }
+              }]
+            }')
+
+          # Send Webhook
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
