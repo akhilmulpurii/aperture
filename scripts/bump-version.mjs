@@ -66,3 +66,5 @@ const newVersion = bumpVersion(currentVersion, level);
 writeJson(packageJsonPath, (data) => {
   data.version = newVersion;
 });
+
+console.log(newVersion);
