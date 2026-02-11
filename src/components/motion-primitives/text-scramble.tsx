@@ -1,6 +1,6 @@
-'use client';
-import { type JSX, useEffect, useState } from 'react';
-import { motion, MotionProps } from 'motion/react';
+"use client";
+import { type JSX, useCallback, useEffect, useState } from "react";
+import { motion, MotionProps } from "motion/react";
 
 export type TextScrambleProps = {
   children: string;
@@ -14,7 +14,7 @@ export type TextScrambleProps = {
 } & MotionProps;
 
 const defaultChars =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export function TextScramble({
   children,
@@ -22,19 +22,19 @@ export function TextScramble({
   speed = 0.04,
   characterSet = defaultChars,
   className,
-  as: Component = 'p',
+  as: Component = "p",
   trigger = true,
   onScrambleComplete,
   ...props
 }: TextScrambleProps) {
   const MotionComponent = motion.create(
-    Component as keyof JSX.IntrinsicElements
+    Component as keyof JSX.IntrinsicElements,
   );
-  const [displayText, setDisplayText] = useState(children || '');
+  const [displayText, setDisplayText] = useState(children || "");
   const [isAnimating, setIsAnimating] = useState(false);
-  const text = children || '';
+  const text = children || "";
 
-  const scramble = async () => {
+  const scramble = useCallback(async () => {
     if (isAnimating) return;
     setIsAnimating(true);
 
@@ -42,12 +42,12 @@ export function TextScramble({
     let step = 0;
 
     const interval = setInterval(() => {
-      let scrambled = '';
+      let scrambled = "";
       const progress = step / steps;
 
       for (let i = 0; i < text.length; i++) {
-        if (text[i] === ' ') {
-          scrambled += ' ';
+        if (text[i] === " ") {
+          scrambled += " ";
           continue;
         }
 
@@ -69,13 +69,13 @@ export function TextScramble({
         onScrambleComplete?.();
       }
     }, speed * 1000);
-  };
+  }, [text, duration, speed, characterSet, onScrambleComplete, isAnimating]);
 
   useEffect(() => {
     if (!trigger) return;
 
     scramble();
-  }, [trigger]);
+  }, [scramble, trigger]);
 
   return (
     <MotionComponent className={className} {...props}>

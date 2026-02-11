@@ -5,7 +5,6 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "../../ui/form";
 import {
@@ -21,13 +20,9 @@ import { useMemo } from "react";
 
 interface RatingSectionProps {
   ratings: ParentalRating[];
-  isLoadingRatings: boolean;
 }
 
-export function RatingSection({
-  ratings,
-  isLoadingRatings,
-}: RatingSectionProps) {
+export function RatingSection({ ratings }: RatingSectionProps) {
   const form = useFormContext<ParentalControlFormValues>();
 
   const groupedRatings = useMemo(() => {

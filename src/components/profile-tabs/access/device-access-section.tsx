@@ -108,7 +108,7 @@ export function DeviceAccessSection({
         <p className="text-sm text-muted-foreground">
           This only applies to devices that can be uniquely identified and will
           not prevent browser access. Filtering user device access will prevent
-          them from using new devices until they've been approved here.
+          them from using new devices until they&apos;ve been approved here.
         </p>
       </div>
     </div>

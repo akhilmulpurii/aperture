@@ -45,7 +45,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
       .finally(() => {
         setDashboardLoading(false);
       });
-  }, []);
+  }, [setDashboardLoading]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema) as any,
@@ -121,7 +121,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
         });
       }
     }
-  }, [user?.Id, form]); // Only depend on ID, not full object
+  }, [user, form]); // Only depend on ID, not full object
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setDashboardLoading(true);
