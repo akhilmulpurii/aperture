@@ -137,8 +137,8 @@ function Backdrop() {
             />
           </div>
         </div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-black/30 to-black/90 md:rounded-xl" />
-        <div className="absolute bottom-0 left-0 right-0 z-10 h-32 bg-gradient-to-t from-black to-transparent md:rounded-xl" />
+        <div className="absolute inset-0 z-10 bg-linear-to-b from-transparent via-black/30 to-black/90 md:rounded-xl" />
+        <div className="absolute bottom-0 left-0 right-0 z-10 h-32 bg-linear-to-t from-black to-transparent md:rounded-xl" />
 
         {logoImage && (
           <VibrantLogo
@@ -205,7 +205,7 @@ function Poster({ isEpisode = false }: PosterProps) {
 
   if (isEpisode) {
     return (
-      <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 justify-center flex md:block z-50 mt-6">
+      <div className="w-full md:w-1/3 lg:w-1/4 shrink-0 justify-center flex md:block z-50 mt-6">
         <div className="relative aspect-video rounded-lg overflow-hidden shadow-2xl bg-muted max-w-1/2 md:max-w-full mt-16">
           {primaryImage ? (
             <PosterImage
@@ -226,7 +226,7 @@ function Poster({ isEpisode = false }: PosterProps) {
   }
 
   return (
-    <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0 justify-center flex md:block z-50 mt-6">
+    <div className="w-full md:w-1/3 lg:w-1/4 shrink-0 justify-center flex md:block z-50 mt-6">
       <PosterImage
         movie={media}
         posterImage={primaryImage}

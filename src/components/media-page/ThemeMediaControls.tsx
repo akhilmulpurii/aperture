@@ -40,7 +40,7 @@ export const ThemeMediaControls: React.FC<ThemeMediaControlsProps> = ({
             )}
           </button>
 
-          <div className="h-5 w-[1px] bg-white/10" />
+          <div className="h-5 w-px bg-white/10" />
 
           <button
             onClick={toggleMute}
