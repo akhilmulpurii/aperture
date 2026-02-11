@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-    <a href="https://github.com/akhilmulpurii/aperture"><img src="https://github.com/akhilmulpurii/aperture/blob/main/src/assets/logo/icon.png?raw=true" alt="APERTÚRE" width="200"></a>
+    <a href="https://github.com/akhilmulpurii/aperture"><img src="https://github.com/akhilmulpurii/aperture/blob/main/public/assets/logo/icon.png?raw=true" alt="APERTÚRE" width="200"></a>
   <br>
   APERTÚRE
   <br>
