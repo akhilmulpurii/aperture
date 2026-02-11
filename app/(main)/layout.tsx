@@ -4,6 +4,7 @@ import { FullscreenDetector } from "@/src/components/fullscreen-detector";
 import { LayoutContent } from "@/src/components/layout-content";
 import { useAuth } from "@/src/hooks/useAuth";
 import { PlaybackProvider } from "@/src/playback/context/PlaybackProvider";
+import { SeerrProvider } from "@/src/contexts/seerr-context";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -24,8 +25,10 @@ export default function MainLayout({
   return (
     <JotaiProvider>
       <PlaybackProvider>
-        <FullscreenDetector />
-        <LayoutContent>{children}</LayoutContent>
+        <SeerrProvider>
+          <FullscreenDetector />
+          <LayoutContent>{children}</LayoutContent>
+        </SeerrProvider>
       </PlaybackProvider>
     </JotaiProvider>
   );

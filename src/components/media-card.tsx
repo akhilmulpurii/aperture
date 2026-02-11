@@ -85,7 +85,7 @@ export const MediaCard = React.memo(function MediaCard({
       ? "maxHeight=324&maxWidth=576"
       : "maxHeight=432&maxWidth=288";
     return `${serverUrl}/Items/${imageItemId}/Images/${imageType}?${sizeParams}&quality=100`;
-  }, [continueWatching, imageItemId, imageType, serverUrl]);
+  }, [continueWatching, imageItemId, imageType, serverUrl, item]);
 
   const imageTag =
     itemType === "Episode"

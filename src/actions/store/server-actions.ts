@@ -15,6 +15,17 @@ export interface AuthData {
   timestamp: number;
 }
 
+export type SeerrAuthType = "api-key" | "jellyfin-user" | "local-user";
+
+export type SeerrAuthData =
+  | { authType: "api-key"; serverUrl: string; apiKey: string }
+  | {
+      authType: "jellyfin-user" | "local-user";
+      serverUrl: string;
+      username: string;
+      password: string;
+    };
+
 // --- StoreServerURL actions ---
 const SERVER_URL_KEY = "jellyfin-server-url";
 
@@ -76,4 +87,28 @@ export async function getAuthData(): Promise<AuthData | null> {
 
 export async function removeAuthData() {
   (await cookies()).delete(AUTH_DATA_KEY);
+}
+
+// --- StoreSeerrData actions ---
+const SEERR_DATA_KEY = "seerr-config";
+
+export async function setSeerrData(value: SeerrAuthData) {
+  (await cookies()).set(SEERR_DATA_KEY, JSON.stringify(value));
+}
+
+export async function getSeerrData(): Promise<SeerrAuthData | null> {
+  const cookieStore = await cookies();
+  const val = cookieStore.get(SEERR_DATA_KEY);
+  if (!val || !val.value) return null;
+
+  try {
+    const parsed = JSON.parse(val.value);
+    return parsed as SeerrAuthData;
+  } catch {
+    return null;
+  }
+}
+
+export async function removeSeerrData() {
+  (await cookies()).delete(SEERR_DATA_KEY);
 }

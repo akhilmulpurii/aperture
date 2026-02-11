@@ -28,18 +28,24 @@ interface Item {
 interface SearchSuggestionItemProps {
   item: Item;
   onClick: () => void;
-  formatRuntime: (runTimeTicks?: number) => string | null;
+  formatRuntime?: (runTimeTicks?: number) => string | null;
+  isSeerr?: boolean;
 }
 
 export function SearchSuggestionItem({
   item,
   onClick,
+  isSeerr,
 }: SearchSuggestionItemProps) {
   const { serverUrl } = useAuth();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
 
-  const imageUrl = `${serverUrl}/Items/${item.Id}/Images/Primary`;
+  const imageUrl = isSeerr
+    ? item.ImageTags?.Primary
+      ? `https://image.tmdb.org/t/p/w200${item.ImageTags.Primary}`
+      : undefined
+    : `${serverUrl}/Items/${item.Id}/Images/Primary`;
 
   // Get blur hash
   const imageTag = item.ImageTags?.Primary;

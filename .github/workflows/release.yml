@@ -47,7 +47,7 @@ jobs:
             exit 1
           fi
 
-          git add package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock
+          git add package.json
           git commit -m "chore: release ${TAG} [skip release]"
           git tag "${TAG}"
           git push origin HEAD:${GITHUB_REF_NAME}
