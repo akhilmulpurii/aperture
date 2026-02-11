@@ -1,6 +1,5 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { MediaSourceInfo } from "../types/jellyfin";
 
 // Global loading state for dashboard
 export const dashboardLoadingAtom = atom(false);
@@ -17,7 +16,6 @@ export const isTauriFullscreenAtom = atom((get) => {
 });
 
 // Media Player state - REMOVED
-
 
 // Aurora background colors with transition support
 export const auroraColorsAtom = atom<string[]>([
@@ -39,7 +37,7 @@ export const updateAuroraColorsAtom = atom(
     const currentColors = get(auroraColorsAtom);
     set(previousAuroraColorsAtom, currentColors);
     set(auroraColorsAtom, newColors);
-  }
+  },
 );
 
 export interface ThemePresetSelection {
@@ -54,5 +52,5 @@ const defaultThemeSelection: ThemePresetSelection = {
 
 export const themeSelectionAtom = atomWithStorage<ThemePresetSelection>(
   "aperture-dashboard-theme",
-  defaultThemeSelection
+  defaultThemeSelection,
 );
