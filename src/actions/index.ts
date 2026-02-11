@@ -86,7 +86,6 @@ export {
   createUser,
   deleteUser,
 } from "./utils";
-export { discoverLocalServer } from "./discovery";
 export {
   fetchDashboardGeneralData,
   updateDashboardConfiguration,
