@@ -1,11 +1,11 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
-import { Link } from "react-router-dom";
 import { Play } from "lucide-react";
 import { decode } from "blurhash";
 import { usePlayback } from "../hooks/usePlayback";
 import { OptimizedImage } from "./optimized-image";
+import Link from "next/link";
 
 type MediaCardProps = {
   item: BaseItemDto;
@@ -212,12 +212,6 @@ export const MediaCard = React.memo(function MediaCard({
     setImageLoaded(true);
   }, []);
 
-  const imageRef = useCallback((img: HTMLImageElement | null) => {
-    if (img && img.complete && img.naturalHeight !== 0) {
-      setImageLoaded(true);
-    }
-  }, []);
-
   return (
     <div
       className={`cursor-pointer group overflow-hidden transition select-none ${cardWidthClass}`}
@@ -225,7 +219,7 @@ export const MediaCard = React.memo(function MediaCard({
       <div
         className={`relative w-full border rounded-md overflow-hidden active:scale-[0.98] transition ${aspectClass}`}
       >
-        <Link to={linkHref} draggable={false} className="block w-full h-full">
+        <Link href={linkHref} draggable={false} className="block w-full h-full">
           {canShowImage ? (
             <>
               {/* Blur hash placeholder handled internally by OptimizedImage or redundant if strict lazy load preferred.
@@ -294,7 +288,7 @@ export const MediaCard = React.memo(function MediaCard({
           </div>
         )}
       </div>
-      <Link to={linkHref} draggable={false}>
+      <Link href={linkHref} draggable={false}>
         <div className="px-1">
           <div className="mt-2.5 text-sm font-medium text-foreground truncate group-hover:underline">
             {item.Name}

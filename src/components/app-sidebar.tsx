@@ -1,10 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom"; // for React Router
 import Logo from "../assets/logo/icon.png";
 import dashboardLinksConfig from "../config/sidebar/dashboard-links.json";
-
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +13,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   useSidebar,
   SidebarMenuSub,
   SidebarMenuSubItem,
@@ -68,6 +64,8 @@ import {
   FastForward,
 } from "lucide-react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 interface JellyfinLibrary {
   Id: string;
@@ -84,7 +82,7 @@ export function AppSidebar({
   isTauriFullscreen: boolean;
 }) {
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
@@ -148,7 +146,7 @@ export function AppSidebar({
 
   const handleLogout = async () => {
     // logout() already handles the redirect
-    await logout(navigate);
+    await logout(router.push);
   };
 
   const getLibraryIcon = (collectionType: string) => {
@@ -219,7 +217,7 @@ export function AppSidebar({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               asChild
             >
-              <Link to="/">
+              <Link href="/">
                 <div className="text-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <img src={Logo} alt="Apertúre Logo" className="rounded" />
                 </div>
@@ -246,7 +244,7 @@ export function AppSidebar({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/" onClick={() => setOpenMobile(false)}>
+                  <Link href="/" onClick={() => setOpenMobile(false)}>
                     <Home className="h-4 w-4" />
                     <span>Home</span>
                   </Link>
@@ -274,7 +272,7 @@ export function AppSidebar({
                             <SidebarMenuSubItem key={library.Id}>
                               <SidebarMenuSubButton asChild>
                                 <Link
-                                  to={
+                                  href={
                                     library.CollectionType !== "livetv"
                                       ? `/library/${library.Id}`
                                       : `/livetv/`
@@ -295,7 +293,7 @@ export function AppSidebar({
 
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/settings" onClick={() => setOpenMobile(false)}>
+                  <Link href="/settings" onClick={() => setOpenMobile(false)}>
                     <Settings2 className="h-4 w-4" />
                     <span>Settings</span>
                   </Link>
@@ -344,7 +342,7 @@ export function AppSidebar({
                                         <SidebarMenuSubItem key={item.name}>
                                           <SidebarMenuSubButton asChild>
                                             <Link
-                                              to={item.url}
+                                              href={item.url}
                                               onClick={() =>
                                                 setOpenMobile(false)
                                               }
@@ -366,7 +364,7 @@ export function AppSidebar({
                             <SidebarMenuSubItem key={section.name}>
                               <SidebarMenuSubButton asChild>
                                 <Link
-                                  to={section.url}
+                                  href={section.url}
                                   onClick={() => setOpenMobile(false)}
                                 >
                                   {getDashboardIcon(section.name)}

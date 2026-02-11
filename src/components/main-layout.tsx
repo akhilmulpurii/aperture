@@ -2,30 +2,30 @@
 import { JotaiProvider } from "../components/jotai-provider";
 import { FullscreenDetector } from "../components/fullscreen-detector";
 import { LayoutContent } from "../components/layout-content";
-import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { PlaybackProvider } from "../playback/context/PlaybackProvider";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
-export default function MainLayout() {
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
-  // While loading, you can render a loader
-  if (isLoading) {
-    return;
-  }
-
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   return (
     <JotaiProvider>
       <PlaybackProvider>
         <FullscreenDetector />
-        <LayoutContent>
-          <Outlet />
-        </LayoutContent>
+        <LayoutContent>{children}</LayoutContent>
       </PlaybackProvider>
     </JotaiProvider>
   );

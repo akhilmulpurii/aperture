@@ -13,8 +13,8 @@ import * as Kbd from "../components/ui/kbd";
 import { TextShimmer } from "./motion-primitives/text-shimmer";
 import { useAuth } from "../hooks/useAuth";
 import { SidebarTrigger } from "../components/ui/sidebar";
-import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "../hooks/use-mobile";
+import { useRouter } from "next/router";
 
 interface SearchBarProps {
   className?: string;
@@ -25,7 +25,7 @@ export function SearchBar({ className = "" }: SearchBarProps) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const isPlayerVisible = false;
   // Server actions are imported directly
@@ -137,7 +137,7 @@ export function SearchBar({ className = "" }: SearchBarProps) {
     e.preventDefault();
     if (searchQuery.trim()) {
       setShowSuggestions(false);
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -152,15 +152,15 @@ export function SearchBar({ className = "" }: SearchBarProps) {
   const handleSuggestionClick = (item: any) => {
     setShowSuggestions(false);
     if (item.Type === "Movie") {
-      navigate(`/movie/${item.Id}`);
+      router.push(`/movie/${item.Id}`);
     } else if (item.Type === "Series") {
       // Assuming a series page exists at /series/[id]
-      navigate(`/series/${item.Id}`);
+      router.push(`/series/${item.Id}`);
     } else if (item.Type === "Person") {
-      navigate(`/person/${item.Id}`);
+      router.push(`/person/${item.Id}`);
     } else if (item.Type === "Episode") {
       // For episodes, navigate to the search page for now as SeriesId is not directly available
-      navigate(`/search?q=${encodeURIComponent(item.Name)}`);
+      router.push(`/search?q=${encodeURIComponent(item.Name)}`);
     }
   };
 

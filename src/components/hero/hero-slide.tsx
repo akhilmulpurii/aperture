@@ -2,12 +2,12 @@
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models/base-item-dto";
 import { Play, Info } from "lucide-react";
 import { usePlayback } from "../../hooks/usePlayback";
-import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { useEffect, useState } from "react";
 import { decode } from "blurhash";
 import { OptimizedImage } from "../optimized-image";
+import { useRouter } from "next/router";
 
 interface HeroSlideProps {
   item: BaseItemDto;
@@ -16,7 +16,7 @@ interface HeroSlideProps {
 
 export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
   const { play } = usePlayback();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
@@ -74,10 +74,10 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
 
   const handleDetails = () => {
     const type = item.Type?.toLowerCase();
-    if (type === "movie") navigate(`/movie/${item.Id}`);
-    else if (type === "series") navigate(`/series/${item.Id}`);
-    else if (type === "episode") navigate(`/episode/${item.Id}`);
-    else if (type === "season") navigate(`/season/${item.Id}`);
+    if (type === "movie") router.push(`/movie/${item.Id}`);
+    else if (type === "series") router.push(`/series/${item.Id}`);
+    else if (type === "episode") router.push(`/episode/${item.Id}`);
+    else if (type === "season") router.push(`/season/${item.Id}`);
   };
 
   return (

@@ -1,5 +1,4 @@
 "use client";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AuroraBackground } from "./aurora-background";
 import { SearchBar } from "./search-component";
 import _ from "lodash";
@@ -10,31 +9,37 @@ import { useAtomValue } from "jotai";
 import { dashboardLoadingAtom } from "../lib/atoms";
 import { StoreAuthData } from "../actions/store/store-auth-data";
 import { toast } from "sonner";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
-export default function DashboardLayout() {
-  let location = useLocation();
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
   const isLoading = useAtomValue(dashboardLoadingAtom);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const route = useMemo(() => {
     const regex = /\/dashboard\/(.*?)(?=\/|$)/;
-    const match = location.pathname.match(regex);
+    const match = pathname.match(regex);
     return match ? match[1] : "dashboard";
-  }, [location.pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     const validateAdministrator = async () => {
       const authData = await StoreAuthData.get();
-      // @ts-ignore
+      // @ts-expect-error - TypeScript is complaining about the structure of authData, but we know it has the necessary properties
       if (authData?.user?.Policy?.IsAdministrator) {
         // Do nothing
       } else {
         toast.error("You are not authorized to access this page");
-        navigate("/");
+        router.push("/");
       }
     };
     validateAdministrator();
-  }, [location.pathname]);
+  }, [pathname, router]);
 
   return (
     <div className="relative px-3 sm:px-6 xl:px-8 py-6 max-w-full overflow-hidden">
@@ -61,7 +66,7 @@ export default function DashboardLayout() {
           )}
         </div>
         <div className="mx-auto w-full max-w-none 2xl:max-w-[1400px]">
-          <Outlet />
+          {children}
         </div>
       </div>
     </div>

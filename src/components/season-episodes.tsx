@@ -22,7 +22,9 @@ import { Button } from "../components/ui/button";
 import { formatRuntime } from "../lib/utils";
 import { useAuth } from "../hooks/useAuth";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface SeasonEpisodesProps {
   showId: string;
@@ -104,8 +106,8 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const { serverUrl } = useAuth();
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Extract current episode ID from pathname if we're on an episode page
   const currentEpisodeId = pathname.startsWith("/episode/")
@@ -289,7 +291,7 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
             onValueChange={(seasonId) => {
               if (isOnSeasonPage) {
                 // Navigate to the new season page
-                navigate(`/season/${seasonId}`);
+                router.push(`/season/${seasonId}`);
               } else {
                 // Just update the selected season for series pages
                 setSelectedSeasonId(seasonId);
@@ -406,7 +408,7 @@ const EpisodeCard = React.memo(function EpisodeCard({
 
   return (
     <div className={`shrink-0 w-72 group`} data-episode-id={episode.Id}>
-      <Link to={`/episode/${episode.Id}`} className="block" draggable={false}>
+      <Link href={`/episode/${episode.Id}`} className="block" draggable={false}>
         <div className="space-y-3 py-2">
           {/* Episode Thumbnail */}
           <div
