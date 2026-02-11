@@ -7,16 +7,6 @@ export const dashboardLoadingAtom = atom(false);
 // Fullscreen state
 export const isFullscreenAtom = atom(false);
 
-// Electron state
-export const isTauriMacAtom = atom(false);
-export const isTauriFullscreenAtom = atom((get) => {
-  const isElectronMac = get(isTauriMacAtom);
-  const isFullscreen = get(isFullscreenAtom);
-  return isElectronMac && isFullscreen;
-});
-
-// Media Player state - REMOVED
-
 // Aurora background colors with transition support
 export const auroraColorsAtom = atom<string[]>([
   "#AA5CC3",

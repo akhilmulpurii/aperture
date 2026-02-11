@@ -67,13 +67,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-export function AppSidebar({
-  isTauriMac,
-  isTauriFullscreen,
-}: {
-  isTauriMac: boolean;
-  isTauriFullscreen: boolean;
-}) {
+export function AppSidebar() {
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -198,7 +192,7 @@ export function AppSidebar({
     <Sidebar
       variant="floating"
       collapsible="icon"
-      className={`${isTauriMac && !isTauriFullscreen ? "pt-10" : ""} z-20`}
+      className={`z-20`}
       onMouseEnter={() => !isMobile && setOpen(true)}
       onMouseLeave={() => !isMobile && setOpen(false)}
     >
