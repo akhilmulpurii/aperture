@@ -26,7 +26,7 @@ export type TrickplayThumbnail = {
 
 const buildTrickplayConfig = (
   item: JellyfinItem,
-  options: { source?: MediaSourceInfo | null; fallbackItemId?: string }
+  options: { source?: MediaSourceInfo | null; fallbackItemId?: string },
 ): TrickplayConfig | null => {
   const manifest = (
     item as JellyfinItem & {
@@ -40,7 +40,7 @@ const buildTrickplayConfig = (
   }
 
   const availableSources = Object.entries(manifest).filter(
-    ([, widthMap]) => widthMap && Object.keys(widthMap).length > 0
+    ([, widthMap]) => widthMap && Object.keys(widthMap).length > 0,
   );
 
   if (availableSources.length === 0) {
@@ -65,7 +65,7 @@ const buildTrickplayConfig = (
     }))
     .filter(
       (entry): entry is { info: TrickplayInfo; numericWidth: number } =>
-        !!entry.info && !!entry.numericWidth && entry.numericWidth > 0
+        !!entry.info && !!entry.numericWidth && entry.numericWidth > 0,
     );
 
   if (widthEntries.length === 0) {
@@ -177,7 +177,7 @@ export const useTrickplay = () => {
         activeConfig.itemId,
         activeConfig.width,
         tileIndex,
-        activeConfig.mediaSourceId
+        activeConfig.mediaSourceId,
       )
         .then((url) => {
           if (!url) {
@@ -189,21 +189,21 @@ export const useTrickplay = () => {
         .catch((error) => {
           console.warn(
             `Unable to load trickplay tile ${tileIndex} for ${activeConfig.itemId}`,
-            error
+            error,
           );
         })
         .finally(() => {
           pendingTilesRef.current.delete(tileIndex);
         });
     },
-    []
+    [],
   );
 
   const initializeTrickplay = useCallback(
     (
       item: JellyfinItem,
       source: MediaSourceInfo | null,
-      fallbackId?: string
+      fallbackId?: string,
     ) => {
       clearSprites();
       const nextConfig = buildTrickplayConfig(item, {
@@ -215,7 +215,7 @@ export const useTrickplay = () => {
         queueTile(0, nextConfig);
       }
     },
-    [clearSprites, queueTile]
+    [clearSprites, queueTile],
   );
 
   const resetTrickplay = useCallback(() => {
@@ -243,7 +243,14 @@ export const useTrickplay = () => {
       const frameWithinTile = frameIndex - tileIndex * tilesPerImage;
       const column = frameWithinTile % config.tileWidth;
       const row = Math.floor(frameWithinTile / config.tileWidth);
-
+      console.log(
+        "Cache Buster:",
+        cacheBuster,
+        "Tile Index:",
+        tileIndex,
+        "Frame Index:",
+        frameIndex,
+      );
       return {
         src: spriteUrl,
         coords: [
@@ -254,7 +261,7 @@ export const useTrickplay = () => {
         ],
       };
     },
-    [config, queueTile, cacheBuster]
+    [config, queueTile, cacheBuster],
   );
 
   return {
