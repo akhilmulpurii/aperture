@@ -1,3 +1,4 @@
+"use client";
 import { useFieldArray, useWatch, UseFormReturn } from "react-hook-form";
 import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";

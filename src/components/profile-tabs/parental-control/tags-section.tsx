@@ -1,3 +1,4 @@
+"use client";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -22,7 +23,7 @@ export function TagsSection() {
     e: React.KeyboardEvent<HTMLInputElement>,
     field: any,
     inputValue: string,
-    setInputValue: (val: string) => void
+    setInputValue: (val: string) => void,
   ) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
@@ -73,7 +74,12 @@ export function TagsSection() {
                     value={allowedTagInput}
                     onChange={(e) => setAllowedTagInput(e.target.value)}
                     onKeyDown={(e) =>
-                      handleKeyDown(e, field, allowedTagInput, setAllowedTagInput)
+                      handleKeyDown(
+                        e,
+                        field,
+                        allowedTagInput,
+                        setAllowedTagInput,
+                      )
                     }
                   />
                 </FormControl>
@@ -118,7 +124,12 @@ export function TagsSection() {
                     value={blockedTagInput}
                     onChange={(e) => setBlockedTagInput(e.target.value)}
                     onKeyDown={(e) =>
-                      handleKeyDown(e, field, blockedTagInput, setBlockedTagInput)
+                      handleKeyDown(
+                        e,
+                        field,
+                        blockedTagInput,
+                        setBlockedTagInput,
+                      )
                     }
                   />
                 </FormControl>

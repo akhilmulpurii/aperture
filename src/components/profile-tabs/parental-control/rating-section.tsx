@@ -1,3 +1,4 @@
+"use client";
 import { useFormContext } from "react-hook-form";
 import {
   FormControl,
@@ -30,16 +31,19 @@ export function RatingSection({
   const form = useFormContext<ParentalControlFormValues>();
 
   const groupedRatings = useMemo(() => {
-    return ratings.reduce((acc, rating) => {
-      const value = rating.Value;
-      const existing = acc.find((r) => r.value === value);
-      if (existing) {
-        existing.names.push(rating.Name || "");
-      } else {
-        acc.push({ value: value, names: [rating.Name || ""] });
-      }
-      return acc;
-    }, [] as { value: number | null | undefined; names: string[] }[]);
+    return ratings.reduce(
+      (acc, rating) => {
+        const value = rating.Value;
+        const existing = acc.find((r) => r.value === value);
+        if (existing) {
+          existing.names.push(rating.Name || "");
+        } else {
+          acc.push({ value: value, names: [rating.Name || ""] });
+        }
+        return acc;
+      },
+      [] as { value: number | null | undefined; names: string[] }[],
+    );
   }, [ratings]);
 
   return (

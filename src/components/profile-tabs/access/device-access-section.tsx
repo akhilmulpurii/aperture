@@ -1,10 +1,6 @@
+"use client";
 import { useFormContext, useWatch } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "../../ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "../../ui/form";
 import { Checkbox } from "../../ui/checkbox";
 import { DeviceInfoDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { AccessFormValues } from "./schema";
@@ -89,8 +85,8 @@ export function DeviceAccessSection({
                                 } else {
                                   field.onChange(
                                     currentValue.filter(
-                                      (value: string) => value !== deviceId
-                                    )
+                                      (value: string) => value !== deviceId,
+                                    ),
                                   );
                                 }
                               }}

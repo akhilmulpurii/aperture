@@ -1,3 +1,4 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { UserDto } from "@jellyfin/sdk/lib/generated-client/models";
@@ -35,7 +36,7 @@ export default function PasswordTab({ user }: { user?: UserDto }) {
       await changeUserPassword(
         data.CurrentPassword || undefined,
         data.NewPassword,
-        user.Id
+        user.Id,
       );
       toast.success("Password updated successfully");
       form.reset();
@@ -43,7 +44,11 @@ export default function PasswordTab({ user }: { user?: UserDto }) {
       console.error("Failed to update password:", error);
       const errorMessage =
         error?.response?.data || error.message || "Failed to update password";
-      toast.error(typeof errorMessage === "string" ? errorMessage : "Failed to update password");
+      toast.error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : "Failed to update password",
+      );
     }
   }
 
@@ -57,7 +62,11 @@ export default function PasswordTab({ user }: { user?: UserDto }) {
       console.error("Failed to reset password:", error);
       const errorMessage =
         error?.response?.data || error.message || "Failed to reset password";
-      toast.error(typeof errorMessage === "string" ? errorMessage : "Failed to reset password");
+      toast.error(
+        typeof errorMessage === "string"
+          ? errorMessage
+          : "Failed to reset password",
+      );
     } finally {
       setIsResetting(false);
     }
@@ -73,7 +82,7 @@ export default function PasswordTab({ user }: { user?: UserDto }) {
           <h3 className="text-lg font-semibold text-foreground">
             Change Password
           </h3>
-          
+
           <FormField
             control={form.control}
             name="CurrentPassword"

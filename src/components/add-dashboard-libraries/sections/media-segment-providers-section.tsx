@@ -1,3 +1,4 @@
+"use client";
 import { FormField } from "@/src/components/ui/form";
 import { ReorderableList } from "@/src/components/reorderable-list";
 import { UseFormReturn } from "react-hook-form";

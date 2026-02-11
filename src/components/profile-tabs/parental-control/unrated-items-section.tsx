@@ -1,10 +1,6 @@
+"use client";
 import { useFormContext } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "../../ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "../../ui/form";
 import { Checkbox } from "../../ui/checkbox";
 import { ParentalControlFormValues } from "./schema";
 import { UnratedItem } from "@jellyfin/sdk/lib/generated-client/models";
@@ -48,8 +44,8 @@ export function UnratedItemsSection() {
                         } else {
                           field.onChange(
                             currentValue.filter(
-                              (value: string) => value !== item.value
-                            )
+                              (value: string) => value !== item.value,
+                            ),
                           );
                         }
                       }}
