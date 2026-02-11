@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Logo from "../assets/logo/icon.png";
+import { useState, useEffect } from "react";
 import dashboardLinksConfig from "../config/sidebar/dashboard-links.json";
 import {
   Sidebar,
@@ -66,13 +65,7 @@ import {
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-interface JellyfinLibrary {
-  Id: string;
-  Name: string;
-  CollectionType: string;
-  ItemCount?: number;
-}
+import Image from "next/image";
 
 export function AppSidebar({
   isTauriMac,
@@ -219,7 +212,13 @@ export function AppSidebar({
             >
               <Link href="/">
                 <div className="text-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <img src={Logo} alt="Apertúre Logo" className="rounded" />
+                  <Image
+                    src={"/assets/logo/icon.png"}
+                    alt="Apertúre Logo"
+                    className="rounded"
+                    width={32}
+                    height={32}
+                  />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Apertúre</span>
@@ -399,7 +398,7 @@ export function AppSidebar({
                     <img
                       src={avatarUrl}
                       alt="Avatar"
-                      className="aspect-square object-cover size-8 rounded-lg border-[1px]"
+                      className="aspect-square object-cover size-8 rounded-lg border"
                     />
                   ) : (
                     <div className="text-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-primary p-2">

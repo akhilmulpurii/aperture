@@ -30,21 +30,18 @@ export {
   fetchLiveTVItems,
   fetchSimilarItems,
   fetchMovieByCollection,
+  fetchSeasons,
+  fetchEpisodes,
+  fetchTVShowDetails,
+  fetchEpisodeDetails,
   scanLibrary,
   markFavorite,
   unmarkFavorite,
   fetchVirtualFolders,
   removeVirtualFolder,
   renameVirtualFolder,
+  getNextEpisodeForSeries,
 } from "./media";
-
-// TV show actions
-export {
-  fetchSeasons,
-  fetchEpisodes,
-  fetchTVShowDetails,
-  fetchEpisodeDetails,
-} from "./tv-shows";
 
 // Search actions
 export { searchItems, searchPeople } from "./search";

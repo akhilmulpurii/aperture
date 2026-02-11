@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Badge } from "../components/ui/badge";
 import { Skeleton } from "../components/ui/skeleton";
 import {
@@ -15,16 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { fetchSeasons, fetchEpisodes } from "../actions/tv-shows";
-import { getImageUrl } from "../actions/utils";
-import { Play, Clock, Star } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { fetchSeasons, fetchEpisodes } from "../actions";
+import { Play, Star } from "lucide-react";
 import { formatRuntime } from "../lib/utils";
 import { useAuth } from "../hooks/useAuth";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 interface SeasonEpisodesProps {
   showId: string;
@@ -103,7 +96,6 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [episodesLoading, setEpisodesLoading] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const { serverUrl } = useAuth();
   const pathname = usePathname();
@@ -285,7 +277,7 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
   return (
     <div className="mt-8">
       <div className="flex items-center gap-4 mb-6">
-        <div className="relative z-[99]">
+        <div className="relative z-99">
           <Select
             value={selectedSeasonId}
             onValueChange={(seasonId) => {
@@ -301,7 +293,7 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select season" />
             </SelectTrigger>
-            <SelectContent className="z-[99]">
+            <SelectContent className="z-99">
               {seasons.map((season) => (
                 <SelectItem key={season.Id} value={season.Id}>
                   {season.Name || `Season ${season.IndexNumber || 1}`}
@@ -367,7 +359,6 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
               <EpisodeCard
                 key={episode.Id}
                 episode={episode}
-                showId={showId}
                 serverUrl={serverUrl!}
                 currentEpisodeId={currentEpisodeId}
               />
@@ -382,12 +373,10 @@ export const SeasonEpisodes = React.memo(function SeasonEpisodes({
 
 const EpisodeCard = React.memo(function EpisodeCard({
   episode,
-  showId,
   serverUrl,
   currentEpisodeId,
 }: {
   episode: Episode;
-  showId: string;
   serverUrl: string;
   currentEpisodeId: string | null;
 }) {
@@ -421,7 +410,7 @@ const EpisodeCard = React.memo(function EpisodeCard({
             {imageUrl ? (
               <img
                 src={imageUrl}
-                // alt={episode.Name || "Episode"}
+                alt={episode.Name || "Episode"}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
@@ -454,12 +443,12 @@ const EpisodeCard = React.memo(function EpisodeCard({
 
           {/* Episode Info */}
           <div className="space-y-2">
-            <h3 className="font-semibold text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors break-words pt-1">
+            <h3 className="font-semibold text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors wrap-break-word pt-1">
               {episode.Name || "Untitled Episode"}
             </h3>
 
             {episode.Overview && (
-              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 break-words">
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 wrap-break-word">
                 {episode.Overview}
               </p>
             )}
