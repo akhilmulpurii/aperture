@@ -57,7 +57,11 @@ export function SearchBar({ className = "" }: SearchBarProps) {
       if (
         data &&
         data.serverUrl &&
-        (data.apiKey || (data.username && data.password))
+        ((data.authType === "api-key" && data.apiKey) ||
+          ((data.authType === "jellyfin-user" ||
+            data.authType === "local-user") &&
+            data.username &&
+            data.password))
       ) {
         setIsSeerrConnected(true);
       }
