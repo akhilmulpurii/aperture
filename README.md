@@ -57,25 +57,19 @@ Join Discord Community - [Discord Invite](https://discord.gg/VncWf3u2)
 
 Special Thanks to **[@AyaanZaveri](https://github.com/AyaanZaveri)**, this is based on his work on finetic, but I am building it upon my personal preferences.
 
-### 🔹 Core Features & History (v1.0 - v1.1)
+### 🔹 Hero Features
 
 - **Rich Media Experience** – Native support for **Video Backdrops**, **Theme Songs**, and **Trickplay** thumbnails.
 - **Smart Connectivity** – **Quick Connect** login support and intelligent **Direct Play/Transcoding** selection.
 - **Advanced Library Support** – Integrated support for **Collections (Box Sets)** and Live TV (WIP).
 - **Theming** – Multiple theme variations including "Cinematic Theatre Black".
-
-### 🔹 Version 1.2.x Changes (New)
-
-_This milestone serves as a major foundational update, focusing on essential playback improvements and a significantly polished user experience._
-
 - **Redesigned Playback Engine** – A seamless, rebuilt playback subsystem aligned with Jellyfin best practices for reliable and smooth streaming.
 - **Hero Media Bar** – A new, visually striking "Hero" section at the top of the interface to showcase your highlighted content.
 - **Smart Episodic Features** – Native support for **Intro and Outro skipping** to make binge-watching effortless (requires the [Intro Skipper plugin](https://github.com/intro-skipper/intro-skipper) on your server).
-- **Improved Audio Control** – You can now easily select your preferred **Audio Stream** directly from the media details page.
 - **Mini Player** – Keep watching your content while browsing the rest of your library with the new Picture-in-Picture mode.
 - ~~**Better Connectivity** – Added **Local Network Discovery** and saved server preferences to make connecting (and staying connected) easier.~~ **Note: Removed this due to inaccuracy**
 - **Refined Startup** – A proper **Splash Screen** now handles initialization, ensuring the app launches smoothly and efficiently every time.
-
+- **Seerr Integration** - Built-in support to integrate Jellyseerr or Overseerr, Once connected, requests can be made directly on the discover page or using the existing search component.
 ---
 
 ## 🧠 Built With
@@ -83,7 +77,7 @@ _This milestone serves as a major foundational update, focusing on essential pla
 - **Frontend**: Next.js, TypeScript
 - **Styling**: Tailwind v4, shadcn/ui, Framer Motion
 - **State Management**: Jotai
-- **Media Backend**: Jellyfin Server API
+- **Media Backend**: Jellyfin Server API, Seerr OpenAPI
 
 ---
 
