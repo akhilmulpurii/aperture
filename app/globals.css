@@ -119,13 +119,13 @@
   --chart-3: #14b8a6;
   --chart-4: #f97316;
   --chart-5: #facc15;
-  --sidebar: rgba(255, 255, 255, 0.95);
+  --sidebar: rgba(71, 85, 105, 0.12);
   --sidebar-foreground: #0f172a;
   --sidebar-primary: #475569;
   --sidebar-primary-foreground: #f8fafc;
   --sidebar-accent: rgba(226, 232, 240, 0.9);
   --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: rgba(148, 163, 184, 0.4);
+  --sidebar-border: rgba(148, 163, 184, 0.2);
   --sidebar-ring: #475569;
   --color-1: #475569;
   --color-2: #0ea5e9;
@@ -170,13 +170,13 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar: oklch(0.141 0.005 285.823 / 0.4);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.546 0.245 262.881);
   --sidebar-primary-foreground: oklch(0.379 0.146 265.522);
   --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: oklch(0.488 0.243 264.376);
   --color-1: oklch(66.2% 0.225 25.9);
   --color-2: oklch(60.4% 0.26 302);
@@ -215,13 +215,13 @@
   --chart-3: #c084fc;
   --chart-4: #fb7185;
   --chart-5: #facc15;
-  --sidebar: rgba(5, 0, 19, 0.85);
+  --sidebar: rgba(244, 114, 182, 0.08);
   --sidebar-foreground: #fdf2ff;
   --sidebar-primary: #f472b6;
   --sidebar-primary-foreground: #160021;
   --sidebar-accent: rgba(96, 165, 250, 0.2);
   --sidebar-accent-foreground: #e0f2fe;
-  --sidebar-border: rgba(244, 114, 182, 0.2);
+  --sidebar-border: rgba(244, 114, 182, 0.12);
   --sidebar-ring: #f472b6;
   --color-1: #f472b6;
   --color-2: #60a5fa;
@@ -254,13 +254,13 @@
   --chart-3: #facc15;
   --chart-4: #f97316;
   --chart-5: #a16207;
-  --sidebar: rgba(1, 12, 8, 0.92);
+  --sidebar: rgba(34, 197, 94, 0.08);
   --sidebar-foreground: #f4fce3;
   --sidebar-primary: #22c55e;
   --sidebar-primary-foreground: #031407;
   --sidebar-accent: rgba(6, 32, 23, 0.85);
   --sidebar-accent-foreground: #d9f99d;
-  --sidebar-border: rgba(34, 197, 94, 0.25);
+  --sidebar-border: rgba(34, 197, 94, 0.12);
   --sidebar-ring: #facc15;
   --color-1: #22c55e;
   --color-2: #16a34a;
@@ -293,13 +293,13 @@
   --chart-3: #a16207;
   --chart-4: #facc15;
   --chart-5: #fb7185;
-  --sidebar: rgba(3, 3, 6, 0.92);
+  --sidebar: rgba(249, 115, 22, 0.08);
   --sidebar-foreground: #f8fafc;
   --sidebar-primary: rgba(249, 115, 22, 0.9);
   --sidebar-primary-foreground: #1a0f05;
   --sidebar-accent: rgba(15, 15, 20, 0.85);
   --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-border: rgba(249, 115, 22, 0.12);
   --sidebar-ring: rgba(249, 115, 22, 0.4);
   --color-1: #f97316;
   --color-2: #f59e0b;
@@ -332,13 +332,13 @@
   --chart-3: #c026d3;
   --chart-4: #fb7185;
   --chart-5: #22c55e;
-  --sidebar: rgba(255, 255, 255, 0.85);
+  --sidebar: rgba(249, 115, 22, 0.12);
   --sidebar-foreground: #431407;
   --sidebar-primary: #f97316;
   --sidebar-primary-foreground: #431407;
   --sidebar-accent: rgba(254, 215, 170, 0.85);
   --sidebar-accent-foreground: #7c2d12;
-  --sidebar-border: rgba(249, 115, 22, 0.25);
+  --sidebar-border: rgba(249, 115, 22, 0.12);
   --sidebar-ring: #f97316;
   --color-1: #f97316;
   --color-2: #facc15;
@@ -371,13 +371,13 @@
   --chart-3: #fb7185;
   --chart-4: #facc15;
   --chart-5: #22c55e;
-  --sidebar: rgba(8, 0, 0, 0.9);
+  --sidebar: rgba(239, 68, 68, 0.08);
   --sidebar-foreground: #fee2e2;
   --sidebar-primary: #ef4444;
   --sidebar-primary-foreground: #1c0202;
   --sidebar-accent: rgba(127, 29, 29, 0.5);
   --sidebar-accent-foreground: #fee2e2;
-  --sidebar-border: rgba(127, 29, 29, 0.4);
+  --sidebar-border: rgba(239, 68, 68, 0.12);
   --sidebar-ring: #ef4444;
   --color-1: #ef4444;
   --color-2: #dc2626;
@@ -410,13 +410,13 @@
   --chart-3: #f472b6;
   --chart-4: #fb7185;
   --chart-5: #f97316;
-  --sidebar: rgba(255, 255, 255, 0.9);
+  --sidebar: rgba(249, 168, 212, 0.12);
   --sidebar-foreground: #5b1f1f;
   --sidebar-primary: #f9a8d4;
   --sidebar-primary-foreground: #4a1d1d;
   --sidebar-accent: rgba(254, 215, 170, 0.85);
   --sidebar-accent-foreground: #5c1f0c;
-  --sidebar-border: rgba(249, 168, 212, 0.35);
+  --sidebar-border: rgba(249, 168, 212, 0.12);
   --sidebar-ring: #fb7185;
   --color-1: #f9a8d4;
   --color-2: #fef08a;
@@ -449,13 +449,13 @@
   --chart-3: #f472b6;
   --chart-4: #38bdf8;
   --chart-5: #facc15;
-  --sidebar: rgba(255, 255, 255, 0.9);
+  --sidebar: rgba(192, 132, 252, 0.12);
   --sidebar-foreground: #2e1065;
   --sidebar-primary: #c084fc;
   --sidebar-primary-foreground: #2e1065;
   --sidebar-accent: rgba(237, 233, 254, 0.85);
   --sidebar-accent-foreground: #4c1d95;
-  --sidebar-border: rgba(192, 132, 252, 0.35);
+  --sidebar-border: rgba(192, 132, 252, 0.12);
   --sidebar-ring: #c084fc;
   --color-1: #c084fc;
   --color-2: #a78bfa;
@@ -488,13 +488,13 @@
   --chart-3: #0ea5e9;
   --chart-4: #14b8a6;
   --chart-5: #f472b6;
-  --sidebar: rgba(7, 4, 20, 0.9);
+  --sidebar: rgba(99, 102, 241, 0.08);
   --sidebar-foreground: #f5f3ff;
   --sidebar-primary: #7c3aed;
   --sidebar-primary-foreground: #f5f3ff;
   --sidebar-accent: rgba(14, 165, 233, 0.2);
   --sidebar-accent-foreground: #bae6fd;
-  --sidebar-border: rgba(99, 102, 241, 0.3);
+  --sidebar-border: rgba(99, 102, 241, 0.12);
   --sidebar-ring: #7c3aed;
   --color-1: #7c3aed;
   --color-2: #6366f1;
@@ -513,9 +513,9 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: rgba(255, 255, 255, 0.1);
   --popover-foreground: oklch(0.985 0 0);
-  --sidebar: rgba(255, 255, 255, 0.1);
+  --sidebar: rgba(255, 255, 255, 0.05);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-accent: rgba(255, 255, 255, 0.15);
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
   --sidebar-accent-foreground: oklch(0.985 0 0);
 
   --primary: oklch(69.012% 0.11865 216.032);
@@ -525,12 +525,12 @@
   --muted: rgba(255, 255, 255, 0.05);
   /* High contrast for placeholders and secondary text */
   --muted-foreground: oklch(0.95 0 0);
-  --accent: rgba(255, 255, 255, 0.1);
+  --accent: rgba(255, 255, 255, 0.08);
   --accent-foreground: oklch(0.985 0 0);
 
   /* Pixel-to-pixel match with ThemeMediaControls (border-white/10) */
-  --border: rgba(255, 255, 255, 0.1);
-  --sidebar-border: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.08);
+  --sidebar-border: rgba(255, 255, 255, 0.12);
   --input: rgba(255, 255, 255, 0.1);
 
   --ring: oklch(0.75 0.12 215);
@@ -614,6 +614,71 @@
   backdrop-filter: none !important;
 }
 
+/* Apply glass/frosted effect to sidebars and cards for all themes */
+[data-slot="sidebar"],
+[data-slot="sidebar-container"],
+[data-slot="sidebar-inner"],
+.bg-sidebar {
+  background-color: var(--sidebar) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  isolation: isolate !important;
+}
+
+[data-slot="card"],
+.bg-card {
+  background-color: var(--card) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  isolation: isolate !important;
+}
+
+[data-slot="popover"],
+.bg-popover {
+  background-color: var(--popover) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  isolation: isolate !important;
+}
+
+[data-slot="input"],
+.bg-input {
+  background-color: var(--input) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  isolation: isolate !important;
+}
+
+/* Ensure children like icons and text are not inherited with filters */
+[data-slot="sidebar"] *,
+[data-slot="sidebar-container"] *,
+[data-slot="sidebar-inner"] *,
+[data-slot="card"] * {
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Search bar glass effect - use background color as base with transparency */
+input[data-slot="input"] {
+  background-color: var(--background) !important;
+  opacity: 0.85;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  isolation: isolate !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -628,6 +693,23 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+  }
+
+  /* Subtitle HTML tag styling */
+  i {
+    font-style: italic;
+  }
+
+  b {
+    font-weight: bold;
+  }
+
+  u {
+    text-decoration: underline;
+  }
+
+  s {
+    text-decoration: line-through;
   }
 
   /* macOS Electron traffic light buttons spacing */

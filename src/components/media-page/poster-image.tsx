@@ -83,8 +83,10 @@ export function PosterImage({
           setImageLoaded(true);
         }}
         onError={() => {
-          console.error("Failed to load poster image");
+          // Hide the blur placeholder so the fallback is visible instead of stacking both
+          setImageLoaded(true);
         }}
+        fallbackSrc={blurDataUrl || undefined}
       />
     </>
   );

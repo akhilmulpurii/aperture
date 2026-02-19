@@ -39,6 +39,7 @@ export interface PlaybackState {
   playMethod: 'DirectPlay' | 'DirectStream' | 'Transcode' | null;
   subtitleOffset: number;
   subtitleStreamIndex?: number;
+  subtitleSize?: number;
   audioStreamIndex?: number;
   aspectRatio: string;
   repeatMode: 'Off' | 'All' | 'One';

@@ -14,6 +14,8 @@ interface HTMLVideoPlayerProps {
     onVolumeChange?: (volume: number) => void;
     subtitleOffset?: number;
     onDurationChange?: (duration: number) => void;
+    textTracks?: any[];
+    subtitleStreamIndex?: number;
 }
 
 export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
@@ -25,12 +27,31 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
     onError,
     onVolumeChange,
     subtitleOffset = 0,
-    onDurationChange
+    onDurationChange,
+    textTracks: propTextTracks,
+    subtitleStreamIndex: propSubtitleStreamIndex,
 }, ref) => {
     const [textTracks, setTextTracks] = useState<any[]>([]);
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const pendingSeekTicks = useRef<number | null>(null);
+    
+    // Sync with prop changes from playback manager
+    useEffect(() => {
+        if (propTextTracks) {
+            setTextTracks(propTextTracks);
+        }
+    }, [propTextTracks]);
+    
+    // Sync subtitle stream index from props
+    useEffect(() => {
+        if (propSubtitleStreamIndex !== undefined) {
+            setTextTracks(prev => prev.map(t => ({
+                ...t,
+                default: t.index === propSubtitleStreamIndex
+            })));
+        }
+    }, [propSubtitleStreamIndex]);
     
     // Refs to access latest props in stable imperative methods
     const propsRef = useRef({ onEnded, onTimeUpdate, onPause, onPlay, onError, onVolumeChange, onDurationChange });
@@ -262,24 +283,6 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
         };
     }, [onTimeUpdate, onDurationChange, onEnded, onPause, onPlay, onVolumeChange, onError]);
 
-    // Sync DOM TextTracks mode whenever textTracks state changes
-    useEffect(() => {
-        if (!videoRef.current) return;
-        const domTracks = videoRef.current.textTracks;
-        
-        // Browsers can take a moment to populate textTracks after <track> tags are added
-        // We sync modes based on our internal state record
-        for (let i = 0; i < domTracks.length; i++) {
-            const domTrack = domTracks[i];
-            const matchingStateTrack = textTracks.find(t => t.label === domTrack.label);
-            if (matchingStateTrack) {
-                domTrack.mode = matchingStateTrack.default ? 'showing' : 'disabled';
-            } else {
-                domTrack.mode = 'disabled';
-            }
-        }
-    }, [textTracks]);
-
     return (
         <video 
             ref={videoRef}
@@ -289,16 +292,6 @@ export const HTMLVideoPlayer = forwardRef<Player, HTMLVideoPlayerProps>(({
             // @ts-ignore - Safari specific attributes
             x-webkit-airplay="allow"
         >
-            {textTracks.map((track, i) => (
-                <track
-                    key={`${i}-${track.src}`} // Don't include 'default' in key to avoid recreation
-                    kind={track.kind}
-                    label={track.label}
-                    srcLang={track.language}
-                    src={track.src}
-                    default={track.default}
-                />
-            ))}
         </video>
     );
 });

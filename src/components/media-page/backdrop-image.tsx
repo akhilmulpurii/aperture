@@ -84,8 +84,10 @@ export function BackdropImage({
           setImageLoaded(true);
         }}
         onError={() => {
-          console.error("Failed to load backdrop image");
+          // Hide the blur placeholder so the fallback is visible instead of stacking both
+          setImageLoaded(true);
         }}
+        fallbackSrc={blurDataUrl || undefined}
       />
     </>
   );

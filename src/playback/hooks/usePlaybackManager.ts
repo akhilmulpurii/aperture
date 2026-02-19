@@ -23,6 +23,52 @@ import { v4 as uuidv4 } from "uuid";
 // In a real app, this should probably be in a Context Provider
 export const playQueueManager = new PlayQueueManager();
 
+/**
+ * Converts SRT subtitle format to VTT format
+ * VTT format requires a header "WEBVTT" and uses --> instead of -->
+ */
+function convertSubtitleToVTT(content: string): string {
+  // Check if it's already VTT format
+  if (content.includes('WEBVTT')) {
+    return content;
+  }
+
+  // Convert SRT to VTT
+  let vtt = 'WEBVTT\n\n';
+
+  // Split by double newlines to get subtitle blocks
+  const blocks = content.split(/\n\s*\n/);
+
+  for (const block of blocks) {
+    if (!block.trim()) continue;
+
+    const lines = block.trim().split('\n');
+    if (lines.length < 2) continue;
+
+    // Remove subtitle index if it exists
+    let startIdx = 0;
+    if (/^\d+$/.test(lines[0])) {
+      startIdx = 1;
+    }
+
+    // Get the timeline (SRT uses: --> VTT uses: -->)
+    const timeline = lines[startIdx];
+    if (!timeline || !timeline.includes('-->')) continue;
+
+    // Convert SRT timeline to VTT timeline (VTT needs milliseconds)
+    const vttTimeline = timeline.replace(/,/g, '.');
+
+    // Get subtitle text
+    const subtitleText = lines.slice(startIdx + 1).join('\n');
+
+    if (subtitleText.trim()) {
+      vtt += `${vttTimeline}\n${subtitleText}\n\n`;
+    }
+  }
+
+  return vtt;
+}
+
 export interface PlaybackContextValue {
   playbackState: PlaybackState;
   play: (
@@ -42,6 +88,7 @@ export interface PlaybackContextValue {
   setPlaybackRate: (rate: number) => void;
   setAudioStreamIndex: (index: number) => void;
   setSubtitleStreamIndex: (index: number) => void;
+  setSubtitleUrl: (url: string) => Promise<void>;
   registerPlayer: (type: PlayerType, player: Player) => void;
   unregisterPlayer: (type: PlayerType) => void;
   reportState: (updates: Partial<PlaybackState>) => void;
@@ -732,6 +779,70 @@ export function usePlaybackManager(): PlaybackContextValue {
     setPlaybackState((prev) => ({ ...prev, isMiniPlayer: enabled }));
   }, []);
 
+  const setSubtitleUrl = useCallback(
+    async (url: string) => {
+      try {
+        console.log('🎬 setSubtitleUrl called with:', url.substring(0, 100));
+        
+        // Fetch the subtitle file
+        console.log('📥 Fetching subtitle file...');
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch subtitle: ${response.statusText}`);
+        }
+        console.log('✅ Subtitle file fetched, size:', response.headers.get('content-length'));
+
+        const content = await response.text();
+        console.log('📝 Content length:', content.length, 'bytes');
+
+        // Convert SRT to VTT if needed
+        const vttContent = convertSubtitleToVTT(content);
+        console.log('🔄 Converted to VTT, size:', vttContent.length, 'bytes');
+
+        // Create a Blob URL from the VTT content
+        const blob = new Blob([vttContent], { type: 'text/vtt' });
+        const blobUrl = URL.createObjectURL(blob);
+        console.log('🔗 Blob URL created:', blobUrl);
+
+        // Create a new text track entry
+        const newTrack = {
+          kind: 'subtitles',
+          label: 'OpenSubtitles',
+          src: blobUrl,
+          language: 'en',
+          default: true,
+          index: 9999, // Use a high index to indicate external subtitle
+        };
+
+        // Replace all tracks with just the new external track
+        // This ensures we don't show the old subtitle alongside the new one
+        const updatedTracks = [newTrack];
+        console.log('📋 Text tracks updated:', {
+          newTrack: { index: newTrack.index, label: newTrack.label },
+          totalTracks: updatedTracks.length
+        });
+
+        updateState({
+          textTracks: updatedTracks,
+          subtitleStreamIndex: 9999,
+        });
+
+        // If player is active, set the subtitle stream
+        if (activePlayerRef.current) {
+          console.log('🎮 Setting subtitle stream on active player:', activePlayerRef.current.name);
+          activePlayerRef.current.setSubtitleStreamIndex(9999);
+          console.log('✅ Subtitle stream set');
+        } else {
+          console.warn('⚠️ No active player found');
+        }
+      } catch (error) {
+        console.error('❌ Error loading subtitle from URL:', error);
+        throw error;
+      }
+    },
+    [playbackState.textTracks, updateState],
+  );
+
   return {
     playbackState,
     play,
@@ -748,6 +859,7 @@ export function usePlaybackManager(): PlaybackContextValue {
     setPlaybackRate,
     setAudioStreamIndex,
     setSubtitleStreamIndex,
+    setSubtitleUrl,
     registerPlayer,
     unregisterPlayer,
     reportState: updateState,

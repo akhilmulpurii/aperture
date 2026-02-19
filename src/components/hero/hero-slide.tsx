@@ -21,9 +21,19 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
 
-  const backdropTag = item.BackdropImageTags?.[0];
+  // Prefer parent/series backdrop for episodes so hero matches series page
+  const backdropTag =
+    item.Type === "Episode"
+      ? item.ParentBackdropImageTags?.[0]
+      : item.BackdropImageTags?.[0];
+
+  const backdropItemId =
+    item.Type === "Episode"
+      ? item.ParentBackdropItemId || item.SeriesId || item.Id
+      : item.Id;
+
   const backdropUrl = backdropTag
-    ? `${serverUrl}/Items/${item.Id}/Images/Backdrop/0?maxWidth=3840&quality=90`
+    ? `${serverUrl}/Items/${backdropItemId}/Images/Backdrop/0?maxWidth=3840&quality=90`
     : null;
 
   const imageUrl =
@@ -38,7 +48,9 @@ export function HeroSlide({ item, serverUrl }: HeroSlideProps) {
       : null;
 
   const blurHash =
-    item.ImageBlurHashes?.Backdrop?.[backdropTag || ""] ||
+    (item.Type === "Episode"
+      ? item.ImageBlurHashes?.Backdrop?.[backdropTag || ""]
+      : item.ImageBlurHashes?.Backdrop?.[backdropTag || ""]) ||
     item.ImageBlurHashes?.Primary?.[item.ImageTags?.Primary || ""];
 
   useEffect(() => {

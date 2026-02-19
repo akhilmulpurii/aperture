@@ -14,6 +14,7 @@ import { Play, Star } from "lucide-react";
 import { formatRuntime } from "../lib/utils";
 import { useAuth } from "../hooks/useAuth";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { OptimizedImage } from "./optimized-image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -407,10 +408,11 @@ const EpisodeCard = React.memo(function EpisodeCard({
             }`}
           >
             {imageUrl ? (
-              <img
+              <OptimizedImage
                 src={imageUrl}
                 alt={episode.Name || "Episode"}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                showMissingLabel={true}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground">

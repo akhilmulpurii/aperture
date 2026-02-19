@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import { HTMLVideoPlayer } from "../players/HTMLVideoPlayer";
 import { HTMLAudioPlayer } from "../players/HTMLAudioPlayer";
@@ -9,6 +9,7 @@ import {
 } from "../hooks/usePlaybackManager";
 import { Player } from "../types";
 import { VideoOSD } from "./VideoOSD";
+import { SubtitleDisplay } from "./SubtitleDisplay";
 
 interface JellyfinPlayerProps {
   className?: string;
@@ -29,6 +30,50 @@ export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({
   const manager = propManager || localManager;
 
   const { playbackState } = manager;
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const [playerHovered, setPlayerHovered] = useState(false);
+  const cursorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle cursor auto-hide
+  useEffect(() => {
+    const handleMouseMove = () => {
+      setCursorVisible(true);
+      setPlayerHovered(true);
+      
+      // Clear existing timeout
+      if (cursorTimeoutRef.current) {
+        clearTimeout(cursorTimeoutRef.current);
+      }
+
+      // Hide cursor after 3 seconds of inactivity
+      cursorTimeoutRef.current = setTimeout(() => {
+        setCursorVisible(false);
+        setPlayerHovered(false);
+      }, 3000);
+    };
+
+    const handleMouseLeave = () => {
+      setCursorVisible(true);
+      setPlayerHovered(false);
+      if (cursorTimeoutRef.current) {
+        clearTimeout(cursorTimeoutRef.current);
+      }
+    };
+
+    const playerElement = document.querySelector('[data-player-container]');
+    if (playerElement) {
+      playerElement.addEventListener('mousemove', handleMouseMove);
+      playerElement.addEventListener('mouseleave', handleMouseLeave);
+
+      return () => {
+        playerElement.removeEventListener('mousemove', handleMouseMove);
+        playerElement.removeEventListener('mouseleave', handleMouseLeave);
+        if (cursorTimeoutRef.current) {
+          clearTimeout(cursorTimeoutRef.current);
+        }
+      };
+    }
+  }, []);
 
   useEffect(() => {
     if (item) {
@@ -111,7 +156,13 @@ export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({
 
   return (
     <div
-      className={`relative bg-black flex flex-col justify-center items-center ${className} group`}
+      data-player-container
+      className={`relative bg-black flex flex-col justify-center items-center ${className} group ${!cursorVisible && isVideo ? 'cursor-none' : ''}`}
+      style={
+        !cursorVisible && isVideo
+          ? { cursor: 'none' }
+          : undefined
+      }
     >
       <div className="w-full h-full">
         {/* Render the appropriate player */}
@@ -123,6 +174,8 @@ export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({
               : "hidden"
           }
           subtitleOffset={playbackState.subtitleOffset || 0}
+          textTracks={playbackState.textTracks}
+          subtitleStreamIndex={playbackState.subtitleStreamIndex}
           onTimeUpdate={(time) => {
             manager.reportState({ currentTime: time });
           }}
@@ -142,7 +195,16 @@ export const JellyfinPlayer: React.FC<JellyfinPlayerProps> = ({
 
       {/* Overlay Controls */}
       {isVideo ? (
-        <VideoOSD manager={manager} />
+        <>
+          <VideoOSD manager={manager} />
+          <SubtitleDisplay
+            currentTime={playbackState.currentTime}
+            textTracks={playbackState.textTracks}
+            subtitleStreamIndex={playbackState.subtitleStreamIndex}
+            isVisible={(playbackState.subtitleStreamIndex ?? -1) >= 0}
+            isControlsVisible={cursorVisible}
+          />
+        </>
       ) : (
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/80 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <PlaybackControls

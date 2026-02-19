@@ -624,29 +624,34 @@ export async function fetchIntroOutro(
     const { serverUrl, user } = await getAuthData();
     if (!user.AccessToken) throw new Error("No access token found");
 
+    console.log('⏭️ fetchIntroOutro: Fetching for itemId:', itemId, 'serverUrl:', serverUrl);
+
     const jellyfinInstance = createJellyfinInstance();
     const api = jellyfinInstance.createApi(serverUrl);
     api.accessToken = user.AccessToken;
 
-    const response = await fetch(
-      `${serverUrl}/MediaSegments/${itemId}?includeSegmentTypes=Outro&includeSegmentTypes=Intro`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `MediaBrowser Token="${user.AccessToken}"`,
-        },
+    const url = `${serverUrl}/MediaSegments/${itemId}?includeSegmentTypes=Outro&includeSegmentTypes=Intro`;
+    console.log('⏭️ fetchIntroOutro: URL:', url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `MediaBrowser Token="${user.AccessToken}"`,
       },
-    );
+    });
+
+    console.log('⏭️ fetchIntroOutro: Response status:', response.status);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('⏭️ fetchIntroOutro: Data received:', data);
     return data;
   } catch (error) {
-    console.error("Failed to fetch intro/outro segments:", error);
+    console.error("⏭️ fetchIntroOutro: Failed to fetch intro/outro segments:", error);
 
     // If it's an authentication error, throw an error with a special flag
     if (isAuthError(error)) {
