@@ -53,7 +53,7 @@ https://github.com/user-attachments/assets/a35d71e2-14bf-475f-9e54-a0cf2c7bc044
 **APERTÚRE** is a clean, modern Jellyfin client built with **Next.js** — designed for speed, simplicity, and elegance.  
 It builds upon the solid foundation of **[Finetic](https://github.com/AyaanZaveri/finetic)** while introducing extended functionality and removing unnecessary complexity.
 
-Join Discord Community - [Discord Invite](https://discord.gg/VncWf3u2)
+Join Discord Community - [Discord Invite](https://discord.gg/8UrJehgqnj)
 
 Special Thanks to **[@AyaanZaveri](https://github.com/AyaanZaveri)**, this is based on his work on finetic, but I am building it upon my personal preferences.
 
