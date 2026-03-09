@@ -105,9 +105,6 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
       .then((enabled) => {
         if (!active) return;
         setQuickConnectSupported(enabled);
-        if (enabled) {
-          setAuthMethod("quickconnect");
-        }
       })
       .catch((reason) => {
         console.warn("Failed to check Quick Connect availability:", reason);
@@ -334,6 +331,7 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
             className="w-full"
           >
             <TabsList className={tabsListClass}>
+              <TabsTrigger value="password">Password</TabsTrigger>
               {(quickConnectAvailable || quickConnectChecking) && (
                 <TabsTrigger
                   value="quickconnect"
@@ -342,7 +340,6 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
                   Quick Connect
                 </TabsTrigger>
               )}
-              <TabsTrigger value="password">Password</TabsTrigger>
             </TabsList>
 
             <TabsContent value="password" className="mt-6">
