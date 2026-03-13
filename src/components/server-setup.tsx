@@ -14,6 +14,9 @@ import { VibrantAuroraBackground } from "../components/vibrant-aurora-background
 import { checkServerHealth, setServerUrl } from "../actions";
 import { Loader2, Server, CheckCircle, Globe, Shield } from "lucide-react";
 
+const NEXT_PUBLIC_DEFAULT_SERVER_URL =
+  process.env.NEXT_PUBLIC_DEFAULT_SERVER_URL || "";
+
 interface ServerSetupProps {
   onNext: () => void;
 }
@@ -27,7 +30,7 @@ type ConnectionStatus =
   | "error";
 
 export function ServerSetup({ onNext }: ServerSetupProps) {
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(NEXT_PUBLIC_DEFAULT_SERVER_URL);
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("idle");
   const [error, setError] = useState("");

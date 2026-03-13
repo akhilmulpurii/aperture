@@ -7,6 +7,7 @@ services:
     environment:
       - NODE_ENV=production
       - MODE=production
+      - NEXT_PUBLIC_DEFAULT_SERVER_URL=${NEXT_PUBLIC_DEFAULT_SERVER_URL}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
