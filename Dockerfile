@@ -15,10 +15,6 @@ FROM oven/bun:latest AS builder
 
 WORKDIR /app
 
-# Set build argument for Next.js public env variable
-ARG NEXT_PUBLIC_DEFAULT_SERVER_URL
-ENV NEXT_PUBLIC_DEFAULT_SERVER_URL=$NEXT_PUBLIC_DEFAULT_SERVER_URL
-
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
