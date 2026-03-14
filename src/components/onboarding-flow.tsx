@@ -10,11 +10,7 @@ import { useRouter } from "next/navigation";
 
 type OnboardingStep = "server" | "login" | "theme";
 
-export function OnboardingFlow({
-  defaultServerUrl,
-}: {
-  defaultServerUrl: string;
-}) {
+export function OnboardingFlow() {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("server");
   const router = useRouter();
   const [selectedTheme] = useAtom(themeSelectionAtom);
@@ -63,12 +59,7 @@ export function OnboardingFlow({
   };
 
   if (currentStep === "server") {
-    return (
-      <ServerSetup
-        onNext={handleServerSetup}
-        defaultServerUrl={defaultServerUrl}
-      />
-    );
+    return <ServerSetup onNext={handleServerSetup} />;
   }
 
   if (currentStep === "login") {
@@ -86,10 +77,5 @@ export function OnboardingFlow({
     );
   }
 
-  return (
-    <ServerSetup
-      onNext={handleServerSetup}
-      defaultServerUrl={defaultServerUrl}
-    />
-  );
+  return <ServerSetup onNext={handleServerSetup} />;
 }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,10 +13,10 @@ import { Button } from "../components/ui/button";
 import { VibrantAuroraBackground } from "../components/vibrant-aurora-background";
 import { checkServerHealth, setServerUrl } from "../actions";
 import { Loader2, Server, CheckCircle, Globe, Shield } from "lucide-react";
+import axios from "axios";
 
 interface ServerSetupProps {
   onNext: () => void;
-  defaultServerUrl: string;
 }
 
 type ConnectionStatus =
@@ -27,12 +27,27 @@ type ConnectionStatus =
   | "success"
   | "error";
 
-export function ServerSetup({ onNext, defaultServerUrl }: ServerSetupProps) {
-  const [url, setUrl] = useState(defaultServerUrl || "");
+export function ServerSetup({ onNext }: ServerSetupProps) {
+  const [url, setUrl] = useState("");
+  const [urlLoading, setUrlLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("idle");
   const [error, setError] = useState("");
   const [detectedUrl, setDetectedUrl] = useState("");
+
+  useEffect(() => {
+    async function fetchConfig() {
+      try {
+        const { data } = await axios("/api/config");
+        if (data.defaultServerUrl) setUrl(data.defaultServerUrl);
+      } catch (err) {
+        console.error("Failed to fetch runtime config", err);
+      } finally {
+        setUrlLoading(false);
+      }
+    }
+    fetchConfig();
+  }, []);
 
   const isLoading =
     connectionStatus !== "idle" &&
@@ -115,6 +130,8 @@ export function ServerSetup({ onNext, defaultServerUrl }: ServerSetupProps) {
       setError("An unexpected error occurred. Please try again.");
     }
   };
+
+  if (urlLoading) return;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative w-full">
