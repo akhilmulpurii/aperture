@@ -87,7 +87,7 @@ Special Thanks to **[@AyaanZaveri](https://github.com/AyaanZaveri)**, this is ba
 ### 🐳 Environment Variables
 
 ```env
-NEXT_PUBLIC_DEFAULT_SERVER_URL=your_server_url
+DEFAULT_SERVER_URL=your_server_url
 ```
 
 
