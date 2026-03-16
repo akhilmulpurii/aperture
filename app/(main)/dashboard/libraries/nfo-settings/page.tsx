@@ -34,6 +34,7 @@ import {
   fetchUsers,
 } from "@/src/actions";
 import { UserDto } from "@jellyfin/sdk/lib/generated-client/models";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function LibrariesNfoSettingsPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
@@ -42,6 +43,7 @@ export default function LibrariesNfoSettingsPage() {
     resolver: zodResolver(nfoSettingsFormSchema) as any,
     defaultValues: defaultNfoSettingsFormValues,
   });
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     const loadData = async () => {
@@ -63,6 +65,7 @@ export default function LibrariesNfoSettingsPage() {
         });
       } catch (error) {
         console.error(error);
+        if (handleAuthError(error)) return;
         toast.error("Failed to load NFO settings");
       } finally {
         setDashboardLoading(false);
@@ -90,6 +93,7 @@ export default function LibrariesNfoSettingsPage() {
       toast.success("NFO settings saved");
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to save NFO settings");
     } finally {
       setDashboardLoading(false);
