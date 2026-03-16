@@ -56,7 +56,6 @@ interface QuickConnectSession {
 export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberDetails, setRememberDetails] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -89,7 +88,6 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
       if (!isMountedRef.current) return;
       if (prefs?.username) {
         setUsername(prefs.username);
-        setRememberDetails(true);
       }
     })();
     return () => {
@@ -259,15 +257,6 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
     try {
       const success = await authenticateUser(username, password);
       if (success) {
-        if (rememberDetails) {
-          const serverUrl = await getServerUrl();
-          await StoreLoginPreferences.set({
-            username,
-            serverUrl: serverUrl || undefined,
-          });
-        } else {
-          await StoreLoginPreferences.remove();
-        }
         onSuccess();
       } else {
         setError("Invalid username or password. Please try again.");
@@ -387,28 +376,6 @@ export function LoginForm({ onSuccess, onBack }: LoginFormProps) {
                     <span>{error}</span>
                   </div>
                 )}
-
-                <div className="flex items-start gap-3 rounded-md border border-dashed border-border/70 bg-muted/10 px-3 py-2">
-                  <Checkbox
-                    id="remember-details"
-                    checked={rememberDetails}
-                    onCheckedChange={(value) =>
-                      setRememberDetails(value === true)
-                    }
-                    disabled={isLoading}
-                  />
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="remember-details"
-                      className="text-sm font-medium leading-none"
-                    >
-                      Save server URL and username on this device
-                    </label>
-                    <p className="text-xs text-muted-foreground">
-                      We&apos;ll prefill these next time for quicker login.
-                    </p>
-                  </div>
-                </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
