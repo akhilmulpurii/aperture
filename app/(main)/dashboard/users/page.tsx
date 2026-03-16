@@ -7,11 +7,13 @@ import { UserCard } from "@/src/components/user-card";
 import { dashboardLoadingAtom } from "@/src/lib/atoms";
 import { useSetAtom } from "jotai";
 import Link from "next/link";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<UserDto[]>([]);
   const [userImages, setUserImages] = useState<Record<string, string>>({});
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -35,6 +37,7 @@ export default function ManageUsersPage() {
         setUserImages(images);
       } catch (error) {
         console.error("Failed to load users:", error);
+        if (handleAuthError(error)) return;
       } finally {
         setDashboardLoading(false);
       }

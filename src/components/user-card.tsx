@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { dashboardLoadingAtom } from "@/src/lib/atoms";
 import { useAtomValue, useSetAtom } from "jotai";
 import Link from "next/link";
+import { useAuthError } from "../hooks/use-auth-error";
 
 interface UserCardProps {
   user: UserDto;
@@ -32,6 +33,8 @@ export function UserCard({ user, imageUrl, onUserDeleted }: UserCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const dashboardLoading = useAtomValue(dashboardLoadingAtom);
+  const { handleAuthError } = useAuthError();
+
   const handleDelete = async () => {
     if (!user.Id) return;
     setDashboardLoading(true);
@@ -42,6 +45,7 @@ export function UserCard({ user, imageUrl, onUserDeleted }: UserCardProps) {
       setShowDeleteDialog(false);
     } catch (error) {
       console.error("Failed to delete user:", error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to delete user");
     } finally {
       setDashboardLoading(false);

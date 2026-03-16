@@ -490,6 +490,13 @@ export async function fetchMediaFolders(): Promise<BaseItemDto[]> {
     return data.Items || [];
   } catch (error) {
     console.error("Failed to fetch media folders:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     return [];
   }
 }
@@ -750,6 +757,13 @@ export async function getUserById(userId: string): Promise<UserDto | null> {
     return data;
   } catch (error) {
     console.error(`Failed to fetch user ${userId}:`, error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     return null;
   }
 }
@@ -773,6 +787,13 @@ export async function updateUser(
     });
   } catch (error) {
     console.error(`Failed to update user ${userId}:`, error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     throw error;
   }
 }
@@ -816,6 +837,13 @@ export async function deleteUser(userId: string): Promise<void> {
     await userApi.deleteUser({ userId });
   } catch (error: any) {
     console.error(`Failed to delete user ${userId}:`, error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     throw error;
   }
 }
@@ -839,6 +867,13 @@ export async function updateUserPolicy(
     });
   } catch (error) {
     console.error(`Failed to update user policy ${userId}:`, error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     throw error;
   }
 }
@@ -1084,6 +1119,13 @@ export async function fetchUsers(): Promise<UserDto[]> {
     return data;
   } catch (error) {
     console.error("Failed to fetch users:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     return [];
   }
 }

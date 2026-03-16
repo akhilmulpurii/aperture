@@ -20,6 +20,7 @@ import { User, Lock, Shield, Settings2 } from "lucide-react";
 import { dashboardLoadingAtom } from "@/src/lib/atoms";
 import { useSetAtom } from "jotai";
 import { useParams } from "next/navigation";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 const TABS = [
   {
@@ -54,6 +55,7 @@ export default function EditUserPage() {
     useUsersLayoutContext() as UsersLayoutContextType;
   const [user, setUser] = useState<UserDto | undefined>();
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -71,6 +73,7 @@ export default function EditUserPage() {
         }
       } catch (error) {
         console.error("Failed to load user:", error);
+        if (handleAuthError(error)) return;
         setBreadcrumbLabel("Error");
       } finally {
         setDashboardLoading(false);

@@ -26,12 +26,14 @@ import { RemoteControlSection } from "./remote-control-section";
 import { OtherSection } from "./other-section";
 import { dashboardLoadingAtom } from "../../../lib/atoms";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useAuthError } from "../../../hooks/use-auth-error";
 
 export default function ProfileTab({ user }: { user?: UserDto }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [libraries, setLibraries] = useState<BaseItemDto[]>([]);
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const dashboardLoading = useAtomValue(dashboardLoadingAtom);
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     setDashboardLoading(true);
@@ -41,6 +43,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
       })
       .catch((err) => {
         console.error("Failed to fetch media folders:", err);
+        if (handleAuthError(err)) return;
       })
       .finally(() => {
         setDashboardLoading(false);
@@ -192,6 +195,7 @@ export default function ProfileTab({ user }: { user?: UserDto }) {
       toast.success("User updated successfully");
     } catch (error) {
       console.error("Failed to update user:", error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to update user");
     } finally {
       setDashboardLoading(false);
