@@ -4,6 +4,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { Vibrant } from "node-vibrant/browser";
 import { AuroraBackground } from "@/src/components/aurora-background";
 import { auroraColorsAtom, updateAuroraColorsAtom } from "@/src/lib/atoms";
+import { useSettings } from "../contexts/settings-context";
 
 interface VibrantAuroraBackgroundProps {
   posterUrl?: string;
@@ -20,9 +21,11 @@ export function VibrantAuroraBackground({
 }: VibrantAuroraBackgroundProps) {
   const [colorStops] = useAtom(auroraColorsAtom);
   const updateColors = useSetAtom(updateAuroraColorsAtom);
+  const { enableAuroraEffect } = useSettings();
 
   const extractColors = useCallback(
     async (url: string) => {
+      if (!enableAuroraEffect) return;
       try {
         const palette = await Vibrant.from(url).getPalette();
 
@@ -72,16 +75,17 @@ export function VibrantAuroraBackground({
         // Keep previous colors on error - they're already in the atom
       }
     },
-    [posterUrl, updateColors],
+    [posterUrl, updateColors, enableAuroraEffect],
   );
 
   useEffect(() => {
+    if (!enableAuroraEffect) return;
     if (posterUrl) extractColors(posterUrl);
 
     return () => {
       return;
     };
-  }, [posterUrl, extractColors]);
+  }, [posterUrl, extractColors, enableAuroraEffect]);
 
   return (
     <AuroraBackground

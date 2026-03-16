@@ -5,6 +5,7 @@ import { useAtom } from "jotai";
 import AuroraTransition from "../components/Aurora/AuroraTransition";
 import { auroraColorsAtom } from "../lib/atoms";
 import { DEFAULT_PALETTE, THEME_VARIANTS } from "../data/theme-presets";
+import { useSettings } from "../contexts/settings-context";
 
 const AURORA_THEME_PRESETS: Record<
   string,
@@ -35,7 +36,7 @@ interface AuroraBackgroundProps {
   className?: string;
 }
 
-export function AuroraBackground({
+function AuroraBackgroundResolved({
   colorStops,
   amplitude = 0.8,
   blend = 0.4,
@@ -157,5 +158,23 @@ export function AuroraBackground({
         blend={blend}
       />
     </div>
+  );
+}
+
+export function AuroraBackground({
+  colorStops,
+  amplitude = 0.8,
+  blend = 0.4,
+  className = "fixed inset-0 z-0 pointer-events-none opacity-20",
+}: AuroraBackgroundProps) {
+  const { enableAuroraEffect } = useSettings();
+  if (!enableAuroraEffect) return null;
+  return (
+    <AuroraBackgroundResolved
+      colorStops={colorStops}
+      amplitude={amplitude}
+      blend={blend}
+      className={className}
+    />
   );
 }
