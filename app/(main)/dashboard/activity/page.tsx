@@ -25,6 +25,7 @@ import { getAuthData } from "@/src/actions/utils";
 import { dashboardLoadingAtom } from "@/src/lib/atoms";
 import { useSetAtom } from "jotai";
 import { useAtomValue } from "jotai";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 const PAGE_SIZE = 25;
 
@@ -45,6 +46,7 @@ export default function DashboardActivityPage() {
   >({});
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const { handleAuthError } = useAuthError();
 
   const hasUserId = useMemo(() => {
     if (filter === "all") return undefined;
@@ -114,6 +116,7 @@ export default function DashboardActivityPage() {
         setTotalCount(result.TotalRecordCount ?? 0);
       } catch (error) {
         console.error("Failed to load activity entries:", error);
+        if (handleAuthError(error)) return;
       } finally {
         if (isMounted) {
           setDashboardLoading(false);
