@@ -7,42 +7,68 @@ import {
   XbmcMetadataOptions,
   EncodingOptions,
 } from "@jellyfin/sdk/lib/generated-client/models";
+import { isAuthError } from "./media";
 
 export async function fetchSystemConfiguration(): Promise<ServerConfiguration> {
-  const { serverUrl, user } = await getAuthData();
-  const jellyfinInstance = createJellyfinInstance();
-  const api = jellyfinInstance.createApi(serverUrl);
+  try {
+    const { serverUrl, user } = await getAuthData();
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
 
-  if (!user.AccessToken) {
-    throw new Error("No access token found");
+    if (!user.AccessToken) {
+      throw new Error("No access token found");
+    }
+
+    api.accessToken = user.AccessToken;
+
+    const configurationApi = getConfigurationApi(api);
+    const { data } = await configurationApi.getConfiguration();
+    return data;
+  } catch (error) {
+    console.log("Error fetching system configuration", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+
+    return {};
   }
-
-  api.accessToken = user.AccessToken;
-
-  const configurationApi = getConfigurationApi(api);
-  const { data } = await configurationApi.getConfiguration();
-  return data;
 }
 
 export async function fetchMetadataConfiguration(): Promise<MetadataConfiguration> {
-  const { serverUrl, user } = await getAuthData();
-  const jellyfinInstance = createJellyfinInstance();
-  const api = jellyfinInstance.createApi(serverUrl);
+  try {
+    const { serverUrl, user } = await getAuthData();
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
 
-  if (!user.AccessToken) {
-    throw new Error("No access token found");
+    if (!user.AccessToken) {
+      throw new Error("No access token found");
+    }
+
+    api.accessToken = user.AccessToken;
+
+    const configurationApi = getConfigurationApi(api);
+    // Using getNamedConfiguration with key "metadata"
+    // The SDK might return this as File type in definition but it returns JSON in practice
+    const { data } = await configurationApi.getNamedConfiguration({
+      key: "metadata",
+    });
+
+    return data as unknown as MetadataConfiguration;
+  } catch (error) {
+    console.log("Error fetching metadata configuration", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+    return {};
   }
-
-  api.accessToken = user.AccessToken;
-
-  const configurationApi = getConfigurationApi(api);
-  // Using getNamedConfiguration with key "metadata"
-  // The SDK might return this as File type in definition but it returns JSON in practice
-  const { data } = await configurationApi.getNamedConfiguration({
-    key: "metadata",
-  });
-
-  return data as unknown as MetadataConfiguration;
 }
 
 export async function fetchXbmcMetadataConfiguration(): Promise<XbmcMetadataOptions> {
@@ -84,46 +110,70 @@ export async function fetchEncodingConfiguration(): Promise<EncodingOptions> {
 }
 
 export async function updateSystemConfiguration(
-  configuration: ServerConfiguration
+  configuration: ServerConfiguration,
 ): Promise<void> {
-  const { serverUrl, user } = await getAuthData();
-  const jellyfinInstance = createJellyfinInstance();
-  const api = jellyfinInstance.createApi(serverUrl);
+  try {
+    const { serverUrl, user } = await getAuthData();
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
 
-  if (!user.AccessToken) {
-    throw new Error("No access token found");
+    if (!user.AccessToken) {
+      throw new Error("No access token found");
+    }
+
+    api.accessToken = user.AccessToken;
+    const configurationApi = getConfigurationApi(api);
+
+    await configurationApi.updateConfiguration({
+      serverConfiguration: configuration,
+    });
+  } catch (error) {
+    console.log("Error updating system configuration", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+    throw error;
   }
-
-  api.accessToken = user.AccessToken;
-  const configurationApi = getConfigurationApi(api);
-
-  await configurationApi.updateConfiguration({
-    serverConfiguration: configuration,
-  });
 }
 
 export async function updateMetadataConfiguration(
-  metadataConfiguration: MetadataConfiguration
+  metadataConfiguration: MetadataConfiguration,
 ): Promise<void> {
-  const { serverUrl, user } = await getAuthData();
-  const jellyfinInstance = createJellyfinInstance();
-  const api = jellyfinInstance.createApi(serverUrl);
+  try {
+    const { serverUrl, user } = await getAuthData();
+    const jellyfinInstance = createJellyfinInstance();
+    const api = jellyfinInstance.createApi(serverUrl);
 
-  if (!user.AccessToken) {
-    throw new Error("No access token found");
+    if (!user.AccessToken) {
+      throw new Error("No access token found");
+    }
+
+    api.accessToken = user.AccessToken;
+    const configurationApi = getConfigurationApi(api);
+
+    await configurationApi.updateNamedConfiguration({
+      key: "metadata",
+      body: metadataConfiguration,
+    });
+  } catch (error) {
+    console.log("Error updating metadata configuration", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
+    throw error;
   }
-
-  api.accessToken = user.AccessToken;
-  const configurationApi = getConfigurationApi(api);
-
-  await configurationApi.updateNamedConfiguration({
-    key: "metadata",
-    body: metadataConfiguration,
-  });
 }
 
 export async function updateXbmcMetadataConfiguration(
-  xbmcMetadataConfiguration: XbmcMetadataOptions
+  xbmcMetadataConfiguration: XbmcMetadataOptions,
 ): Promise<void> {
   const { serverUrl, user } = await getAuthData();
   const jellyfinInstance = createJellyfinInstance();
@@ -143,7 +193,7 @@ export async function updateXbmcMetadataConfiguration(
 }
 
 export async function updateEncodingConfiguration(
-  encodingOptions: EncodingOptions
+  encodingOptions: EncodingOptions,
 ): Promise<void> {
   const { serverUrl, user } = await getAuthData();
   const jellyfinInstance = createJellyfinInstance();

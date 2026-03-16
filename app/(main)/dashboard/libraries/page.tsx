@@ -12,10 +12,12 @@ import {
 import { VirtualFolderInfo } from "@jellyfin/sdk/lib/generated-client/models";
 import VirtualFolderCard from "@/src/components/virtual-folder-card";
 import Link from "next/link";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function LibrariesPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const [libraries, setLibraries] = useState<VirtualFolderInfo[]>([]);
+  const { handleAuthError } = useAuthError();
 
   const loadLibraries = useCallback(async () => {
     try {
@@ -24,6 +26,7 @@ export default function LibrariesPage() {
       setLibraries(libraryResult ?? []);
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to load libraries");
     } finally {
       setDashboardLoading(false);
@@ -40,6 +43,7 @@ export default function LibrariesPage() {
       toast.success("Library scan started");
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to start library scan");
     }
   };
@@ -53,6 +57,7 @@ export default function LibrariesPage() {
       await loadLibraries();
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to remove library");
     } finally {
       setDashboardLoading(false);

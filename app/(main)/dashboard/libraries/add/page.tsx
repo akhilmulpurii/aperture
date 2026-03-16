@@ -15,10 +15,12 @@ import { buildLibraryOptions } from "@/src/lib/library-form-helpers";
 import { useLibraryLookups } from "@/src/lib/use-library-lookups";
 import { useLibraryOptionsLoader } from "@/src/lib/use-library-options-loader";
 import { useRouter } from "next/navigation";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function AddLibraryPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const router = useRouter();
+  const { handleAuthError } = useAuthError();
 
   const form = useForm<AddLibraryFormValues>({
     resolver: zodResolver(addLibraryFormSchema) as any,
@@ -56,6 +58,7 @@ export default function AddLibraryPage() {
       router.push("/dashboard/libraries");
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to add library");
     } finally {
       setDashboardLoading(false);

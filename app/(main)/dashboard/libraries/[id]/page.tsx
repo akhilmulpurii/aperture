@@ -24,6 +24,7 @@ import {
 } from "@/src/actions/media";
 import { VirtualFolderInfo } from "@jellyfin/sdk/lib/generated-client/models";
 import { useParams, useRouter } from "next/navigation";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function EditLibraryPage() {
   const { id }: { id: string } = useParams();
@@ -31,7 +32,7 @@ export default function EditLibraryPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
   const [library, setLibrary] = useState<VirtualFolderInfo | null>(null);
   const [originalName, setOriginalName] = useState<string>("");
-
+  const { handleAuthError } = useAuthError();
   const form = useForm<AddLibraryFormValues>({
     resolver: zodResolver(addLibraryFormSchema) as any,
     defaultValues: defaultAddLibraryFormValues,
@@ -68,6 +69,7 @@ export default function EditLibraryPage() {
         setOriginalName(current.Name || "");
       } catch (error) {
         console.error(error);
+        if (handleAuthError(error)) return;
         toast.error("Failed to load library");
       } finally {
         setDashboardLoading(false);
@@ -97,6 +99,7 @@ export default function EditLibraryPage() {
       router.push("/dashboard/libraries");
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to update library");
     } finally {
       setDashboardLoading(false);

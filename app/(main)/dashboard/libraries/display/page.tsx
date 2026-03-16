@@ -34,6 +34,7 @@ import {
   updateSystemConfiguration,
   updateMetadataConfiguration,
 } from "@/src/actions";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function LibrariesDisplayPage() {
   const setDashboardLoading = useSetAtom(dashboardLoadingAtom);
@@ -41,6 +42,7 @@ export default function LibrariesDisplayPage() {
     resolver: zodResolver(displayFormSchema) as any,
     defaultValues: defaultDisplayFormValues,
   });
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     const loadData = async () => {
@@ -72,6 +74,7 @@ export default function LibrariesDisplayPage() {
         });
       } catch (error) {
         console.error(error);
+        if (handleAuthError(error)) return;
         toast.error("Failed to load display settings");
       } finally {
         setDashboardLoading(false);
@@ -104,6 +107,7 @@ export default function LibrariesDisplayPage() {
       toast.success("Display settings saved");
     } catch (error) {
       console.error(error);
+      if (handleAuthError(error)) return;
       toast.error("Failed to save display settings");
     } finally {
       setDashboardLoading(false);
