@@ -25,6 +25,8 @@ export default function UserPreferenceSection() {
     setEnableThemeBackdrops,
     enableThemeSongs,
     setEnableThemeSongs,
+    enableAuroraEffect,
+    setEnableAuroraEffect,
   } = useSettings();
 
   const preferences = [
@@ -42,6 +44,14 @@ export default function UserPreferenceSection() {
       checked: enableThemeSongs,
       onCheckedChange: setEnableThemeSongs,
     },
+    {
+      id: "enable-aurora-effect",
+      title: "Enable Aurora Effect",
+      description:
+        "Enable aurora effect in the interface (Enabled by default).",
+      checked: enableAuroraEffect,
+      onCheckedChange: setEnableAuroraEffect,
+    },
   ];
 
   return (
@@ -53,19 +63,19 @@ export default function UserPreferenceSection() {
               <Sliders className="h-5 w-5" />
               User Preferences
             </CardTitle>
-              <button
-                type="button"
-                aria-expanded={preferencesOpen}
-                className="inline-flex items-center gap-1 rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
-              >
-                {preferencesOpen ? "Hide" : "Show"}
-                <ChevronDown
-                  className={cn(
-                    "h-3.5 w-3.5 transition-transform duration-200",
-                    preferencesOpen ? "rotate-180" : "rotate-0",
-                  )}
-                />
-              </button>
+            <button
+              type="button"
+              aria-expanded={preferencesOpen}
+              className="inline-flex items-center gap-1 rounded-full border border-border/60 px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+            >
+              {preferencesOpen ? "Hide" : "Show"}
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 transition-transform duration-200",
+                  preferencesOpen ? "rotate-180" : "rotate-0",
+                )}
+              />
+            </button>
             <CardDescription className="w-full">
               Customize your playback and interface experience.
             </CardDescription>

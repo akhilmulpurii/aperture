@@ -25,6 +25,8 @@ interface SettingsContextType {
   setEnableThemeBackdrops: (enable: boolean) => void;
   enableThemeSongs: boolean;
   setEnableThemeSongs: (enable: boolean) => void;
+  enableAuroraEffect: boolean;
+  setEnableAuroraEffect: (enable: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -35,6 +37,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [videoBitrate, setVideoBitrateState] = useState<string>("auto");
   const [enableThemeBackdrops, setEnableThemeBackdropsState] = useState(true);
   const [enableThemeSongs, setEnableThemeSongsState] = useState(true);
+  const [enableAuroraEffect, setEnableAuroraEffectState] = useState(true);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -57,6 +60,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     if (savedThemeSongs !== null) {
       setEnableThemeSongsState(savedThemeSongs === "true");
     }
+
+    const savedAuroraEffect = localStorage.getItem(
+      "aperture-enable-aurora-effect",
+    );
+    if (savedAuroraEffect !== null) {
+      setEnableAuroraEffectState(savedAuroraEffect === "true");
+    }
   }, []);
 
   // Save to localStorage when states change
@@ -75,6 +85,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("aperture-enable-theme-songs", String(enable));
   };
 
+  const setEnableAuroraEffect = (enable: boolean) => {
+    setEnableAuroraEffectState(enable);
+    localStorage.setItem("aperture-enable-aurora-effect", String(enable));
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -84,6 +99,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setEnableThemeBackdrops,
         enableThemeSongs,
         setEnableThemeSongs,
+        enableAuroraEffect,
+        setEnableAuroraEffect,
       }}
     >
       {children}
