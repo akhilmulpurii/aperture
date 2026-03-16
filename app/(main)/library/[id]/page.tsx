@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { BaseItemDto } from "@jellyfin/sdk/lib/generated-client/models";
 import LoadingSpinner from "@/src/components/loading-spinner";
 import { useParams } from "next/navigation";
+import ErrorWindow from "@/src/components/error-window";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function LibraryPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +22,7 @@ export default function LibraryPage() {
   const [libraryName, setLibraryName] = useState<string>("Library");
   const [serverUrl, setServerUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     async function fetchLibraryData() {
@@ -33,7 +36,7 @@ export default function LibraryPage() {
         // Fetch both library details and initial items in parallel
         const [details, initialItems] = await Promise.all([
           getLibraryById(id),
-          fetchLibraryItems({id}), // first fetch to get totalRecordCount
+          fetchLibraryItems({ id }), // first fetch to get totalRecordCount
         ]);
 
         if (!details || !initialItems) {
@@ -44,7 +47,7 @@ export default function LibraryPage() {
 
         // Fetch all items using totalRecordCount
         const allItems = await fetchLibraryItems(
-          {id, collectionType: details.CollectionType},
+          { id, collectionType: details.CollectionType },
           initialItems.totalRecordCount,
         );
         setLibraryItems(allItems.items);
@@ -52,10 +55,7 @@ export default function LibraryPage() {
         setLibraryName(details.Name || "Library");
       } catch (err: any) {
         console.error(err);
-        if (err.message?.includes("Authentication expired")) {
-          // redirect
-          window.location.href = "/login";
-        }
+        if (handleAuthError(err)) return;
       } finally {
         setLoading(false);
       }
@@ -72,7 +72,7 @@ export default function LibraryPage() {
     libraryItems == null ||
     serverUrl == null
   )
-    return <div className="p-4">Error loading Library. Please try again.</div>;
+    return <ErrorWindow message="Error loading Library. Please try again." />;
 
   return (
     <div className="relative px-4 py-3 max-w-full overflow-hidden">
