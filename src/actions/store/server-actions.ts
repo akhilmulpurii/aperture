@@ -89,6 +89,32 @@ export async function removeAuthData() {
   (await cookies()).delete(AUTH_DATA_KEY);
 }
 
+export async function executeClearAuthDataAction(
+  preservePrefs: boolean = true,
+) {
+  const cookieStore = await cookies();
+  
+  if (preservePrefs) {
+    try {
+      const val = cookieStore.get(AUTH_DATA_KEY);
+      if (val && val.value) {
+        const parsed = JSON.parse(val.value) as AuthData;
+        const userName =
+          (parsed?.user as any)?.Name || parsed?.user?.User?.Name;
+        if (userName) {
+          cookieStore.set(PREF_KEY, JSON.stringify({ username: userName }));
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to save login preferences on auth error:", err);
+    }
+    cookieStore.delete(AUTH_DATA_KEY);
+  } else {
+    cookieStore.delete(AUTH_DATA_KEY);
+    cookieStore.delete(SERVER_URL_KEY);
+  }
+}
+
 // --- StoreSeerrData actions ---
 const SEERR_DATA_KEY = "seerr-config";
 

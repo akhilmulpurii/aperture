@@ -6,6 +6,9 @@ import { JellyfinItem } from "@/src/types/jellyfin";
 // Global loading state for dashboard
 export const dashboardLoadingAtom = atom(false);
 
+// Global auth error state
+export const globalAuthErrorAtom = atom<any | null>(null);
+
 // Fullscreen state
 export const isFullscreenAtom = atom(false);
 

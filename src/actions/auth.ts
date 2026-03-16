@@ -514,7 +514,7 @@ export async function changeUserPassword(
 export async function isAuthenticated(): Promise<boolean> {
   const user = await getUser();
   const serverUrl = await getServerUrl();
-  return !!(user && serverUrl);
+  return !!(user && serverUrl && user.AccessToken);
 }
 
 export async function authorizeQuickConnectCode(code: string): Promise<void> {

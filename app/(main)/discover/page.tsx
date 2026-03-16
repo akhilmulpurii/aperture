@@ -1,5 +1,6 @@
 "use client";
-import { AuthErrorHandler } from "@/src/components/auth-error-handler";
+import { useEffect } from "react";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 import { AuroraBackground } from "@/src/components/aurora-background";
 import { SearchBar } from "@/src/components/search-component";
 import { useSeerr } from "@/src/contexts/seerr-context";
@@ -9,8 +10,15 @@ import { DiscoverWidgets } from "@/src/components/discover-widgets";
 export default function DiscoverPage() {
   const { loading, isSeerrConnected, authError } = useSeerr();
 
+  const { handleAuthError } = useAuthError();
+
+  useEffect(() => {
+    if (authError) {
+      handleAuthError(authError);
+    }
+  }, [authError, handleAuthError]);
+
   return (
-    <AuthErrorHandler error={authError}>
       <div className="relative px-4 py-3 max-w-full overflow-hidden min-h-[calc(100vh-4rem)]">
         <AuroraBackground />
 
@@ -25,6 +33,5 @@ export default function DiscoverPage() {
           )}
         </div>
       </div>
-    </AuthErrorHandler>
   );
 }

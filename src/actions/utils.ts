@@ -22,6 +22,7 @@ import { createJellyfinInstance } from "../lib/utils";
 import { JellyfinUserWithToken } from "../types/jellyfin";
 import { v4 as uuidv4 } from "uuid";
 import { StoreAuthData } from "./store/store-auth-data";
+import { isAuthError } from "./media";
 
 const HEVC_MEDIA_TYPES = [
   'video/mp4; codecs="hvc1.1.6.L93.B0"',
@@ -521,6 +522,13 @@ export async function getUserLibraries(): Promise<BaseItemDto[]> {
     return supportedLibraries;
   } catch (error) {
     console.error("Failed to fetch user libraries:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     return [];
   }
 }

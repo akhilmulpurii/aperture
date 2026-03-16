@@ -5,6 +5,7 @@ import { LayoutContent } from "@/src/components/layout-content";
 import { useAuth } from "@/src/hooks/useAuth";
 import { PlaybackProvider } from "@/src/playback/context/PlaybackProvider";
 import { SeerrProvider } from "@/src/contexts/seerr-context";
+import { AuthErrorHandler } from "@/src/components/auth-error-handler";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -27,7 +28,9 @@ export default function MainLayout({
       <PlaybackProvider>
         <SeerrProvider>
           <FullscreenDetector />
-          <LayoutContent>{children}</LayoutContent>
+          <AuthErrorHandler>
+            <LayoutContent>{children}</LayoutContent>
+          </AuthErrorHandler>
         </SeerrProvider>
       </PlaybackProvider>
     </JotaiProvider>

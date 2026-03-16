@@ -6,7 +6,7 @@ import {
   fetchNextUpItems,
 } from "@/src/actions/media";
 import { getAuthData, getUserLibraries } from "@/src/actions/utils";
-import { AuthErrorHandler } from "@/src/components/auth-error-handler";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 import { MediaSection } from "@/src/components/media-section";
 import { SearchBar } from "@/src/components/search-component";
 import { AuroraBackground } from "@/src/components/aurora-background";
@@ -34,7 +34,7 @@ export default function Home() {
   const [libraries, setLibraries] = useAtom(homeLibrariesAtom);
   const [lastVisitedTime, setLastVisitedTime] = useAtom(homeLastVisitedTimeAtom);
 
-  const [authError, setAuthError] = useState<any | null>(null);
+  const { handleAuthError } = useAuthError();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -85,9 +85,8 @@ export default function Home() {
       } catch (error: any) {
         console.error("Failed to load data:", error);
 
-        if (error.isAuthError) {
-          setAuthError(error);
-          router.push("/login");
+        if (handleAuthError(error)) {
+          return;
         }
       } finally {
         setLoading(false);
@@ -105,7 +104,6 @@ export default function Home() {
     );
 
   return (
-    <AuthErrorHandler error={authError}>
       <div className="relative px-4 py-3 max-w-full overflow-hidden">
         <AuroraBackground />
 
@@ -156,6 +154,5 @@ export default function Home() {
           />
         ))}
       </div>
-    </AuthErrorHandler>
   );
 }

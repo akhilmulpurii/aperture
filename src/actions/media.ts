@@ -55,18 +55,13 @@ export async function getAuthData(): Promise<{
   }
 }
 // Helper function to check if an error is authentication-related
-function isAuthError(error: any): boolean {
+export function isAuthError(error: any): boolean {
   return (
     error?.response?.status === 401 ||
     error?.response?.status === 403 ||
     error?.status === 401 ||
     error?.status === 403
   );
-}
-
-// Server Action to clear invalid auth data
-export async function clearAuthData() {
-  await Promise.all([StoreAuthData.remove(), StoreServerURL.remove()]);
 }
 
 export async function fetchMovies(
@@ -340,6 +335,13 @@ export async function fetchResumeItems() {
     return data.Items || [];
   } catch (error) {
     console.error("Failed to fetch resume items:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     return [];
   }
 }
@@ -367,6 +369,13 @@ export async function fetchNextUpItems() {
     return data.Items || [];
   } catch (error) {
     console.error("Failed to fetch next up episodes:", error);
+    if (isAuthError(error)) {
+      const authError = new Error(
+        "Authentication expired. Please sign in again.",
+      );
+      (authError as any).isAuthError = true;
+      throw authError;
+    }
     return [];
   }
 }
