@@ -17,6 +17,8 @@ import LoadingSpinner from "@/src/components/loading-spinner";
 import { MediaDetail } from "@/src/components/media-page/MediaDetail";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import ErrorWindow from "@/src/components/error-window";
+import { useAuthError } from "@/src/hooks/use-auth-error";
 
 export default function BoxSet() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +31,7 @@ export default function BoxSet() {
   const [backdropImage, setBackdropImage] = useState<string>("");
   const [logoImage, setLogoImage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const { handleAuthError } = useAuthError();
 
   useEffect(() => {
     async function fetchData() {
@@ -58,9 +61,10 @@ export default function BoxSet() {
         setSimilarItems(similar);
         setServerUrl(srvUrl);
       } catch (err: any) {
-        console.error(err);
-        if (err.message?.includes("Authentication expired")) {
-          router.push("/login");
+        console.error("Failed to load box set:", err);
+
+        if (handleAuthError(err)) {
+          return;
         }
       } finally {
         setLoading(false);
@@ -113,7 +117,7 @@ export default function BoxSet() {
 
   if (loading) return <LoadingSpinner />;
   if (!boxset || !id || !serverUrl)
-    return <div className="p-4">Error loading boxset. Please try again.</div>;
+    return <ErrorWindow message="Error loading boxset. Please try again." />;
 
   return (
     <MediaDetail.Root

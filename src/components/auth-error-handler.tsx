@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { executeClearAuthDataAction } from "../actions/store/server-actions";
 import { useAuthError } from "../hooks/use-auth-error";
 import { useRouter } from "next/navigation";
+import ErrorWindow from "./error-window";
 
 interface AuthErrorHandlerProps {
   children: React.ReactNode;
@@ -32,14 +33,7 @@ export function AuthErrorHandler({ children }: AuthErrorHandlerProps) {
   // If it's an auth error, don't render children and show loading state
   if (authError) {
     return (
-      <div className="flex items-center justify-center min-h-screen z-100 fixed top-0 left-0 right-0 bottom-0 bg-background/90 backdrop-blur-sm">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">
-            Session expired. Redirecting to login...
-          </p>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        </div>
-      </div>
+      <ErrorWindow message="Session expired. Redirecting to login..." spinner />
     );
   }
 

@@ -23,6 +23,7 @@ import {
 import LoadingSpinner from "@/src/components/loading-spinner";
 import { HeroSection } from "@/src/components/hero/hero-section";
 import { useRouter } from "next/navigation";
+import ErrorWindow from "@/src/components/error-window";
 
 export default function Home() {
   const router = useRouter();
@@ -100,7 +101,7 @@ export default function Home() {
 
   if (!libraries || serverUrl == null)
     return (
-      <div className="p-4">Error loading Home Page. Please try again.</div>
+      <ErrorWindow message="Error loading Home Page. Please try again." />
     );
 
   return (
