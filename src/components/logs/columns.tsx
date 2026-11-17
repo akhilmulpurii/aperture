@@ -76,7 +76,7 @@ function LogActionsCell({
           <DropdownMenuItem
             onClick={async () => {
               try {
-                const url = `${serverUrl}/System/Logs/Log?name=${log.Name}&api_key=${accessToken}`;
+                const url = `${serverUrl}/System/Logs/Log?name=${log.Name}&ApiKey=${accessToken}`;
                 const a = document.createElement("a");
                 a.href = url;
                 a.download = log.Name!;
