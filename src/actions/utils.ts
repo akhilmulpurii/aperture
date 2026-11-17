@@ -137,7 +137,7 @@ export async function getLiveTVStreamUrl(
 ): Promise<string | undefined> {
   try {
     const { serverUrl, user } = await getAuthData();
-    const playbackInfoUrl = `${serverUrl}/Items/${item_id}/PlaybackInfo?api_key=${user.AccessToken}`;
+    const playbackInfoUrl = `${serverUrl}/Items/${item_id}/PlaybackInfo?ApiKey=${user.AccessToken}`;
     const playbackInfo = await axios.post(playbackInfoUrl);
     if (
       playbackInfo.data &&
@@ -203,7 +203,7 @@ export async function uploadUserImage(
 export async function getDownloadUrl(itemId: string): Promise<string> {
   const { serverUrl, user } = await getAuthData();
 
-  return `${serverUrl}/Items/${itemId}/Download?api_key=${user.AccessToken}&ApiKey=${user.AccessToken}`;
+  return `${serverUrl}/Items/${itemId}/Download?ApiKey=${user.AccessToken}`;
 }
 
 export async function getStreamUrl(
@@ -223,7 +223,7 @@ export async function getStreamUrl(
   // Generate a unique PlaySessionId for each stream request
   const playSessionId = uuidv4();
 
-  let url = `${serverUrl}/Videos/${itemId}/master.m3u8?api_key=${user.AccessToken}&ApiKey=${user.AccessToken}&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&VideoCodec=${preferredVideoCodecs}&AudioCodec=aac&TranscodingProtocol=hls&RequireAvc=${requireAvc}&AllowVideoStreamCopy=${allowVideoStreamCopy}&AudioStreamIndex=${audioStreamIndex}&SegmentContainer=mp4&BreakOnNonKeyFrames=True&MinSegments=2&MaxFramerate=60`;
+  let url = `${serverUrl}/Videos/${itemId}/master.m3u8?ApiKey=${user.AccessToken}&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&VideoCodec=${preferredVideoCodecs}&AudioCodec=aac&TranscodingProtocol=hls&RequireAvc=${requireAvc}&AllowVideoStreamCopy=${allowVideoStreamCopy}&AudioStreamIndex=${audioStreamIndex}&SegmentContainer=mp4&BreakOnNonKeyFrames=True&MinSegments=2&MaxFramerate=60`;
 
   if (subtitleStreamIndex !== undefined) {
     url += `&SubtitleStreamIndex=${subtitleStreamIndex}`;
@@ -267,7 +267,7 @@ export async function getDirectStreamUrl(
   const playSessionId = uuidv4();
   const container = mediaSource.Container || "mp4";
   const params = new URLSearchParams({
-    api_key: user.AccessToken || "",
+    ApiKey: user.AccessToken || "",
     Static: "true",
     MediaSourceId: mediaSource.Id,
     PlaySessionId: playSessionId,
@@ -308,7 +308,7 @@ export async function getThemeSongStreamUrl(
     }
 
     const params = new URLSearchParams({
-      api_key: user.AccessToken!,
+      ApiKey: user.AccessToken!,
       Static: "true",
       UserId: user.Id!,
     });
@@ -344,7 +344,7 @@ export async function getThemeVideoStreamUrl(
     }
 
     const params = new URLSearchParams({
-      api_key: user.AccessToken!,
+      ApiKey: user.AccessToken!,
       Static: "true",
       UserId: user.Id!,
     });
@@ -395,7 +395,7 @@ export async function getSubtitleTracks(
           (stream.Codec || "").toLowerCase() !== "pgssub",
       ) || [];
     const subtitleTracks = subtitleStreams.map((stream) => {
-      const src = `${serverUrl}/Videos/${itemId}/${mediaSourceId}/Subtitles/${stream.Index}/Stream.vtt?api_key=${user.AccessToken}`;
+      const src = `${serverUrl}/Videos/${itemId}/${mediaSourceId}/Subtitles/${stream.Index}/Stream.vtt?ApiKey=${user.AccessToken}`;
       return {
         kind: "subtitles",
         label:
