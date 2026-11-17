@@ -1,7 +1,7 @@
 {
   "name": "aperture",
   "private": true,
-  "version": "1.2.76",
+  "version": "1.2.77",
   "scripts": {
     "dev": "bun --bun next dev",
     "build": "bun --bun next build",
